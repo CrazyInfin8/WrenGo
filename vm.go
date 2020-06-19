@@ -398,7 +398,7 @@ func (h *CallHandle) Call(parameters ...interface{}) (interface{}, error) {
 	C.wrenEnsureSlots(vm.vm, slots)
 	vm.setSlotValue(h.receiver, 0)
 	for i, param := range parameters {
-		err := vm.setSlotValue(param, i + 1)
+		err := vm.setSlotValue(param, i+1)
 		if err != nil {
 			return nil, err
 		}
@@ -486,10 +486,10 @@ func (vm *VM) setSlotValue(value interface{}, slot int) error {
 			C.wrenSetSlotNull(vm.vm, cSlot)
 		default:
 			C.wrenSetSlotNull(vm.vm, cSlot)
-			return &InvalidValue{Value:value}
+			return &InvalidValue{Value: value}
 		}
 	}
-	return nil;
+	return nil
 }
 
 func (vm *VM) GetVariable(module, name string) (interface{}, error) {
