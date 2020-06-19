@@ -1,2 +1,3 @@
 # WrenGo
-Go bindings for the Wren scripting language
+
+WrenGo provides bindings for go to interact with the [wren](https://wren.io/) scripting language.
