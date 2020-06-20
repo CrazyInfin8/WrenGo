@@ -199,6 +199,15 @@ func (h *MapHandle) Free() {
 	h.handle.Free()
 }
 
+type InvalidKey struct{
+	Map *MapHandle
+	Key interface{}
+}
+
+func (err *InvalidKey)Error() string {
+	return fmt.Sprintf("Type \"%v\" is not a valid type for map key", reflect.TypeOf(err.Key).String())
+}
+
 func (h *MapHandle) Get(key interface{}) (interface{}, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -208,6 +217,11 @@ func (h *MapHandle) Get(key interface{}) (interface{}, error) {
 	C.wrenEnsureSlots(vm.vm, 3)
 	vm.setSlotValue(handle, 0)
 	handle.vm.setSlotValue(key, 1)
+		switch C.wrenGetSlotType(vm.vm, 1) {
+		case C.WREN_TYPE_NUM, C.WREN_TYPE_STRING, C.WREN_TYPE_BOOL, C.WREN_TYPE_NULL:
+		default:
+			return nil, &InvalidKey{Map: h, Key: key}
+		}
 	if bool(C.wrenGetMapContainsKey(vm.vm, 0, 1)) {
 		C.wrenGetMapValue(vm.vm, 0, 1, 2)
 		v := vm.getSlotValue(2)
@@ -225,6 +239,11 @@ func (h *MapHandle) Set(key, value interface{}) error {
 	C.wrenEnsureSlots(vm.vm, 3)
 	vm.setSlotValue(handle, 0)
 	vm.setSlotValue(key, 1)
+	switch C.wrenGetSlotType(vm.vm, 1) {
+	case C.WREN_TYPE_NUM, C.WREN_TYPE_STRING, C.WREN_TYPE_BOOL, C.WREN_TYPE_NULL:
+	default:
+		return &InvalidKey{Map: h, Key: key}
+	}
 	vm.setSlotValue(value, 2)
 	C.wrenSetMapValue(vm.vm, 0, 1, 2)
 	return nil
@@ -239,6 +258,11 @@ func (h *MapHandle) Delete(key interface{}) (interface{}, error) {
 	C.wrenEnsureSlots(vm.vm, 3)
 	vm.setSlotValue(handle, 0)
 	vm.setSlotValue(key, 1)
+	switch C.wrenGetSlotType(vm.vm, 1) {
+	case C.WREN_TYPE_NUM, C.WREN_TYPE_STRING, C.WREN_TYPE_BOOL, C.WREN_TYPE_NULL:
+	default:
+		return nil, &InvalidKey{Map: h, Key: key}
+	}
 	C.wrenRemoveMapValue(vm.vm, 0, 1, 2)
 	return vm.getSlotValue(2), nil
 }
@@ -252,6 +276,11 @@ func (h *MapHandle) Has(key interface{}) (bool, error) {
 	C.wrenEnsureSlots(vm.vm, 2)
 	vm.setSlotValue(handle, 0)
 	vm.setSlotValue(key, 1)
+	switch C.wrenGetSlotType(vm.vm, 1) {
+	case C.WREN_TYPE_NUM, C.WREN_TYPE_STRING, C.WREN_TYPE_BOOL, C.WREN_TYPE_NULL:
+	default:
+		return false, &InvalidKey{Map: h, Key: key}
+	}
 	return bool(C.wrenGetMapContainsKey(vm.vm, 0, 1)), nil
 }
 
