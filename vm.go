@@ -19,11 +19,15 @@ import (
 	"unsafe"
 )
 
+type ForeignMethodFn func(vm *VM)
+
 type VM struct {
-	vm      *C.WrenVM
-	Config  *Config
-	errChan chan error
-	handles map[*C.WrenHandle]*Handle
+	vm         *C.WrenVM
+	Config     *Config
+	errChan    chan error
+	handles    map[*C.WrenHandle]*Handle
+	bindMap    []ForeignMethodFn
+	foreignMap map[unsafe.Pointer]interface{}
 }
 
 var (
@@ -47,7 +51,7 @@ func NewVM() *VM {
 	config.writeFn = C.WrenWriteFn(C.writeFn)
 	config.errorFn = C.WrenErrorFn(C.errorFn)
 	config.loadModuleFn = C.WrenLoadModuleFn(C.moduleLoaderFn)
-	vm := VM{vm: C.wrenNewVM(&config), handles: make(map[*C.WrenHandle]*Handle)}
+	vm := VM{vm: C.wrenNewVM(&config), handles: make(map[*C.WrenHandle]*Handle), bindMap: make([]ForeignMethodFn, 0), foreignMap: make(map[unsafe.Pointer]interface{})}
 	vmMap[vm.vm] = &vm
 	return &vm
 }
@@ -66,6 +70,9 @@ func (vm *VM) Free() {
 		vm.handles = nil
 	}
 	if vm.vm != nil {
+		if _, ok := vmMap[vm.vm]; ok {
+			delete(vmMap, vm.vm)
+		}
 		C.wrenFreeVM(vm.vm)
 		vm.vm = nil
 	}
@@ -577,20 +584,22 @@ func (vm *VM) GetVariable(module, name string) (interface{}, error) {
 //export writeFn
 func writeFn(v *C.WrenVM, text *C.char) {
 	var output io.Writer
-	if vm, ok := vmMap[v]; ok && vm.Config != nil {
-		if vm.Config.WriteFn != nil {
-			vm.Config.WriteFn(vm, C.GoString(text))
-			return
+	if vm, ok := vmMap[v]; ok {
+		if vm.Config != nil {
+			if vm.Config.WriteFn != nil {
+				vm.Config.WriteFn(vm, C.GoString(text))
+				return
+			}
+			if vm.Config.DefaultOutput != nil {
+				output = vm.Config.DefaultOutput
+			}
 		}
-		if vm.Config.DefaultOutput != nil {
-			output = vm.Config.DefaultOutput
+		if output == nil && DefaultOutput != nil {
+			output = DefaultOutput
 		}
-	}
-	if output == nil && DefaultOutput != nil {
-		output = DefaultOutput
-	}
-	if output != nil {
-		io.WriteString(output, C.GoString(text))
+		if output != nil {
+			io.WriteString(output, C.GoString(text))
+		}
 	}
 }
 
@@ -606,34 +615,38 @@ func errorFn(v *C.WrenVM, errorType C.WrenErrorType, module *C.char, line C.int,
 	case C.WREN_ERROR_STACK_TRACE:
 		err = &StackTrace{module: C.GoString(module), line: int(line), message: C.GoString(message)}
 	}
-	if vm, ok := vmMap[v]; ok && vm.Config != nil {
-		if vm.Config.ErrorFn != nil {
-			vm.Config.ErrorFn(vm, err)
-			return
+	if vm, ok := vmMap[v]; ok {
+		if vm.Config != nil {
+			if vm.Config.ErrorFn != nil {
+				vm.Config.ErrorFn(vm, err)
+				return
+			}
+			if vm.Config.DefaultError != nil {
+				output = vm.Config.DefaultError
+			}
 		}
-		if vm.Config.DefaultError != nil {
-			output = vm.Config.DefaultError
+		if DefaultError != nil {
+			output = DefaultError
 		}
-	}
-	if DefaultError != nil {
-		output = DefaultError
-	}
-	if output != nil {
-		io.WriteString(output, err.Error())
+		if output != nil {
+			io.WriteString(output, err.Error())
+		}
 	}
 }
 
 //export moduleLoaderFn
 func moduleLoaderFn(v *C.WrenVM, name *C.char) *C.char {
-	var source string
-	if vm, ok := vmMap[v]; ok && vm.Config != nil && vm.Config.LoadModuleFn != nil {
-		source = vm.Config.LoadModuleFn(vm, C.GoString(name))
-	} else if DefaultModuleLoader != nil {
-		source = DefaultModuleLoader(vm, C.GoString(name))
-	}
-	if &source != nil {
-		// Wren should automatically frees this CString ...I think
-		return C.CString(source)
+	if vm, ok := vmMap[v]; ok {
+		var source string
+		if vm.Config != nil && vm.Config.LoadModuleFn != nil {
+			source = vm.Config.LoadModuleFn(vm, C.GoString(name))
+		} else if DefaultModuleLoader != nil {
+			source = DefaultModuleLoader(vm, C.GoString(name))
+		}
+		if &source != nil {
+			// Wren should automatically frees this CString ...I think
+			return C.CString(source)
+		}
 	}
 	return nil
 }

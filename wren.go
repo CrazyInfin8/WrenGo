@@ -8,6 +8,7 @@ package wren
 import "C"
 
 //go:generate go run getWren.go
+//go:generate go run createBindings.go -bindings 128
 import ()
 
 const (
