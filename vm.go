@@ -199,12 +199,34 @@ func (h *MapHandle) Free() {
 	h.handle.Free()
 }
 
-type InvalidKey struct{
+type UnexpectedValue struct {
+	Value interface{}
+}
+
+func (err *UnexpectedValue) Error() string {
+	return "Unexpected value"
+}
+
+func (vm *VM) NewMap() (*MapHandle, error) {
+	if vm.vm == nil {
+		return nil, &NilVMError{}
+	}
+	C.wrenEnsureSlots(vm.vm, 1)
+	C.wrenSetSlotNewMap(vm.vm, 0)
+	value := vm.getSlotValue(0)
+	mapHandle, ok := value.(*MapHandle)
+	if !ok {
+		return nil, &UnexpectedValue{Value: value}
+	}
+	return mapHandle, nil
+}
+
+type InvalidKey struct {
 	Map *MapHandle
 	Key interface{}
 }
 
-func (err *InvalidKey)Error() string {
+func (err *InvalidKey) Error() string {
 	return fmt.Sprintf("Type \"%v\" is not a valid type for map key", reflect.TypeOf(err.Key).String())
 }
 
@@ -217,11 +239,11 @@ func (h *MapHandle) Get(key interface{}) (interface{}, error) {
 	C.wrenEnsureSlots(vm.vm, 3)
 	vm.setSlotValue(handle, 0)
 	handle.vm.setSlotValue(key, 1)
-		switch C.wrenGetSlotType(vm.vm, 1) {
-		case C.WREN_TYPE_NUM, C.WREN_TYPE_STRING, C.WREN_TYPE_BOOL, C.WREN_TYPE_NULL:
-		default:
-			return nil, &InvalidKey{Map: h, Key: key}
-		}
+	switch C.wrenGetSlotType(vm.vm, 1) {
+	case C.WREN_TYPE_NUM, C.WREN_TYPE_STRING, C.WREN_TYPE_BOOL, C.WREN_TYPE_NULL:
+	default:
+		return nil, &InvalidKey{Map: h, Key: key}
+	}
 	if bool(C.wrenGetMapContainsKey(vm.vm, 0, 1)) {
 		C.wrenGetMapValue(vm.vm, 0, 1, 2)
 		v := vm.getSlotValue(2)
@@ -320,6 +342,20 @@ func (h *ListHandle) VM() *VM {
 
 func (h *ListHandle) Handle() *Handle {
 	return h.handle
+}
+
+func (vm *VM) NewList() (*ListHandle, error) {
+	if vm.vm == nil {
+		return nil, &NilVMError{}
+	}
+	C.wrenEnsureSlots(vm.vm, 1)
+	C.wrenSetSlotNewList(vm.vm, 0)
+	value := vm.getSlotValue(0)
+	mapHandle, ok := value.(*ListHandle)
+	if !ok {
+		return nil, &UnexpectedValue{Value: value}
+	}
+	return mapHandle, nil
 }
 
 type OutOfBounds struct {
