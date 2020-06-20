@@ -60,17 +60,17 @@ func TestHandles(t *testing.T) {
 		2: 3.141592,
 		true: "the key is true"
 	}
-
+	
 	class MyClass {
 		construct new(x) {
 			_value = x
 		}
-
+		
 		echoValue() {
 			System.write("Value is: " + _value.toString)
 		}
 	}
-
+	
 	var value6 = MyClass.new("A fancy magical value")
 	System.write("Wren is done")
 	`)
@@ -104,4 +104,46 @@ func TestHandles(t *testing.T) {
 		t.Error(err.Error())
 		return
 	}
+}
+
+func TestMaps(t *testing.T) {
+	vm := createConfig(t).NewVM()
+	defer vm.Free()
+	t.Log("Setting variables from wren")
+	err := vm.InterpretString("main", `
+		class Util {
+			static echo(x) {
+				System.write(x)
+			}
+		}
+
+		var fooMap = {
+			"value1": 1,
+			"value2": 5,
+		} 
+	`)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	var (
+		UtilClass *Handle
+		fooMap *MapHandle
+		ok bool
+		v interface{}
+	)
+	v, _ = vm.GetVariable("main", "Util");
+	if UtilClass, ok = v.(*Handle); !ok {
+		t.Error("Util is not the expected class")
+		return
+	}
+	v, _ = vm.GetVariable("main", "fooMap");
+	if fooMap, ok = v.(*MapHandle); !ok {
+		t.Error("fooMap is not the expected map")
+		return
+	}
+	echo, _ := UtilClass.Func("echo(_)")
+	echo.Call(fooMap)
+	fooMap.Set("value3", "A lovely value!")
+	echo.Call(fooMap) // Just for me to know if Map handles are mutable
 }
