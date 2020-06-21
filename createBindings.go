@@ -4,6 +4,8 @@
 //
 // Creates Go functions that are visible from C
 // So that WrenGo can bind Go functions to Wren
+//
+// Unfortunately I can think of no better way to do this
 package main
 
 import (
@@ -45,7 +47,13 @@ const MAX_REGISTRATIONS = {{len .}}
 func f{{.}}(v *C.WrenVM) {
 	if vm, ok := vmMap[v]; ok {
 		if len(vm.bindMap) > {{.}} {
-			vm.bindMap[{{.}}](vm)
+			params := vm.getAllSlots()
+			// println(params)
+			ret := vm.bindMap[{{.}}](vm, params)
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
 		}
 	}
 }
@@ -59,13 +67,13 @@ func (err *MaxBindingsReached)Error() string {
 	return fmt.Sprintf("Cannot bind more that %v functions or classes", MAX_REGISTRATIONS)
 }
 
-func (vm *VM) registerFunc(fn ForeignMethodFn) error {
-	if len(vm.bindMap) >= MAX_REGISTRATIONS {
-		return &MaxBindingsReached{VM: vm}
+func (vm *VM) registerFunc(fn ForeignMethodFn) (C.WrenForeignMethodFn, error) {
+	index := len(vm.bindMap)
+	if index >= MAX_REGISTRATIONS {
+		return nil, &MaxBindingsReached{VM: vm}
 	}
-
 	vm.bindMap = append(vm.bindMap, fn)
-	return nil
+	return C.get_f(C.int(index)), nil
 }
 `))
 

@@ -6,8 +6,11 @@ package wren
 #include "wren.h"
 
 extern void writeFn(WrenVM*, char*);
-extern void errorFn(WrenVM*, WrenErrorType, char* module, int line, char* message);
-extern char* moduleLoaderFn(WrenVM* vm, char* name);
+extern void errorFn(WrenVM*, WrenErrorType, char*, int, char*);
+extern char* moduleLoaderFn(WrenVM*, char*);
+extern WrenForeignMethodFn bindForeignMethodFn(WrenVM*, char*, char*, bool, char*);
+extern WrenForeignClassMethods bindForeignClassFn(WrenVM*, char*, char*);
+extern void foreignFinalizerFn(void*);
 */
 import "C"
 import (
@@ -16,22 +19,21 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
+	// "runtime"
 	"unsafe"
 )
 
-type ForeignMethodFn func(vm *VM)
-
 type VM struct {
-	vm         *C.WrenVM
-	Config     *Config
-	errChan    chan error
-	handles    map[*C.WrenHandle]*Handle
-	bindMap    []ForeignMethodFn
-	foreignMap map[unsafe.Pointer]interface{}
+	vm        *C.WrenVM
+	Config    *Config
+	handles   map[*C.WrenHandle]*Handle
+	bindMap   []ForeignMethodFn
+	moduleMap ModuleMap
 }
 
 var (
-	vmMap map[*C.WrenVM]*VM = make(map[*C.WrenVM]*VM)
+	vmMap      map[*C.WrenVM]*VM                  = make(map[*C.WrenVM]*VM)
+	foreignMap map[unsafe.Pointer]foreignInstance = make(map[unsafe.Pointer]foreignInstance)
 	// DefaultOutput is where wren will print to if a VM's config doesn't specify its own output (Set this to nil to disable output)
 	DefaultOutput io.Writer = os.Stdout
 	// DefaultError is where wren will send error messages to if a VM's config doesn't specify its own place for outputting errors (Set this to nil to disable output)
@@ -51,7 +53,9 @@ func NewVM() *VM {
 	config.writeFn = C.WrenWriteFn(C.writeFn)
 	config.errorFn = C.WrenErrorFn(C.errorFn)
 	config.loadModuleFn = C.WrenLoadModuleFn(C.moduleLoaderFn)
-	vm := VM{vm: C.wrenNewVM(&config), handles: make(map[*C.WrenHandle]*Handle), bindMap: make([]ForeignMethodFn, 0), foreignMap: make(map[unsafe.Pointer]interface{})}
+	config.bindForeignMethodFn = C.WrenBindForeignMethodFn(C.bindForeignMethodFn)
+	config.bindForeignClassFn = C.WrenBindForeignClassFn(C.bindForeignClassFn)
+	vm := VM{vm: C.wrenNewVM(&config), handles: make(map[*C.WrenHandle]*Handle), bindMap: make([]ForeignMethodFn, 0), moduleMap: make(ModuleMap)}
 	vmMap[vm.vm] = &vm
 	return &vm
 }
@@ -76,6 +80,14 @@ func (vm *VM) Free() {
 		C.wrenFreeVM(vm.vm)
 		vm.vm = nil
 	}
+}
+
+func (vm *VM) SetModule(name string, module *Module) {
+	vm.moduleMap[name] = module.Clone()
+}
+
+func (vm *VM) Merge(moduleMap ModuleMap) {
+	vm.moduleMap.Merge(moduleMap)
 }
 
 type ResultCompileError struct{}
@@ -451,6 +463,29 @@ func (h *ForeignHandle) Func(signature string) (*CallHandle, error) {
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
 }
 
+type UnknownForeign struct {
+	Handle *ForeignHandle
+}
+
+func (err *UnknownForeign) Error() string {
+	return "Unknown foreign handle"
+}
+
+func (h *ForeignHandle) Get() (interface{}, error) {
+	handle := h.Handle()
+	if handle.handle == nil {
+		return nil, &NilHandleError{}
+	}
+	vm := h.handle.vm
+	C.wrenEnsureSlots(vm.vm, 1)
+	vm.setSlotValue(h.handle, 0)
+	ptr := C.wrenGetSlotForeign(vm.vm, 0)
+	if foreign, ok := foreignMap[ptr]; ok {
+		return foreign.value, nil
+	}
+	return nil, &UnknownForeign{Handle: h}
+}
+
 type CallHandle struct {
 	receiver *Handle
 	handle   *Handle
@@ -480,6 +515,28 @@ func (h *CallHandle) Call(parameters ...interface{}) (interface{}, error) {
 		return nil, err
 	}
 	return vm.getSlotValue(0), nil
+}
+
+type freeable interface {
+	Free()
+}
+
+func (vm *VM) FreeAll(items ...interface{}) {
+	for _, item := range items {
+		switch item.(type) {
+		case *Handle, *CallHandle, *ForeignHandle, *ListHandle, *MapHandle:
+			item.(freeable).Free()
+		}
+	}
+}
+
+func (vm *VM) getAllSlots() []interface{} {
+	slotCount := int(C.wrenGetSlotCount(vm.vm))
+	params := make([]interface{}, slotCount)
+	for i := 0; i < slotCount; i++ {
+		params[i] = vm.getSlotValue(i)
+	}
+	return params
 }
 
 func (vm *VM) getSlotValue(slot int) (value interface{}) {
@@ -649,4 +706,81 @@ func moduleLoaderFn(v *C.WrenVM, name *C.char) *C.char {
 		}
 	}
 	return nil
+}
+
+//export bindForeignMethodFn
+func bindForeignMethodFn(v *C.WrenVM, cModule *C.char, cClassName *C.char, cIsStatic C.bool, cSignature *C.char) C.WrenForeignMethodFn {
+	if vm, ok := vmMap[v]; ok {
+		if module, ok := vm.moduleMap[C.GoString(cModule)]; ok {
+			if class, ok := module.ClassMap[C.GoString(cClassName)]; ok {
+				var name string
+				if bool(cIsStatic) {
+					name = "static " + C.GoString(cSignature)
+				} else {
+					name = C.GoString(cSignature)
+				}
+				if fn, ok := class.MethodMap[name]; ok {
+					foreignMethod, err := vm.registerFunc(fn)
+					if err != nil {
+						panic(err.Error())
+					}
+					return foreignMethod
+				}
+			}
+		}
+	}
+	return nil
+}
+
+type foreignInstance struct {
+	finalizer ForeignFinalizer
+	vm        *VM
+	value     interface{}
+}
+
+//export bindForeignClassFn
+func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.WrenForeignClassMethods {
+	if vm, ok := vmMap[v]; ok {
+		if module, ok := vm.moduleMap[C.GoString(cModule)]; ok {
+			if class, ok := module.ClassMap[C.GoString(cClassName)]; ok {
+				initializer, err := vm.registerFunc(
+					// TODO: Could potentially have ForeignMethodFn's 
+					// call C.wrenAbortFiber(vm.vm, 0) if there was an 
+					// error from the function. 
+					func(vm *VM, parameters []interface{}) interface{} {
+						var foreign interface{}
+						if class.Initializer != nil {
+							foreign = class.Initializer(vm, parameters)
+						}
+						// err := vm.setSlotValue(foreign, 0)
+						ptr := C.wrenSetSlotNewForeign(vm.vm, 0, 0, 1)
+						foreignMap[ptr] = foreignInstance{
+							finalizer: class.Finalizer,
+							vm:        vm,
+							value:     foreign,
+						}
+						return nil
+					},
+				)
+				if err != nil {
+					panic(err.Error())
+				}
+				return C.WrenForeignClassMethods{
+					finalize: C.WrenFinalizerFn(C.foreignFinalizerFn),
+					allocate: initializer,
+				}
+			}
+		}
+	}
+	return C.WrenForeignClassMethods{}
+}
+
+//export foreignFinalizerFn
+func foreignFinalizerFn(ptr unsafe.Pointer) {
+	if foreign, ok := foreignMap[ptr]; ok {
+		if foreign.finalizer != nil {
+			foreign.finalizer(foreign.vm, foreign.value)
+		}
+		delete(foreignMap, ptr)
+	}
 }
