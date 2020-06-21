@@ -12,12 +12,17 @@ import "C"
 import ()
 
 const (
+	// VersionString Wren's version as a string
 	VersionString string = C.WREN_VERSION_STRING
+	// VersionMajor Wren's major version number
 	VersionMajor int = C.WREN_VERSION_MAJOR
+	// VersionMinor Wren's minor version number
 	VersionMinor int = C.WREN_VERSION_MINOR
+	// VersionPatch Wren's patch version number
 	VersionPatch int = C.WREN_VERSION_PATCH
 )
 
+// VersionTuple returns Wren's version numbers as an array of 3 numbers
 func VersionTuple() [3]int {
 	return [3]int{
 		C.WREN_VERSION_MAJOR,

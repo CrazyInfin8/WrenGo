@@ -22,7 +22,7 @@ import (
 	// "runtime"
 	"unsafe"
 )
-
+// VM is an instance of Wren's virtual machine
 type VM struct {
 	vm        *C.WrenVM
 	Config    *Config
@@ -34,11 +34,11 @@ type VM struct {
 var (
 	vmMap      map[*C.WrenVM]*VM                  = make(map[*C.WrenVM]*VM)
 	foreignMap map[unsafe.Pointer]foreignInstance = make(map[unsafe.Pointer]foreignInstance)
-	// DefaultOutput is where wren will print to if a VM's config doesn't specify its own output (Set this to nil to disable output)
+	// DefaultOutput is where Wren will print to if a VM's config doesn't specify its own output (Set this to nil to disable output)
 	DefaultOutput io.Writer = os.Stdout
-	// DefaultError is where wren will send error messages to if a VM's config doesn't specify its own place for outputting errors (Set this to nil to disable output)
+	// DefaultError is where Wren will send error messages to if a VM's config doesn't specify its own place for outputting errors (Set this to nil to disable output)
 	DefaultError io.Writer = os.Stderr
-	// DefaultModuleLoader allows wren to import modules by loading files relative to the current directory (Set this to nil to disable importing or file access)
+	// DefaultModuleLoader allows Wren to import modules by loading files relative to the current directory (Set this to nil to disable importing or file access)
 	DefaultModuleLoader LoadModuleFn = func(vm *VM, name string) (source string) {
 		if data, err := ioutil.ReadFile(name); err == nil {
 			source = string(data)
@@ -46,7 +46,7 @@ var (
 		return source
 	}
 )
-
+// NewVM creates a new instance of Wren's virtual machine with blank configurations
 func NewVM() *VM {
 	var config C.WrenConfiguration
 	C.wrenInitConfiguration(&config)
@@ -60,12 +60,14 @@ func NewVM() *VM {
 	return &vm
 }
 
+// NewVM creates a new instance of Wren's virtual machine by cloning the config passed to it
 func (cfg *Config) NewVM() *VM {
 	vm := NewVM()
 	vm.Config = cfg.Clone()
 	return vm
 }
 
+// Free destroys the wren virtual machine and frees all handles tied to it. The VM should be freed when no longer in use. The VM should not be used after it has been freed
 func (vm *VM) Free() {
 	if vm.handles != nil {
 		for _, handle := range vm.handles {
@@ -82,26 +84,31 @@ func (vm *VM) Free() {
 	}
 }
 
+// SetModule sets a foreign module for wren to import from (If a vm already imported classes and methods from this module already, changing it again won't set the previously imported values)
 func (vm *VM) SetModule(name string, module *Module) {
 	vm.moduleMap[name] = module.Clone()
 }
 
+// Merge combine all non nil values from `moduleMap` to the vm's own module map (If a vm already imported classes and methods from any module already, changing it again won't set the previously imported values)
 func (vm *VM) Merge(moduleMap ModuleMap) {
 	vm.moduleMap.Merge(moduleMap)
 }
 
+// ResultCompileError is returned from `InterpretString` or `InterpretFile` if there were problems compiling the Wren source code
 type ResultCompileError struct{}
 
 func (err *ResultCompileError) Error() string {
 	return "Wren Error during compilation"
 }
 
+// ResultRuntimeError is returned from `InterpretString`, `InterpretFile`, or `Call` if there was a problem during script execution
 type ResultRuntimeError struct{}
 
 func (err *ResultRuntimeError) Error() string {
 	return "Wren Error during runtime"
 }
 
+// NilVMError is returned if there was an attempt to use a VM that was freed already 
 type NilVMError struct{}
 
 func (err *NilVMError) Error() string {
@@ -121,6 +128,7 @@ func resultsToError(results C.WrenInterpretResult) error {
 	}
 }
 
+// InterpretString compiles and runs wren source code from `source`. the module name of the source can be set with `module`.
 func (vm *VM) InterpretString(module, source string) error {
 	if vm.vm == nil {
 		return &NilVMError{}
@@ -135,6 +143,7 @@ func (vm *VM) InterpretString(module, source string) error {
 	return resultsToError(results)
 }
 
+// InterpretFile compiles and runs wren source code from the given file. the module name would be set to the `fileName`
 func (vm *VM) InterpretFile(fileName string) error {
 	if vm.vm == nil {
 		return &NilVMError{}
@@ -146,6 +155,7 @@ func (vm *VM) InterpretFile(fileName string) error {
 	return vm.InterpretString(fileName, string(data))
 }
 
+// Handle is a generic handle from wren
 type Handle struct {
 	handle *C.WrenHandle
 	vm     *VM
@@ -157,14 +167,17 @@ func (vm *VM) createHandle(handle *C.WrenHandle) *Handle {
 	return h
 }
 
+// Handle returns the generic handle
 func (h *Handle) Handle() *Handle {
 	return h
 }
 
+// VM returns the vm that this handle belongs to
 func (h *Handle) VM() *VM {
 	return h.vm
 }
 
+// Free releases the handle tied to it. The handle should be freed when no longer in use. The handle should not be used after it has been freed
 func (h *Handle) Free() {
 	if h.handle != nil {
 		C.wrenReleaseHandle(h.vm.vm, h.handle)
@@ -175,6 +188,7 @@ func (h *Handle) Free() {
 	}
 }
 
+// Func creates a callable handle from the wren object tied to the current handle. There isn't currently a way to check if the function referenced from `signature` exists before calling it
 func (h *Handle) Func(signature string) (*CallHandle, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -186,6 +200,7 @@ func (h *Handle) Func(signature string) (*CallHandle, error) {
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
 }
 
+// NilHandleError is returned if there was an attempt to use a `Handle` that was freed already 
 type NilHandleError struct {
 }
 
@@ -193,6 +208,7 @@ func (err *NilHandleError) Error() string {
 	return "Wren Handle is nil"
 }
 
+// KeyNotExist is returned if there was an attempt to access a key value from a map that doesn't exist yet
 type KeyNotExist struct {
 	Map *MapHandle
 	Key interface{}
@@ -202,22 +218,27 @@ func (err *KeyNotExist) Error() string {
 	return "MapHandle does not have a value for this key"
 }
 
+// MapHandle is a handle to a map object in Wren
 type MapHandle struct {
 	handle *Handle
 }
 
+// Handle returns the generic handle it this `MapHandle` is tied to
 func (h *MapHandle) Handle() *Handle {
 	return h.handle
 }
 
+// VM returns the vm that this handle belongs to
 func (h *MapHandle) VM() *VM {
 	return h.handle.vm
 }
 
+// Free releases the handle tied to it. The handle should be freed when no longer in use. The handle should not be used after it has been freed
 func (h *MapHandle) Free() {
 	h.handle.Free()
 }
 
+// UnexpectedValue is returned if Wren did not create the correct type (probably might panic from being out of memory or something before that but just to be safe)
 type UnexpectedValue struct {
 	Value interface{}
 }
@@ -226,6 +247,7 @@ func (err *UnexpectedValue) Error() string {
 	return "Unexpected value"
 }
 
+// NewMap creates a new empty map object in wren and returns it's handle
 func (vm *VM) NewMap() (*MapHandle, error) {
 	if vm.vm == nil {
 		return nil, &NilVMError{}
@@ -240,6 +262,7 @@ func (vm *VM) NewMap() (*MapHandle, error) {
 	return mapHandle, nil
 }
 
+// InvalidKey is returned if there was an attempt to access a maps value with a key that is not of type number, boolean, string, or nil
 type InvalidKey struct {
 	Map *MapHandle
 	Key interface{}
@@ -249,6 +272,7 @@ func (err *InvalidKey) Error() string {
 	return fmt.Sprintf("Type \"%v\" is not a valid type for map key", reflect.TypeOf(err.Key).String())
 }
 
+// Get tries to return the value in the Wren map with the key `key`
 func (h *MapHandle) Get(key interface{}) (interface{}, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -271,6 +295,7 @@ func (h *MapHandle) Get(key interface{}) (interface{}, error) {
 	return nil, &KeyNotExist{Map: h, Key: key}
 }
 
+// Set tries to set the value in the Wren map with the key `key`
 func (h *MapHandle) Set(key, value interface{}) error {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -290,6 +315,7 @@ func (h *MapHandle) Set(key, value interface{}) error {
 	return nil
 }
 
+// Delete removes a value from the Wren map with the key `key`
 func (h *MapHandle) Delete(key interface{}) (interface{}, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -308,6 +334,7 @@ func (h *MapHandle) Delete(key interface{}) (interface{}, error) {
 	return vm.getSlotValue(2), nil
 }
 
+// Has check if a wren map has a value with the key `key` 
 func (h *MapHandle) Has(key interface{}) (bool, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -325,6 +352,7 @@ func (h *MapHandle) Has(key interface{}) (bool, error) {
 	return bool(C.wrenGetMapContainsKey(vm.vm, 0, 1)), nil
 }
 
+// Count counts how many elements are in the Wren map 
 func (h *MapHandle) Count() (int, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -336,6 +364,7 @@ func (h *MapHandle) Count() (int, error) {
 	return int(C.wrenGetMapCount(vm.vm, 0)), nil
 }
 
+// Func creates a callable handle from the Wren object tied to the current handle. There isn't currently a way to check if the function referenced from `signature` exists before calling it
 func (h *MapHandle) Func(signature string) (*CallHandle, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -347,6 +376,7 @@ func (h *MapHandle) Func(signature string) (*CallHandle, error) {
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
 }
 
+// Copy creates a new `MapHandle` tied to this Wren map, if the previous one is freed the new one should still persist
 func (h *MapHandle) Copy() (*MapHandle, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -358,22 +388,27 @@ func (h *MapHandle) Copy() (*MapHandle, error) {
 	return &MapHandle{handle: vm.createHandle(C.wrenGetSlotHandle(vm.vm, 0))}, nil
 }
 
+// ListHandle is a handle to a list object in Wren
 type ListHandle struct {
 	handle *Handle
 }
 
+// Free releases the handle tied to it. The handle should be freed when no longer in use. The handle should not be used after it has been freed
 func (h *ListHandle) Free() {
 	h.handle.Free()
 }
 
+// VM returns the vm that this handle belongs to
 func (h *ListHandle) VM() *VM {
 	return h.handle.vm
 }
 
+// Handle returns the generic handle it this `ListHandle` is tied to
 func (h *ListHandle) Handle() *Handle {
 	return h.handle
 }
 
+// NewList creates a new empty list object in wren and returns it's handle
 func (vm *VM) NewList() (*ListHandle, error) {
 	if vm.vm == nil {
 		return nil, &NilVMError{}
@@ -381,13 +416,14 @@ func (vm *VM) NewList() (*ListHandle, error) {
 	C.wrenEnsureSlots(vm.vm, 1)
 	C.wrenSetSlotNewList(vm.vm, 0)
 	value := vm.getSlotValue(0)
-	mapHandle, ok := value.(*ListHandle)
+	listHandle, ok := value.(*ListHandle)
 	if !ok {
 		return nil, &UnexpectedValue{Value: value}
 	}
-	return mapHandle, nil
+	return listHandle, nil
 }
 
+// OutOfBounds is returned if there was an attempt to access a lists value at an index that hasn't been set yet
 type OutOfBounds struct {
 	List  *ListHandle
 	Index int
@@ -397,6 +433,7 @@ func (err *OutOfBounds) Error() string {
 	return fmt.Sprintf("Index %v is out of bounds", err.Index)
 }
 
+// Get tries to return the value in the Wren list at the index `index`
 func (h *ListHandle) Get(index int) (interface{}, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -412,6 +449,7 @@ func (h *ListHandle) Get(index int) (interface{}, error) {
 	return vm.getSlotValue(1), nil
 }
 
+// Set tries to set the value in the Wren list at the index `index`
 func (h *ListHandle) Set(index int, value interface{}) error {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -425,6 +463,7 @@ func (h *ListHandle) Set(index int, value interface{}) error {
 	return nil
 }
 
+// Count counts how many elements are in the Wren list
 func (h *ListHandle) Count() (int, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -436,6 +475,7 @@ func (h *ListHandle) Count() (int, error) {
 	return int(C.wrenGetListCount(vm.vm, 0)), nil
 }
 
+// Func creates a callable handle from the Wren object tied to the current handle. There isn't currently a way to check if the function referenced from `signature` exists before calling it
 func (h *ListHandle) Func(signature string) (*CallHandle, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -447,6 +487,7 @@ func (h *ListHandle) Func(signature string) (*CallHandle, error) {
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
 }
 
+// Copy creates a new `ListHandle` tied to this Wren list, if the previous one is freed the new one should still persist
 func (h *ListHandle) Copy() (*ListHandle, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -458,22 +499,27 @@ func (h *ListHandle) Copy() (*ListHandle, error) {
 	return &ListHandle{handle: vm.createHandle(C.wrenGetSlotHandle(vm.vm, 0))}, nil
 }
 
+// ForeignHandle is a handle to a foriegn object in Wren
 type ForeignHandle struct {
 	handle *Handle
 }
 
+// Free releases the handle tied to it. The handle should be freed when no longer in use. The handle should not be used after it has been freed
 func (h *ForeignHandle) Free() {
 	h.handle.Free()
 }
 
+// VM returns the vm that this handle belongs to
 func (h *ForeignHandle) VM() *VM {
 	return h.handle.vm
 }
 
+// Handle returns the generic handle it this `MapHandle` is tied to
 func (h *ForeignHandle) Handle() *Handle {
 	return h.handle
 }
 
+// Func creates a callable handle from the Wren object tied to the current handle. There isn't currently a way to check if the function referenced from `signature` exists before calling it
 func (h *ForeignHandle) Func(signature string) (*CallHandle, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -485,6 +531,7 @@ func (h *ForeignHandle) Func(signature string) (*CallHandle, error) {
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
 }
 
+// UnknownForeign is returned if a foreign value was not set by WrenGo
 type UnknownForeign struct {
 	Handle *ForeignHandle
 }
@@ -493,6 +540,7 @@ func (err *UnknownForeign) Error() string {
 	return "Unknown foreign handle"
 }
 
+// Get tries to get the original value that this `ForeignHandle` set to
 func (h *ForeignHandle) Get() (interface{}, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -508,6 +556,7 @@ func (h *ForeignHandle) Get() (interface{}, error) {
 	return nil, &UnknownForeign{Handle: h}
 }
 
+// Copy creates a new `ForeignHandle` tied to this foreign object, if the previous one is freed the new one should still persist
 func (h *ForeignHandle) Copy() (*ForeignHandle, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -519,15 +568,18 @@ func (h *ForeignHandle) Copy() (*ForeignHandle, error) {
 	return &ForeignHandle{handle: vm.createHandle(C.wrenGetSlotHandle(vm.vm, 0))}, nil
 }
 
+// CallHandle is a handle to a wren function
 type CallHandle struct {
 	receiver *Handle
 	handle   *Handle
 }
 
+// Free releases the handle tied to it. The handle should be freed when no longer in use. The handle should not be used after it has been freed
 func (h *CallHandle) Free() {
 	h.handle.Free()
 }
 
+// Call tries the function on the handles that created the `CallHandle`. The amount of parameters should coorespond to the signature used to create this function. 
 func (h *CallHandle) Call(parameters ...interface{}) (interface{}, error) {
 	handle := h.handle
 	if handle.handle == nil {
@@ -554,6 +606,7 @@ type freeable interface {
 	Free()
 }
 
+// FreeAll can take any argument type. It filters through and calls free on any handles passed. It does not free anything else
 func (vm *VM) FreeAll(items ...interface{}) {
 	for _, item := range items {
 		switch item.(type) {
@@ -598,6 +651,7 @@ func (vm *VM) getSlotValue(slot int) (value interface{}) {
 	}
 }
 
+// InvalidValue is returned if there was an attempt to pass a value to Wren that WrenGo cannot process. Note that Go maps, lists, and slices (other than byte slices), may also send this error. `ListHandle`s and `MapHandle`s should be used instead of list and maps.
 type InvalidValue struct {
 	Value interface{}
 }
@@ -606,6 +660,7 @@ func (err InvalidValue) Error() string {
 	return fmt.Sprintf("WrenGo does not know how to handle the value type \"%v\"", reflect.TypeOf(err.Value).String())
 }
 
+// NonMatchingVM is returned if there was an attempt to use a handle in a vm that it did not originate from
 type NonMatchingVM struct {}
 
 func (err *NonMatchingVM)Error() string {
@@ -676,6 +731,7 @@ func (vm *VM) setSlotValue(value interface{}, slot int) error {
 	return nil
 }
 
+// GetVariable tries to get a variable from the Wren vm with the given module name and variable name. There isn't currently a way to check if the variable does not exist yet. 
 func (vm *VM) GetVariable(module, name string) (interface{}, error) {
 	if vm.vm == nil {
 		return nil, &NilVMError{}
@@ -693,9 +749,14 @@ func (vm *VM) GetVariable(module, name string) (interface{}, error) {
 	return vm.getSlotValue(0), nil
 }
 
+// Abort stops the running Wren fiber and throws the error passed to it
 func (vm *VM) Abort(err error) {
-	vm.setSlotValue(err.Error(), 0)
-	C.wrenEnsureSlots(vm.vm, 0)
+	C.wrenEnsureSlots(vm.vm, 1)
+	if err != nil {
+		vm.setSlotValue(err.Error(), 0)
+	} else {
+		vm.setSlotValue("Fiber Aborted", 0)
+	}
 	C.wrenAbortFiber(vm.vm, 0)
 }
 
@@ -805,9 +866,6 @@ func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.Wren
 		if module, ok := vm.moduleMap[C.GoString(cModule)]; ok {
 			if class, ok := module.ClassMap[C.GoString(cClassName)]; ok {
 				initializer, err := vm.registerFunc(
-					// TODO: Could potentially have ForeignMethodFn's 
-					// call C.wrenAbortFiber(vm.vm, 0) if there was an 
-					// error from the function. 
 					func(vm *VM, parameters []interface{}) (interface{}, error) {
 						var (
 							foreign interface{}
@@ -819,7 +877,6 @@ func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.Wren
 						if err != nil {
 							return nil, err
 						}
-						// err := vm.setSlotValue(foreign, 0)
 						ptr := C.wrenSetSlotNewForeign(vm.vm, 0, 0, 1)
 						foreignMap[ptr] = foreignInstance{
 							finalizer: class.Finalizer,
