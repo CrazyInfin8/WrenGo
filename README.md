@@ -1,6 +1,6 @@
 # WrenGo
 
-WrenGo provides bindings for go to interact with the [wren](https://wren.io/) scripting language.
+WrenGo provides bindings for go to interact with the [wren](https://wren.io/) scripting language. Currently Mutex is not used so be careful with Goroutines. There probably should be a lot more tests as well, however there are some tests to ensure that basic functionality works.
 
 ## Usage
 A simple Hello world
