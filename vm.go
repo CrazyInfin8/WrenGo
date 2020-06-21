@@ -22,6 +22,7 @@ import (
 	// "runtime"
 	"unsafe"
 )
+
 // VM is an instance of Wren's virtual machine
 type VM struct {
 	vm        *C.WrenVM
@@ -46,6 +47,7 @@ var (
 		return source
 	}
 )
+
 // NewVM creates a new instance of Wren's virtual machine with blank configurations
 func NewVM() *VM {
 	var config C.WrenConfiguration
@@ -108,7 +110,7 @@ func (err *ResultRuntimeError) Error() string {
 	return "Wren Error during runtime"
 }
 
-// NilVMError is returned if there was an attempt to use a VM that was freed already 
+// NilVMError is returned if there was an attempt to use a VM that was freed already
 type NilVMError struct{}
 
 func (err *NilVMError) Error() string {
@@ -200,7 +202,7 @@ func (h *Handle) Func(signature string) (*CallHandle, error) {
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
 }
 
-// NilHandleError is returned if there was an attempt to use a `Handle` that was freed already 
+// NilHandleError is returned if there was an attempt to use a `Handle` that was freed already
 type NilHandleError struct {
 }
 
@@ -334,7 +336,7 @@ func (h *MapHandle) Delete(key interface{}) (interface{}, error) {
 	return vm.getSlotValue(2), nil
 }
 
-// Has check if a wren map has a value with the key `key` 
+// Has check if a wren map has a value with the key `key`
 func (h *MapHandle) Has(key interface{}) (bool, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -352,7 +354,7 @@ func (h *MapHandle) Has(key interface{}) (bool, error) {
 	return bool(C.wrenGetMapContainsKey(vm.vm, 0, 1)), nil
 }
 
-// Count counts how many elements are in the Wren map 
+// Count counts how many elements are in the Wren map
 func (h *MapHandle) Count() (int, error) {
 	handle := h.Handle()
 	if handle.handle == nil {
@@ -579,7 +581,7 @@ func (h *CallHandle) Free() {
 	h.handle.Free()
 }
 
-// Call tries the function on the handles that created the `CallHandle`. The amount of parameters should coorespond to the signature used to create this function. 
+// Call tries to call the function on the handles that created the `CallHandle`. The amount of parameters should coorespond to the signature used to create this function.
 func (h *CallHandle) Call(parameters ...interface{}) (interface{}, error) {
 	handle := h.handle
 	if handle.handle == nil {
@@ -660,10 +662,10 @@ func (err InvalidValue) Error() string {
 	return fmt.Sprintf("WrenGo does not know how to handle the value type \"%v\"", reflect.TypeOf(err.Value).String())
 }
 
-// NonMatchingVM is returned if there was an attempt to use a handle in a vm that it did not originate from
-type NonMatchingVM struct {}
+// NonMatchingVM is returned if there was an attempt to use a handle in a VM that it did not originate from
+type NonMatchingVM struct{}
 
-func (err *NonMatchingVM)Error() string {
+func (err *NonMatchingVM) Error() string {
 	return "Cannot set value to VM because it didn't originate from this VM"
 }
 
@@ -731,7 +733,7 @@ func (vm *VM) setSlotValue(value interface{}, slot int) error {
 	return nil
 }
 
-// GetVariable tries to get a variable from the Wren vm with the given module name and variable name. There isn't currently a way to check if the variable does not exist yet. 
+// GetVariable tries to get a variable from the Wren vm with the given module name and variable name. There isn't currently a way to check if the variable does not exist yet.
 func (vm *VM) GetVariable(module, name string) (interface{}, error) {
 	if vm.vm == nil {
 		return nil, &NilVMError{}
@@ -808,7 +810,7 @@ func errorFn(v *C.WrenVM, errorType C.WrenErrorType, module *C.char, line C.int,
 			output = DefaultError
 		}
 		if output != nil {
-			io.WriteString(output, err.Error())
+			io.WriteString(output, err.Error() + "\n")
 		}
 	}
 }
@@ -869,7 +871,7 @@ func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.Wren
 					func(vm *VM, parameters []interface{}) (interface{}, error) {
 						var (
 							foreign interface{}
-							err error
+							err     error
 						)
 						if class.Initializer != nil {
 							foreign, err = class.Initializer(vm, parameters)

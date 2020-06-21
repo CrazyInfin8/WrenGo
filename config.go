@@ -9,17 +9,17 @@ import (
 // Config contains some settings to setup how VM will behave
 type Config struct {
 	// Wren calls this function to print text
-	WriteFn       WriteFn
+	WriteFn WriteFn
 	// Wren calls this function to print errors
-	ErrorFn       ErrorFn
+	ErrorFn ErrorFn
 	// Wren calls this function to import modules (if you want to disable importing, this should be set to nil and the global value `DefaultModuleLoader` should also be set to nil)
-	LoadModuleFn  LoadModuleFn
+	LoadModuleFn LoadModuleFn
 	// If `WriteFn` is not set, wren will print text to here instead (if you want to disable all output, this should be set to nil and the global value `DefaultOutput` should also be set to nil)
 	DefaultOutput io.Writer
 	// If `ErrorFn` is not set, wren errors will be written to here instead (if you want to disable all output, this should be set to nil and the global value `DefaultError` should also be set to nil)
-	DefaultError  io.Writer
+	DefaultError io.Writer
 	// Custom data
-	UserData      interface{}
+	UserData interface{}
 }
 
 // WriteFn is called by wren whenever `System.write`, `System.print`, or `System.printAll` is called in a script

@@ -1,3 +1,4 @@
+// Package wren provides bindings for Go programs to utilize and interact with the [wren](https://wren.io/) scripting langues
 package wren
 
 /*

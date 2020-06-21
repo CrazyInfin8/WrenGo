@@ -32,24 +32,29 @@ type ForeignClass struct {
 	// Wren will call this function as a constructor. Whatever it returns for `interface{}` will be the the foreign instance of this foreign class
 	Initializer ForeignInitializer
 	// Wren will call this function when Wren's garbage collector collects the forign class (not that maintaining handles will prevent the foreign object from being garbage collected)
-	Finalizer   ForeignFinalizer
+	Finalizer ForeignFinalizer
 	// A map containing `ForeignMethodFn`s organized by function signatures. see MethodMap for mor information on signatures syntax.
-	MethodMap   MethodMap
+	MethodMap MethodMap
 }
 
 // MethodMap is a map containing `ForeignMethodFn`s organized by signatures.
 //
-// Signatures have specific syntax in order for wren to know which function to use. 
+// Signatures have specific syntax in order for wren to know which function to use.
 //
 // - If the function is static then it will begin with the string "static " (note the space after it).
+//
 // - The name of the function is required to match how it will look in Wren
+//
 // - Next will be an open paranthesis("(")
+//
 // - for the amount of expected parameters, add underscores seperated by comma. do not add a trailing comma after the last underscore
+//
 // - close everything up with a closing parenthesis (")")
 //
 // For example:
 //
-// - A static function call "foo" with 3 parameters will look like "static foo(_,_,_)"
+// - A static function called "foo" with 3 parameters will look like "static foo(_,_,_)"
+//
 // - A function that isn't static called "bar" with no parameters will look like "static bar()"
 type MethodMap map[string]ForeignMethodFn
 
