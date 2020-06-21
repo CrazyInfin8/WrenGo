@@ -1,3 +1,3 @@
-module github.com/crazyinfin8/WrenGo
+module github.com/CrazyInfin8/WrenGo
 
 go 1.14
