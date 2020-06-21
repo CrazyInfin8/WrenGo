@@ -283,7 +283,10 @@ func f0(v *C.WrenVM) {
 		if len(vm.bindMap) > 0 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[0](vm, params)
+			ret, err := vm.bindMap[0](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -298,7 +301,10 @@ func f1(v *C.WrenVM) {
 		if len(vm.bindMap) > 1 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[1](vm, params)
+			ret, err := vm.bindMap[1](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -313,7 +319,10 @@ func f2(v *C.WrenVM) {
 		if len(vm.bindMap) > 2 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[2](vm, params)
+			ret, err := vm.bindMap[2](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -328,7 +337,10 @@ func f3(v *C.WrenVM) {
 		if len(vm.bindMap) > 3 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[3](vm, params)
+			ret, err := vm.bindMap[3](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -343,7 +355,10 @@ func f4(v *C.WrenVM) {
 		if len(vm.bindMap) > 4 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[4](vm, params)
+			ret, err := vm.bindMap[4](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -358,7 +373,10 @@ func f5(v *C.WrenVM) {
 		if len(vm.bindMap) > 5 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[5](vm, params)
+			ret, err := vm.bindMap[5](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -373,7 +391,10 @@ func f6(v *C.WrenVM) {
 		if len(vm.bindMap) > 6 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[6](vm, params)
+			ret, err := vm.bindMap[6](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -388,7 +409,10 @@ func f7(v *C.WrenVM) {
 		if len(vm.bindMap) > 7 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[7](vm, params)
+			ret, err := vm.bindMap[7](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -403,7 +427,10 @@ func f8(v *C.WrenVM) {
 		if len(vm.bindMap) > 8 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[8](vm, params)
+			ret, err := vm.bindMap[8](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -418,7 +445,10 @@ func f9(v *C.WrenVM) {
 		if len(vm.bindMap) > 9 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[9](vm, params)
+			ret, err := vm.bindMap[9](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -433,7 +463,10 @@ func f10(v *C.WrenVM) {
 		if len(vm.bindMap) > 10 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[10](vm, params)
+			ret, err := vm.bindMap[10](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -448,7 +481,10 @@ func f11(v *C.WrenVM) {
 		if len(vm.bindMap) > 11 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[11](vm, params)
+			ret, err := vm.bindMap[11](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -463,7 +499,10 @@ func f12(v *C.WrenVM) {
 		if len(vm.bindMap) > 12 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[12](vm, params)
+			ret, err := vm.bindMap[12](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -478,7 +517,10 @@ func f13(v *C.WrenVM) {
 		if len(vm.bindMap) > 13 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[13](vm, params)
+			ret, err := vm.bindMap[13](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -493,7 +535,10 @@ func f14(v *C.WrenVM) {
 		if len(vm.bindMap) > 14 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[14](vm, params)
+			ret, err := vm.bindMap[14](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -508,7 +553,10 @@ func f15(v *C.WrenVM) {
 		if len(vm.bindMap) > 15 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[15](vm, params)
+			ret, err := vm.bindMap[15](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -523,7 +571,10 @@ func f16(v *C.WrenVM) {
 		if len(vm.bindMap) > 16 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[16](vm, params)
+			ret, err := vm.bindMap[16](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -538,7 +589,10 @@ func f17(v *C.WrenVM) {
 		if len(vm.bindMap) > 17 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[17](vm, params)
+			ret, err := vm.bindMap[17](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -553,7 +607,10 @@ func f18(v *C.WrenVM) {
 		if len(vm.bindMap) > 18 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[18](vm, params)
+			ret, err := vm.bindMap[18](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -568,7 +625,10 @@ func f19(v *C.WrenVM) {
 		if len(vm.bindMap) > 19 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[19](vm, params)
+			ret, err := vm.bindMap[19](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -583,7 +643,10 @@ func f20(v *C.WrenVM) {
 		if len(vm.bindMap) > 20 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[20](vm, params)
+			ret, err := vm.bindMap[20](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -598,7 +661,10 @@ func f21(v *C.WrenVM) {
 		if len(vm.bindMap) > 21 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[21](vm, params)
+			ret, err := vm.bindMap[21](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -613,7 +679,10 @@ func f22(v *C.WrenVM) {
 		if len(vm.bindMap) > 22 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[22](vm, params)
+			ret, err := vm.bindMap[22](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -628,7 +697,10 @@ func f23(v *C.WrenVM) {
 		if len(vm.bindMap) > 23 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[23](vm, params)
+			ret, err := vm.bindMap[23](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -643,7 +715,10 @@ func f24(v *C.WrenVM) {
 		if len(vm.bindMap) > 24 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[24](vm, params)
+			ret, err := vm.bindMap[24](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -658,7 +733,10 @@ func f25(v *C.WrenVM) {
 		if len(vm.bindMap) > 25 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[25](vm, params)
+			ret, err := vm.bindMap[25](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -673,7 +751,10 @@ func f26(v *C.WrenVM) {
 		if len(vm.bindMap) > 26 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[26](vm, params)
+			ret, err := vm.bindMap[26](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -688,7 +769,10 @@ func f27(v *C.WrenVM) {
 		if len(vm.bindMap) > 27 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[27](vm, params)
+			ret, err := vm.bindMap[27](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -703,7 +787,10 @@ func f28(v *C.WrenVM) {
 		if len(vm.bindMap) > 28 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[28](vm, params)
+			ret, err := vm.bindMap[28](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -718,7 +805,10 @@ func f29(v *C.WrenVM) {
 		if len(vm.bindMap) > 29 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[29](vm, params)
+			ret, err := vm.bindMap[29](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -733,7 +823,10 @@ func f30(v *C.WrenVM) {
 		if len(vm.bindMap) > 30 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[30](vm, params)
+			ret, err := vm.bindMap[30](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -748,7 +841,10 @@ func f31(v *C.WrenVM) {
 		if len(vm.bindMap) > 31 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[31](vm, params)
+			ret, err := vm.bindMap[31](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -763,7 +859,10 @@ func f32(v *C.WrenVM) {
 		if len(vm.bindMap) > 32 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[32](vm, params)
+			ret, err := vm.bindMap[32](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -778,7 +877,10 @@ func f33(v *C.WrenVM) {
 		if len(vm.bindMap) > 33 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[33](vm, params)
+			ret, err := vm.bindMap[33](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -793,7 +895,10 @@ func f34(v *C.WrenVM) {
 		if len(vm.bindMap) > 34 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[34](vm, params)
+			ret, err := vm.bindMap[34](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -808,7 +913,10 @@ func f35(v *C.WrenVM) {
 		if len(vm.bindMap) > 35 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[35](vm, params)
+			ret, err := vm.bindMap[35](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -823,7 +931,10 @@ func f36(v *C.WrenVM) {
 		if len(vm.bindMap) > 36 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[36](vm, params)
+			ret, err := vm.bindMap[36](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -838,7 +949,10 @@ func f37(v *C.WrenVM) {
 		if len(vm.bindMap) > 37 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[37](vm, params)
+			ret, err := vm.bindMap[37](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -853,7 +967,10 @@ func f38(v *C.WrenVM) {
 		if len(vm.bindMap) > 38 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[38](vm, params)
+			ret, err := vm.bindMap[38](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -868,7 +985,10 @@ func f39(v *C.WrenVM) {
 		if len(vm.bindMap) > 39 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[39](vm, params)
+			ret, err := vm.bindMap[39](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -883,7 +1003,10 @@ func f40(v *C.WrenVM) {
 		if len(vm.bindMap) > 40 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[40](vm, params)
+			ret, err := vm.bindMap[40](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -898,7 +1021,10 @@ func f41(v *C.WrenVM) {
 		if len(vm.bindMap) > 41 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[41](vm, params)
+			ret, err := vm.bindMap[41](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -913,7 +1039,10 @@ func f42(v *C.WrenVM) {
 		if len(vm.bindMap) > 42 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[42](vm, params)
+			ret, err := vm.bindMap[42](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -928,7 +1057,10 @@ func f43(v *C.WrenVM) {
 		if len(vm.bindMap) > 43 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[43](vm, params)
+			ret, err := vm.bindMap[43](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -943,7 +1075,10 @@ func f44(v *C.WrenVM) {
 		if len(vm.bindMap) > 44 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[44](vm, params)
+			ret, err := vm.bindMap[44](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -958,7 +1093,10 @@ func f45(v *C.WrenVM) {
 		if len(vm.bindMap) > 45 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[45](vm, params)
+			ret, err := vm.bindMap[45](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -973,7 +1111,10 @@ func f46(v *C.WrenVM) {
 		if len(vm.bindMap) > 46 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[46](vm, params)
+			ret, err := vm.bindMap[46](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -988,7 +1129,10 @@ func f47(v *C.WrenVM) {
 		if len(vm.bindMap) > 47 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[47](vm, params)
+			ret, err := vm.bindMap[47](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1003,7 +1147,10 @@ func f48(v *C.WrenVM) {
 		if len(vm.bindMap) > 48 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[48](vm, params)
+			ret, err := vm.bindMap[48](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1018,7 +1165,10 @@ func f49(v *C.WrenVM) {
 		if len(vm.bindMap) > 49 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[49](vm, params)
+			ret, err := vm.bindMap[49](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1033,7 +1183,10 @@ func f50(v *C.WrenVM) {
 		if len(vm.bindMap) > 50 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[50](vm, params)
+			ret, err := vm.bindMap[50](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1048,7 +1201,10 @@ func f51(v *C.WrenVM) {
 		if len(vm.bindMap) > 51 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[51](vm, params)
+			ret, err := vm.bindMap[51](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1063,7 +1219,10 @@ func f52(v *C.WrenVM) {
 		if len(vm.bindMap) > 52 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[52](vm, params)
+			ret, err := vm.bindMap[52](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1078,7 +1237,10 @@ func f53(v *C.WrenVM) {
 		if len(vm.bindMap) > 53 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[53](vm, params)
+			ret, err := vm.bindMap[53](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1093,7 +1255,10 @@ func f54(v *C.WrenVM) {
 		if len(vm.bindMap) > 54 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[54](vm, params)
+			ret, err := vm.bindMap[54](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1108,7 +1273,10 @@ func f55(v *C.WrenVM) {
 		if len(vm.bindMap) > 55 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[55](vm, params)
+			ret, err := vm.bindMap[55](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1123,7 +1291,10 @@ func f56(v *C.WrenVM) {
 		if len(vm.bindMap) > 56 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[56](vm, params)
+			ret, err := vm.bindMap[56](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1138,7 +1309,10 @@ func f57(v *C.WrenVM) {
 		if len(vm.bindMap) > 57 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[57](vm, params)
+			ret, err := vm.bindMap[57](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1153,7 +1327,10 @@ func f58(v *C.WrenVM) {
 		if len(vm.bindMap) > 58 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[58](vm, params)
+			ret, err := vm.bindMap[58](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1168,7 +1345,10 @@ func f59(v *C.WrenVM) {
 		if len(vm.bindMap) > 59 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[59](vm, params)
+			ret, err := vm.bindMap[59](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1183,7 +1363,10 @@ func f60(v *C.WrenVM) {
 		if len(vm.bindMap) > 60 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[60](vm, params)
+			ret, err := vm.bindMap[60](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1198,7 +1381,10 @@ func f61(v *C.WrenVM) {
 		if len(vm.bindMap) > 61 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[61](vm, params)
+			ret, err := vm.bindMap[61](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1213,7 +1399,10 @@ func f62(v *C.WrenVM) {
 		if len(vm.bindMap) > 62 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[62](vm, params)
+			ret, err := vm.bindMap[62](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1228,7 +1417,10 @@ func f63(v *C.WrenVM) {
 		if len(vm.bindMap) > 63 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[63](vm, params)
+			ret, err := vm.bindMap[63](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1243,7 +1435,10 @@ func f64(v *C.WrenVM) {
 		if len(vm.bindMap) > 64 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[64](vm, params)
+			ret, err := vm.bindMap[64](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1258,7 +1453,10 @@ func f65(v *C.WrenVM) {
 		if len(vm.bindMap) > 65 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[65](vm, params)
+			ret, err := vm.bindMap[65](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1273,7 +1471,10 @@ func f66(v *C.WrenVM) {
 		if len(vm.bindMap) > 66 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[66](vm, params)
+			ret, err := vm.bindMap[66](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1288,7 +1489,10 @@ func f67(v *C.WrenVM) {
 		if len(vm.bindMap) > 67 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[67](vm, params)
+			ret, err := vm.bindMap[67](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1303,7 +1507,10 @@ func f68(v *C.WrenVM) {
 		if len(vm.bindMap) > 68 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[68](vm, params)
+			ret, err := vm.bindMap[68](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1318,7 +1525,10 @@ func f69(v *C.WrenVM) {
 		if len(vm.bindMap) > 69 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[69](vm, params)
+			ret, err := vm.bindMap[69](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1333,7 +1543,10 @@ func f70(v *C.WrenVM) {
 		if len(vm.bindMap) > 70 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[70](vm, params)
+			ret, err := vm.bindMap[70](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1348,7 +1561,10 @@ func f71(v *C.WrenVM) {
 		if len(vm.bindMap) > 71 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[71](vm, params)
+			ret, err := vm.bindMap[71](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1363,7 +1579,10 @@ func f72(v *C.WrenVM) {
 		if len(vm.bindMap) > 72 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[72](vm, params)
+			ret, err := vm.bindMap[72](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1378,7 +1597,10 @@ func f73(v *C.WrenVM) {
 		if len(vm.bindMap) > 73 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[73](vm, params)
+			ret, err := vm.bindMap[73](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1393,7 +1615,10 @@ func f74(v *C.WrenVM) {
 		if len(vm.bindMap) > 74 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[74](vm, params)
+			ret, err := vm.bindMap[74](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1408,7 +1633,10 @@ func f75(v *C.WrenVM) {
 		if len(vm.bindMap) > 75 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[75](vm, params)
+			ret, err := vm.bindMap[75](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1423,7 +1651,10 @@ func f76(v *C.WrenVM) {
 		if len(vm.bindMap) > 76 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[76](vm, params)
+			ret, err := vm.bindMap[76](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1438,7 +1669,10 @@ func f77(v *C.WrenVM) {
 		if len(vm.bindMap) > 77 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[77](vm, params)
+			ret, err := vm.bindMap[77](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1453,7 +1687,10 @@ func f78(v *C.WrenVM) {
 		if len(vm.bindMap) > 78 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[78](vm, params)
+			ret, err := vm.bindMap[78](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1468,7 +1705,10 @@ func f79(v *C.WrenVM) {
 		if len(vm.bindMap) > 79 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[79](vm, params)
+			ret, err := vm.bindMap[79](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1483,7 +1723,10 @@ func f80(v *C.WrenVM) {
 		if len(vm.bindMap) > 80 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[80](vm, params)
+			ret, err := vm.bindMap[80](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1498,7 +1741,10 @@ func f81(v *C.WrenVM) {
 		if len(vm.bindMap) > 81 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[81](vm, params)
+			ret, err := vm.bindMap[81](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1513,7 +1759,10 @@ func f82(v *C.WrenVM) {
 		if len(vm.bindMap) > 82 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[82](vm, params)
+			ret, err := vm.bindMap[82](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1528,7 +1777,10 @@ func f83(v *C.WrenVM) {
 		if len(vm.bindMap) > 83 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[83](vm, params)
+			ret, err := vm.bindMap[83](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1543,7 +1795,10 @@ func f84(v *C.WrenVM) {
 		if len(vm.bindMap) > 84 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[84](vm, params)
+			ret, err := vm.bindMap[84](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1558,7 +1813,10 @@ func f85(v *C.WrenVM) {
 		if len(vm.bindMap) > 85 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[85](vm, params)
+			ret, err := vm.bindMap[85](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1573,7 +1831,10 @@ func f86(v *C.WrenVM) {
 		if len(vm.bindMap) > 86 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[86](vm, params)
+			ret, err := vm.bindMap[86](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1588,7 +1849,10 @@ func f87(v *C.WrenVM) {
 		if len(vm.bindMap) > 87 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[87](vm, params)
+			ret, err := vm.bindMap[87](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1603,7 +1867,10 @@ func f88(v *C.WrenVM) {
 		if len(vm.bindMap) > 88 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[88](vm, params)
+			ret, err := vm.bindMap[88](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1618,7 +1885,10 @@ func f89(v *C.WrenVM) {
 		if len(vm.bindMap) > 89 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[89](vm, params)
+			ret, err := vm.bindMap[89](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1633,7 +1903,10 @@ func f90(v *C.WrenVM) {
 		if len(vm.bindMap) > 90 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[90](vm, params)
+			ret, err := vm.bindMap[90](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1648,7 +1921,10 @@ func f91(v *C.WrenVM) {
 		if len(vm.bindMap) > 91 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[91](vm, params)
+			ret, err := vm.bindMap[91](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1663,7 +1939,10 @@ func f92(v *C.WrenVM) {
 		if len(vm.bindMap) > 92 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[92](vm, params)
+			ret, err := vm.bindMap[92](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1678,7 +1957,10 @@ func f93(v *C.WrenVM) {
 		if len(vm.bindMap) > 93 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[93](vm, params)
+			ret, err := vm.bindMap[93](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1693,7 +1975,10 @@ func f94(v *C.WrenVM) {
 		if len(vm.bindMap) > 94 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[94](vm, params)
+			ret, err := vm.bindMap[94](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1708,7 +1993,10 @@ func f95(v *C.WrenVM) {
 		if len(vm.bindMap) > 95 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[95](vm, params)
+			ret, err := vm.bindMap[95](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1723,7 +2011,10 @@ func f96(v *C.WrenVM) {
 		if len(vm.bindMap) > 96 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[96](vm, params)
+			ret, err := vm.bindMap[96](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1738,7 +2029,10 @@ func f97(v *C.WrenVM) {
 		if len(vm.bindMap) > 97 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[97](vm, params)
+			ret, err := vm.bindMap[97](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1753,7 +2047,10 @@ func f98(v *C.WrenVM) {
 		if len(vm.bindMap) > 98 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[98](vm, params)
+			ret, err := vm.bindMap[98](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1768,7 +2065,10 @@ func f99(v *C.WrenVM) {
 		if len(vm.bindMap) > 99 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[99](vm, params)
+			ret, err := vm.bindMap[99](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1783,7 +2083,10 @@ func f100(v *C.WrenVM) {
 		if len(vm.bindMap) > 100 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[100](vm, params)
+			ret, err := vm.bindMap[100](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1798,7 +2101,10 @@ func f101(v *C.WrenVM) {
 		if len(vm.bindMap) > 101 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[101](vm, params)
+			ret, err := vm.bindMap[101](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1813,7 +2119,10 @@ func f102(v *C.WrenVM) {
 		if len(vm.bindMap) > 102 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[102](vm, params)
+			ret, err := vm.bindMap[102](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1828,7 +2137,10 @@ func f103(v *C.WrenVM) {
 		if len(vm.bindMap) > 103 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[103](vm, params)
+			ret, err := vm.bindMap[103](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1843,7 +2155,10 @@ func f104(v *C.WrenVM) {
 		if len(vm.bindMap) > 104 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[104](vm, params)
+			ret, err := vm.bindMap[104](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1858,7 +2173,10 @@ func f105(v *C.WrenVM) {
 		if len(vm.bindMap) > 105 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[105](vm, params)
+			ret, err := vm.bindMap[105](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1873,7 +2191,10 @@ func f106(v *C.WrenVM) {
 		if len(vm.bindMap) > 106 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[106](vm, params)
+			ret, err := vm.bindMap[106](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1888,7 +2209,10 @@ func f107(v *C.WrenVM) {
 		if len(vm.bindMap) > 107 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[107](vm, params)
+			ret, err := vm.bindMap[107](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1903,7 +2227,10 @@ func f108(v *C.WrenVM) {
 		if len(vm.bindMap) > 108 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[108](vm, params)
+			ret, err := vm.bindMap[108](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1918,7 +2245,10 @@ func f109(v *C.WrenVM) {
 		if len(vm.bindMap) > 109 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[109](vm, params)
+			ret, err := vm.bindMap[109](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1933,7 +2263,10 @@ func f110(v *C.WrenVM) {
 		if len(vm.bindMap) > 110 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[110](vm, params)
+			ret, err := vm.bindMap[110](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1948,7 +2281,10 @@ func f111(v *C.WrenVM) {
 		if len(vm.bindMap) > 111 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[111](vm, params)
+			ret, err := vm.bindMap[111](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1963,7 +2299,10 @@ func f112(v *C.WrenVM) {
 		if len(vm.bindMap) > 112 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[112](vm, params)
+			ret, err := vm.bindMap[112](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1978,7 +2317,10 @@ func f113(v *C.WrenVM) {
 		if len(vm.bindMap) > 113 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[113](vm, params)
+			ret, err := vm.bindMap[113](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -1993,7 +2335,10 @@ func f114(v *C.WrenVM) {
 		if len(vm.bindMap) > 114 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[114](vm, params)
+			ret, err := vm.bindMap[114](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2008,7 +2353,10 @@ func f115(v *C.WrenVM) {
 		if len(vm.bindMap) > 115 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[115](vm, params)
+			ret, err := vm.bindMap[115](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2023,7 +2371,10 @@ func f116(v *C.WrenVM) {
 		if len(vm.bindMap) > 116 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[116](vm, params)
+			ret, err := vm.bindMap[116](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2038,7 +2389,10 @@ func f117(v *C.WrenVM) {
 		if len(vm.bindMap) > 117 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[117](vm, params)
+			ret, err := vm.bindMap[117](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2053,7 +2407,10 @@ func f118(v *C.WrenVM) {
 		if len(vm.bindMap) > 118 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[118](vm, params)
+			ret, err := vm.bindMap[118](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2068,7 +2425,10 @@ func f119(v *C.WrenVM) {
 		if len(vm.bindMap) > 119 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[119](vm, params)
+			ret, err := vm.bindMap[119](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2083,7 +2443,10 @@ func f120(v *C.WrenVM) {
 		if len(vm.bindMap) > 120 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[120](vm, params)
+			ret, err := vm.bindMap[120](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2098,7 +2461,10 @@ func f121(v *C.WrenVM) {
 		if len(vm.bindMap) > 121 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[121](vm, params)
+			ret, err := vm.bindMap[121](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2113,7 +2479,10 @@ func f122(v *C.WrenVM) {
 		if len(vm.bindMap) > 122 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[122](vm, params)
+			ret, err := vm.bindMap[122](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2128,7 +2497,10 @@ func f123(v *C.WrenVM) {
 		if len(vm.bindMap) > 123 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[123](vm, params)
+			ret, err := vm.bindMap[123](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2143,7 +2515,10 @@ func f124(v *C.WrenVM) {
 		if len(vm.bindMap) > 124 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[124](vm, params)
+			ret, err := vm.bindMap[124](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2158,7 +2533,10 @@ func f125(v *C.WrenVM) {
 		if len(vm.bindMap) > 125 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[125](vm, params)
+			ret, err := vm.bindMap[125](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2173,7 +2551,10 @@ func f126(v *C.WrenVM) {
 		if len(vm.bindMap) > 126 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[126](vm, params)
+			ret, err := vm.bindMap[126](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}
@@ -2188,7 +2569,10 @@ func f127(v *C.WrenVM) {
 		if len(vm.bindMap) > 127 {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[127](vm, params)
+			ret, err := vm.bindMap[127](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}

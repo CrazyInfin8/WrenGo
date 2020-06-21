@@ -7,8 +7,8 @@ package wren
 */
 import "C"
 
-type ForeignMethodFn func(vm *VM, parameters []interface{}) interface{}
-type ForeignInitializer func(vm *VM, parameters []interface{}) interface{}
+type ForeignMethodFn func(vm *VM, parameters []interface{}) (interface{}, error)
+type ForeignInitializer func(vm *VM, parameters []interface{}) (interface{}, error)
 type ForeignFinalizer func(vm *VM, data interface{})
 
 type ModuleMap map[string]*Module

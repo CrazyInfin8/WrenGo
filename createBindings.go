@@ -49,7 +49,10 @@ func f{{.}}(v *C.WrenVM) {
 		if len(vm.bindMap) > {{.}} {
 			params := vm.getAllSlots()
 			// println(params)
-			ret := vm.bindMap[{{.}}](vm, params)
+			ret, err := vm.bindMap[{{.}}](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
 			if ret != nil {
 				vm.setSlotValue(ret, 0)
 			}

@@ -347,6 +347,17 @@ func (h *MapHandle) Func(signature string) (*CallHandle, error) {
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
 }
 
+func (h *MapHandle) Copy() (*MapHandle, error) {
+	handle := h.Handle()
+	if handle.handle == nil {
+		return nil, &NilHandleError{}
+	}
+	vm := h.VM()
+	C.wrenEnsureSlots(vm.vm, 0)
+	vm.setSlotValue(handle, 0)
+	return &MapHandle{handle: vm.createHandle(C.wrenGetSlotHandle(vm.vm, 0))}, nil
+}
+
 type ListHandle struct {
 	handle *Handle
 }
@@ -436,6 +447,17 @@ func (h *ListHandle) Func(signature string) (*CallHandle, error) {
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
 }
 
+func (h *ListHandle) Copy() (*ListHandle, error) {
+	handle := h.Handle()
+	if handle.handle == nil {
+		return nil, &NilHandleError{}
+	}
+	vm := h.VM()
+	C.wrenEnsureSlots(vm.vm, 0)
+	vm.setSlotValue(handle, 0)
+	return &ListHandle{handle: vm.createHandle(C.wrenGetSlotHandle(vm.vm, 0))}, nil
+}
+
 type ForeignHandle struct {
 	handle *Handle
 }
@@ -484,6 +506,17 @@ func (h *ForeignHandle) Get() (interface{}, error) {
 		return foreign.value, nil
 	}
 	return nil, &UnknownForeign{Handle: h}
+}
+
+func (h *ForeignHandle) Copy() (*ForeignHandle, error) {
+	handle := h.Handle()
+	if handle.handle == nil {
+		return nil, &NilHandleError{}
+	}
+	vm := h.VM()
+	C.wrenEnsureSlots(vm.vm, 0)
+	vm.setSlotValue(handle, 0)
+	return &ForeignHandle{handle: vm.createHandle(C.wrenGetSlotHandle(vm.vm, 0))}, nil
 }
 
 type CallHandle struct {
@@ -573,20 +606,42 @@ func (err InvalidValue) Error() string {
 	return fmt.Sprintf("WrenGo does not know how to handle the value type \"%v\"", reflect.TypeOf(err.Value).String())
 }
 
+type NonMatchingVM struct {}
+
+func (err *NonMatchingVM)Error() string {
+	return "Cannot set value to VM because it didn't originate from this VM"
+}
+
 func (vm *VM) setSlotValue(value interface{}, slot int) error {
 	cSlot := C.int(slot)
 	switch value.(type) {
 	case *Handle:
-		cValue := value.(*Handle).handle
+		handle := value.(*Handle)
+		if handle.VM() != vm {
+			return &NonMatchingVM{}
+		}
+		cValue := handle.handle
 		C.wrenSetSlotHandle(vm.vm, cSlot, cValue)
 	case *ListHandle:
-		cValue := value.(*ListHandle).handle.handle
+		handle := value.(*ListHandle)
+		if handle.VM() != vm {
+			return &NonMatchingVM{}
+		}
+		cValue := handle.handle.handle
 		C.wrenSetSlotHandle(vm.vm, cSlot, cValue)
 	case *MapHandle:
-		cValue := value.(*MapHandle).handle.handle
+		handle := value.(*MapHandle)
+		if handle.VM() != vm {
+			return &NonMatchingVM{}
+		}
+		cValue := handle.handle.handle
 		C.wrenSetSlotHandle(vm.vm, cSlot, cValue)
 	case *ForeignHandle:
-		cValue := value.(*ForeignHandle).handle.handle
+		handle := value.(*ForeignHandle)
+		if handle.VM() != vm {
+			return &NonMatchingVM{}
+		}
+		cValue := handle.handle.handle
 		C.wrenSetSlotHandle(vm.vm, cSlot, cValue)
 	case []byte:
 		data := value.([]byte)
@@ -636,6 +691,12 @@ func (vm *VM) GetVariable(module, name string) (interface{}, error) {
 	// variable exists
 	C.wrenGetVariable(vm.vm, cModule, cName, 0)
 	return vm.getSlotValue(0), nil
+}
+
+func (vm *VM) Abort(err error) {
+	vm.setSlotValue(err.Error(), 0)
+	C.wrenEnsureSlots(vm.vm, 0)
+	C.wrenAbortFiber(vm.vm, 0)
 }
 
 //export writeFn
@@ -747,10 +808,16 @@ func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.Wren
 					// TODO: Could potentially have ForeignMethodFn's 
 					// call C.wrenAbortFiber(vm.vm, 0) if there was an 
 					// error from the function. 
-					func(vm *VM, parameters []interface{}) interface{} {
-						var foreign interface{}
+					func(vm *VM, parameters []interface{}) (interface{}, error) {
+						var (
+							foreign interface{}
+							err error
+						)
 						if class.Initializer != nil {
-							foreign = class.Initializer(vm, parameters)
+							foreign, err = class.Initializer(vm, parameters)
+						}
+						if err != nil {
+							return nil, err
 						}
 						// err := vm.setSlotValue(foreign, 0)
 						ptr := C.wrenSetSlotNewForeign(vm.vm, 0, 0, 1)
@@ -759,7 +826,7 @@ func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.Wren
 							vm:        vm,
 							value:     foreign,
 						}
-						return nil
+						return nil, nil
 					},
 				)
 				if err != nil {

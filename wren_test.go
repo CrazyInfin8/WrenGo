@@ -1,6 +1,7 @@
 package wren
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -154,37 +155,40 @@ func TestForeignAndBindings(t *testing.T) {
 	t.Log("Setting variables from wren")
 	vm.SetModule("main", NewModule(ClassMap{
 		"GoFoo": NewClass(
-			func(vm *VM, parameters []interface{}) interface{} {
+			func(vm *VM, parameters []interface{}) (interface{}, error) {
 				var value interface{}
 				if len(parameters) >= 2 {
 					value = parameters[1]
 				}
 				t.Logf("Setting foreign to \"%v\"", value)
-				return value
+				return value, nil
 			},
 			func(vm *VM, data interface{}) {
 
 			},
 			MethodMap{
-				"static sayHello()": func(vm *VM, parameters []interface{}) interface{} {
+				"static sayHello()": func(vm *VM, parameters []interface{}) (interface{}, error) {
 					t.Log("Go function called from wren says hello!")
-					return nil
+					return nil, nil
 				},
-				"static echo(_,_,_)": func(vm *VM, parameters []interface{}) interface{} {
+				"static echo(_,_,_)": func(vm *VM, parameters []interface{}) (interface{}, error) {
 					t.Logf("Wren passed %v, %v, and %v as values", parameters[1:]...)
-					return nil
+					return nil, nil
 				},
-				"static backToWren()": func(vm *VM, parameters []interface{}) interface{} {
+				"static backToWren()": func(vm *VM, parameters []interface{}) (interface{}, error) {
 					t.Logf("returning value back to wren")
-					return "A value from Go"
+					return "A value from Go", nil
 				},
-				"printValue()": func(vm *VM, parameters []interface{}) interface{} {
+				"printValue()": func(vm *VM, parameters []interface{}) (interface{}, error) {
 					receiver := parameters[0]
 					if foreign, ok := receiver.(*ForeignHandle); ok {
 						val, _ := foreign.Get()
 						t.Logf("Wren sent back the value \"%v\"", val)
 					}
-					return nil
+					return nil, nil
+				},
+				"static sendError()": func(vm *VM, parameters []interface{}) (interface{}, error) {
+					return nil, errors.New("An error from Go to Wren")
 				},
 			},
 		),
@@ -196,6 +200,7 @@ func TestForeignAndBindings(t *testing.T) {
 		foreign static sayHello()
 		foreign static echo(x, y, z)
 		foreign static backToWren()
+		foreign static sendError()
 	}
 	System.write("Running Go function from wren")
 	GoFoo.sayHello()
@@ -205,8 +210,16 @@ func TestForeignAndBindings(t *testing.T) {
 	System.write("Making an instance of GoFoo...")
 	var foo = GoFoo.new("Hello from wren")
 	foo.printValue()
+	System.write("Testing errors from foreign methods")
+	var makeError = Fiber.new {
+		GoFoo.sendError()
+	}
+	makeError.try()
+	System.write("Error: " + makeError.error)
 	`)
+	// checking := true
 	if err != nil {
+		// if (err)
 		t.Error(err.Error())
 		return
 	}
