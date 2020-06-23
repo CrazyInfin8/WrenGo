@@ -2,19 +2,31 @@
 
 // Meant to be run from "go generate"
 //
-// Automatically sets up WrenGo by cloning wren 
+// Automatically sets up WrenGo by cloning wren
 // and generating amalgamation file
 //
 // Git and Python are required to run this file
 package main
 
 import (
-	"os"
+	"flag"
 	"io/ioutil"
+	"os"
 	"os/exec"
 )
 
 func main() {
+	var clean bool
+	flag.BoolVar(&clean, "clean", false, "Delete Wren source code")
+	flag.Parse()
+	if clean {
+		println("Removing wren")
+		os.RemoveAll("wren-c")
+		os.Remove("wren.c")
+		os.Remove("wren.h")
+		println("Done")
+		return
+	}
 	println("Cloning wren from github")
 	cloneWren()
 	println("Generating amalgamation")

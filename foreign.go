@@ -114,7 +114,7 @@ func NewClass(initializer ForeignInitializer, finalizer ForeignFinalizer, method
 	return &ForeignClass{Initializer: initializer, Finalizer: finalizer, MethodMap: methods}
 }
 
-// Clone creates a copy of the current `ForeignMap`
+// Clone creates a copy of the current `ForeignClass`
 func (class *ForeignClass) Clone() *ForeignClass {
 	return NewClass(class.Initializer, class.Finalizer, class.MethodMap.Clone())
 }

@@ -1,4 +1,4 @@
-// Package wren provides bindings for Go programs to utilize and interact with the [wren](https://wren.io/) scripting langues
+// Package wren provides bindings for Go programs to utilize and interact with the Wren scripting langues http://wren.io
 package wren
 
 /*
@@ -10,7 +10,6 @@ import "C"
 
 //go:generate go run getWren.go
 //go:generate go run createBindings.go -bindings 128
-import ()
 
 const (
 	// VersionString Wren's version as a string

@@ -29,7 +29,7 @@ type WriteFn func(vm *VM, text string)
 type ErrorFn func(vm *VM, err error)
 
 // LoadModuleFn is called by Wren to whenever `import` is called. it can either return a string with wren source code or it can return nil to send an error to the VM
-type LoadModuleFn func(vm *VM, name string) string
+type LoadModuleFn func(vm *VM, name string) (source string, ok bool)
 
 // CompileError is sent by Wren to `ErrorFn` if Wren source code couldn't compile
 type CompileError struct {

@@ -19,7 +19,7 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
-	// "runtime"
+	"sync"
 	"unsafe"
 )
 
@@ -33,18 +33,20 @@ type VM struct {
 }
 
 var (
-	vmMap      map[*C.WrenVM]*VM                  = make(map[*C.WrenVM]*VM)
-	foreignMap map[unsafe.Pointer]foreignInstance = make(map[unsafe.Pointer]foreignInstance)
+	vmMap         map[*C.WrenVM]*VM = make(map[*C.WrenVM]*VM)
+	vmMapMux      sync.Mutex
+	foreignMap    map[unsafe.Pointer]foreignInstance = make(map[unsafe.Pointer]foreignInstance)
+	foreignMapMux sync.Mutex
 	// DefaultOutput is where Wren will print to if a VM's config doesn't specify its own output (Set this to nil to disable output)
 	DefaultOutput io.Writer = os.Stdout
 	// DefaultError is where Wren will send error messages to if a VM's config doesn't specify its own place for outputting errors (Set this to nil to disable output)
 	DefaultError io.Writer = os.Stderr
 	// DefaultModuleLoader allows Wren to import modules by loading files relative to the current directory (Set this to nil to disable importing or file access)
-	DefaultModuleLoader LoadModuleFn = func(vm *VM, name string) (source string) {
+	DefaultModuleLoader LoadModuleFn = func(vm *VM, name string) (string, bool) {
 		if data, err := ioutil.ReadFile(name); err == nil {
-			source = string(data)
+			return string(data), true
 		}
-		return source
+		return "", false
 	}
 )
 
@@ -58,6 +60,8 @@ func NewVM() *VM {
 	config.bindForeignMethodFn = C.WrenBindForeignMethodFn(C.bindForeignMethodFn)
 	config.bindForeignClassFn = C.WrenBindForeignClassFn(C.bindForeignClassFn)
 	vm := VM{vm: C.wrenNewVM(&config), handles: make(map[*C.WrenHandle]*Handle), bindMap: make([]ForeignMethodFn, 0), moduleMap: make(ModuleMap)}
+	vmMapMux.Lock()
+	defer vmMapMux.Unlock()
 	vmMap[vm.vm] = &vm
 	return &vm
 }
@@ -78,6 +82,8 @@ func (vm *VM) Free() {
 		vm.handles = nil
 	}
 	if vm.vm != nil {
+		vmMapMux.Lock()
+		defer vmMapMux.Unlock()
 		if _, ok := vmMap[vm.vm]; ok {
 			delete(vmMap, vm.vm)
 		}
@@ -130,7 +136,7 @@ func resultsToError(results C.WrenInterpretResult) error {
 	}
 }
 
-// InterpretString compiles and runs wren source code from `source`. the module name of the source can be set with `module`.
+// InterpretString compiles and runs wren source code from `source`. the module name of the source can be set with `module`. This function should not be called if the VM is currently running.
 func (vm *VM) InterpretString(module, source string) error {
 	if vm.vm == nil {
 		return &NilVMError{}
@@ -145,7 +151,7 @@ func (vm *VM) InterpretString(module, source string) error {
 	return resultsToError(results)
 }
 
-// InterpretFile compiles and runs wren source code from the given file. the module name would be set to the `fileName`
+// InterpretFile compiles and runs wren source code from the given file. the module name would be set to the `fileName`, This function should not be called if the VM is currently running.
 func (vm *VM) InterpretFile(fileName string) error {
 	if vm.vm == nil {
 		return &NilVMError{}
@@ -552,6 +558,8 @@ func (h *ForeignHandle) Get() (interface{}, error) {
 	C.wrenEnsureSlots(vm.vm, 1)
 	vm.setSlotValue(h.handle, 0)
 	ptr := C.wrenGetSlotForeign(vm.vm, 0)
+	foreignMapMux.Lock()
+	defer foreignMapMux.Unlock()
 	if foreign, ok := foreignMap[ptr]; ok {
 		return foreign.value, nil
 	}
@@ -581,7 +589,7 @@ func (h *CallHandle) Free() {
 	h.handle.Free()
 }
 
-// Call tries to call the function on the handles that created the `CallHandle`. The amount of parameters should coorespond to the signature used to create this function.
+// Call tries to call the function on the handles that created the `CallHandle`. The amount of parameters should coorespond to the signature used to create this function. This function should not be called if the VM is already running.
 func (h *CallHandle) Call(parameters ...interface{}) (interface{}, error) {
 	handle := h.handle
 	if handle.handle == nil {
@@ -616,6 +624,11 @@ func (vm *VM) FreeAll(items ...interface{}) {
 			item.(freeable).Free()
 		}
 	}
+}
+
+// GC runs the garbage collector on the `VM`
+func (vm *VM) GC() {
+	C.wrenCollectGarbage(vm.vm)
 }
 
 func (vm *VM) getAllSlots() []interface{} {
@@ -765,7 +778,16 @@ func (vm *VM) Abort(err error) {
 //export writeFn
 func writeFn(v *C.WrenVM, text *C.char) {
 	var output io.Writer
+	unlocked := false
+	vmMapMux.Lock()
+	defer func() {
+		if !unlocked {
+			vmMapMux.Unlock()
+		}
+	}()
 	if vm, ok := vmMap[v]; ok {
+		vmMapMux.Unlock()
+		unlocked = true
 		if vm.Config != nil {
 			if vm.Config.WriteFn != nil {
 				vm.Config.WriteFn(vm, C.GoString(text))
@@ -796,7 +818,16 @@ func errorFn(v *C.WrenVM, errorType C.WrenErrorType, module *C.char, line C.int,
 	case C.WREN_ERROR_STACK_TRACE:
 		err = &StackTrace{module: C.GoString(module), line: int(line), message: C.GoString(message)}
 	}
+	unlocked := false
+	vmMapMux.Lock()
+	defer func() {
+		if !unlocked {
+			vmMapMux.Unlock()
+		}
+	}()
 	if vm, ok := vmMap[v]; ok {
+		vmMapMux.Unlock()
+		unlocked = true
 		if vm.Config != nil {
 			if vm.Config.ErrorFn != nil {
 				vm.Config.ErrorFn(vm, err)
@@ -810,21 +841,30 @@ func errorFn(v *C.WrenVM, errorType C.WrenErrorType, module *C.char, line C.int,
 			output = DefaultError
 		}
 		if output != nil {
-			io.WriteString(output, err.Error() + "\n")
+			io.WriteString(output, err.Error()+"\n")
 		}
 	}
 }
 
 //export moduleLoaderFn
 func moduleLoaderFn(v *C.WrenVM, name *C.char) *C.char {
+	unlocked := false
+	vmMapMux.Lock()
+	defer func() {
+		if !unlocked {
+			vmMapMux.Unlock()
+		}
+	}()
 	if vm, ok := vmMap[v]; ok {
+		vmMapMux.Unlock()
+		unlocked = true
 		var source string
 		if vm.Config != nil && vm.Config.LoadModuleFn != nil {
-			source = vm.Config.LoadModuleFn(vm, C.GoString(name))
+			source, ok = vm.Config.LoadModuleFn(vm, C.GoString(name))
 		} else if DefaultModuleLoader != nil {
-			source = DefaultModuleLoader(vm, C.GoString(name))
+			source, ok = DefaultModuleLoader(vm, C.GoString(name))
 		}
-		if &source != nil {
+		if ok {
 			// Wren should automatically frees this CString ...I think
 			return C.CString(source)
 		}
@@ -834,7 +874,16 @@ func moduleLoaderFn(v *C.WrenVM, name *C.char) *C.char {
 
 //export bindForeignMethodFn
 func bindForeignMethodFn(v *C.WrenVM, cModule *C.char, cClassName *C.char, cIsStatic C.bool, cSignature *C.char) C.WrenForeignMethodFn {
+	unlocked := false
+	vmMapMux.Lock()
+	defer func() {
+		if !unlocked {
+			vmMapMux.Unlock()
+		}
+	}()
 	if vm, ok := vmMap[v]; ok {
+		vmMapMux.Unlock()
+		unlocked = true
 		if module, ok := vm.moduleMap[C.GoString(cModule)]; ok {
 			if class, ok := module.ClassMap[C.GoString(cClassName)]; ok {
 				var name string
@@ -864,7 +913,16 @@ type foreignInstance struct {
 
 //export bindForeignClassFn
 func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.WrenForeignClassMethods {
+	unlocked := false
+	vmMapMux.Lock()
+	defer func() {
+		if !unlocked {
+			vmMapMux.Unlock()
+		}
+	}()
 	if vm, ok := vmMap[v]; ok {
+		vmMapMux.Unlock()
+		unlocked = true
 		if module, ok := vm.moduleMap[C.GoString(cModule)]; ok {
 			if class, ok := module.ClassMap[C.GoString(cClassName)]; ok {
 				initializer, err := vm.registerFunc(
@@ -880,6 +938,8 @@ func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.Wren
 							return nil, err
 						}
 						ptr := C.wrenSetSlotNewForeign(vm.vm, 0, 0, 1)
+						foreignMapMux.Lock()
+						defer foreignMapMux.Unlock()
 						foreignMap[ptr] = foreignInstance{
 							finalizer: class.Finalizer,
 							vm:        vm,
@@ -903,7 +963,16 @@ func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.Wren
 
 //export foreignFinalizerFn
 func foreignFinalizerFn(ptr unsafe.Pointer) {
+	unlocked := false
+	foreignMapMux.Lock()
+	defer func() {
+		if !unlocked {
+			foreignMapMux.Unlock()
+		}
+	}()
 	if foreign, ok := foreignMap[ptr]; ok {
+		foreignMapMux.Unlock()
+		unlocked = true
 		if foreign.finalizer != nil {
 			foreign.finalizer(foreign.vm, foreign.value)
 		}

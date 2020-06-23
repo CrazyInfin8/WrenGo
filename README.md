@@ -1,6 +1,13 @@
 # WrenGo
 
+[![GoDoc](https://godoc.org/github.com/CrazyInfin8/WrenGo?status.svg)](https://pkg.go.dev/github.com/CrazyInfin8/WrenGo?tab=doc)
+
 WrenGo provides bindings for go to interact with the [wren](https://wren.io/) scripting language. Currently Mutex is not used so be careful with Goroutines. There probably should be a lot more tests as well, however there are some tests to ensure that basic functionality works.
+## Installation
+
+```
+go get github.com/crazyinfin8/WrenGo
+```
 
 ## Usage
 A simple Hello world
@@ -29,11 +36,11 @@ import (
 
 func main() {
 	cfg := wren.NewConfig()
-	cfg.LoadModuleFn = func(vm *wren.VM, name string) string {
+	cfg.LoadModuleFn = func(vm *wren.VM, name string) (string, bool) {
 		if name == "WrenGo" {
-			return `System.print("Hello from imported module")`
+			return `System.print("Hello from imported module")`, true // return true for successful import
 		}
-		return ""
+		return "", false // return false for unsuccessful import
 	}
 	vm := cfg.NewVM()
 	vm.InterpretString("main", `import "WrenGo"`)
@@ -56,8 +63,7 @@ func main() {
 		static sayHello() {
 			System.print("Hello from MyClass")
 		}
-	}
-	`)
+	}`)
 	value, _ := vm.GetVariable("main", "MyClass")
 	MyClass, _ := value.(*wren.Handle)
 	Fn, _ := MyClass.Func("sayHello()")
@@ -89,7 +95,6 @@ func main() {
 		foreign static sayHello()
 	}
 
-	MyClass.sayHello()
-	`)
+	MyClass.sayHello()`)
 }
 ```

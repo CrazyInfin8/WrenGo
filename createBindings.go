@@ -9,10 +9,8 @@
 package main
 
 import (
-	"os"
-	// "io/ioutil"
-	// "strconv"
 	"flag"
+	"os"
 	"text/template"
 )
 
