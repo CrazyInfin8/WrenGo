@@ -224,5 +224,19 @@ func TestForeignAndBindings(t *testing.T) {
 		return
 	}
 	// err := vm.InterpretString("main", `
+}
 
+func TestEditConfig(t *testing.T) {
+	cfg := createConfig(t)
+	vm := NewVM()
+	defer vm.Free()
+	vm.Config.ErrorFn = cfg.ErrorFn;
+	vm.Config.WriteFn = cfg.WriteFn;
+	err := vm.InterpretString("main", `
+	System.write("Hello world")
+	`)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
 }

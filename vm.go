@@ -59,7 +59,7 @@ func NewVM() *VM {
 	config.loadModuleFn = C.WrenLoadModuleFn(C.moduleLoaderFn)
 	config.bindForeignMethodFn = C.WrenBindForeignMethodFn(C.bindForeignMethodFn)
 	config.bindForeignClassFn = C.WrenBindForeignClassFn(C.bindForeignClassFn)
-	vm := VM{vm: C.wrenNewVM(&config), handles: make(map[*C.WrenHandle]*Handle), bindMap: make([]ForeignMethodFn, 0), moduleMap: make(ModuleMap)}
+	vm := VM{vm: C.wrenNewVM(&config), handles: make(map[*C.WrenHandle]*Handle), bindMap: make([]ForeignMethodFn, 0), moduleMap: make(ModuleMap), Config: &Config{}}
 	vmMapMux.Lock()
 	defer vmMapMux.Unlock()
 	vmMap[vm.vm] = &vm
