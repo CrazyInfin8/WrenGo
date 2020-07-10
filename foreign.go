@@ -7,13 +7,18 @@ package wren
 */
 import "C"
 
-// ForeignMethodFn is a function that wren can import or call. if it returns an error, then it will call `vm.Abort`
+import (
+	"bytes"
+	"fmt"
+)
+
+// ForeignMethodFn is a function that wren can import or call. The value of parameters[0] will be the foreign object itself while anything after that are the parameters from the wren function. if it returns an error, then it will call `vm.Abort`
 type ForeignMethodFn func(vm *VM, parameters []interface{}) (interface{}, error)
 
-// ForeignInitializer is a function used to initialize a foreign class instance. Whatever it returns for `interface{}` will be the the foreign instance of the foreign class
+// ForeignInitializer is a function used to initialize a foreign class instance. The value of parameter[0] will be the foreign class while anything after that are the parameters from the wren constructor. Whatever it returns for `interface{}` will be the the foreign instance of the foreign class
 type ForeignInitializer func(vm *VM, parameters []interface{}) (interface{}, error)
 
-// ForeignFinalizer is a function called when Wren garbage collects the forign object it is tied to (not that maintaining handles will prevent the foreign object from being garbage collected)
+// ForeignFinalizer is a function called when Wren garbage collects the forign object it is tied to (note that maintaining handles will prevent the foreign object from being garbage collected)
 type ForeignFinalizer func(vm *VM, data interface{})
 
 // ModuleMap is a map containing Module organized by module names
