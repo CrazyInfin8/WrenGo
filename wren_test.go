@@ -250,5 +250,9 @@ func TestInvalidConstructor(t *testing.T) {
 	}
 	MyClass.new()
 	`)
+	vm.InterpretString("main", `
+	System.write("Success, code no longer segfaults")
+	`)
 	vm.GC()
+
 }
