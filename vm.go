@@ -11,6 +11,7 @@ extern char* moduleLoaderFn(WrenVM*, char*);
 extern WrenForeignMethodFn bindForeignMethodFn(WrenVM*, char*, char*, bool, char*);
 extern WrenForeignClassMethods bindForeignClassFn(WrenVM*, char*, char*);
 extern void foreignFinalizerFn(void*);
+extern void invalidConstructor(WrenVM*);
 */
 import "C"
 import (
@@ -507,7 +508,7 @@ func (h *ListHandle) Copy() (*ListHandle, error) {
 	return &ListHandle{handle: vm.createHandle(C.wrenGetSlotHandle(vm.vm, 0))}, nil
 }
 
-// ForeignHandle is a handle to a foriegn object in Wren
+// ForeignHandle is a handle to a foreign object in Wren
 type ForeignHandle struct {
 	handle *Handle
 }
@@ -910,6 +911,14 @@ type foreignInstance struct {
 	vm        *VM
 	value     interface{}
 }
+//export invalidConstructor
+func invalidConstructor(v *C.WrenVM) {
+	C.wrenEnsureSlots(v, 1)
+	err := C.CString("Foreign class does implement a constructor.")
+	defer C.free(unsafe.Pointer(err))
+	C.wrenSetSlotString(v, 0, err)
+	C.wrenAbortFiber(v, 0)
+}
 
 //export bindForeignClassFn
 func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.WrenForeignClassMethods {
@@ -958,7 +967,9 @@ func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.Wren
 			}
 		}
 	}
-	return C.WrenForeignClassMethods{}
+	return C.WrenForeignClassMethods{
+		allocate: C.WrenForeignMethodFn(C.invalidConstructor),
+	}
 }
 
 //export foreignFinalizerFn

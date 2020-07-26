@@ -83,7 +83,7 @@ func TestHandles(t *testing.T) {
 	value4, _ := vm.GetVariable("main", "value4")
 	if list, ok := value4.(*ListHandle); ok {
 		count, _ := list.Count()
-		t.Logf("Vaiable \"value4\" is a list that has %v items", count)
+		t.Logf("Variable \"value4\" is a list that has %v items", count)
 	} else {
 		t.Errorf("value4 is not the expected list")
 		return
@@ -91,7 +91,7 @@ func TestHandles(t *testing.T) {
 	value5, _ := vm.GetVariable("main", "value5")
 	if list, ok := value5.(*MapHandle); ok {
 		count, _ := list.Count()
-		t.Logf("Vaiable \"value5\" is a list that has %v items", count)
+		t.Logf("Variable \"value5\" is a list that has %v items", count)
 	} else {
 		t.Errorf("value5 is not the expected map")
 		return
@@ -239,4 +239,16 @@ func TestEditConfig(t *testing.T) {
 		t.Errorf(err.Error())
 		return
 	}
+}
+
+func TestInvalidConstructor(t *testing.T) {
+	vm := createConfig(t).NewVM()
+	defer vm.Free()
+	vm.InterpretString("main", `
+	foreign class MyClass {
+		construct new() {}
+	}
+	MyClass.new()
+	`)
+	vm.GC()
 }
