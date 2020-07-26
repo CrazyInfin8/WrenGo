@@ -135,6 +135,390 @@ extern void f124(WrenVM* vm);
 extern void f125(WrenVM* vm);
 extern void f126(WrenVM* vm);
 extern void f127(WrenVM* vm);
+extern void f128(WrenVM* vm);
+extern void f129(WrenVM* vm);
+extern void f130(WrenVM* vm);
+extern void f131(WrenVM* vm);
+extern void f132(WrenVM* vm);
+extern void f133(WrenVM* vm);
+extern void f134(WrenVM* vm);
+extern void f135(WrenVM* vm);
+extern void f136(WrenVM* vm);
+extern void f137(WrenVM* vm);
+extern void f138(WrenVM* vm);
+extern void f139(WrenVM* vm);
+extern void f140(WrenVM* vm);
+extern void f141(WrenVM* vm);
+extern void f142(WrenVM* vm);
+extern void f143(WrenVM* vm);
+extern void f144(WrenVM* vm);
+extern void f145(WrenVM* vm);
+extern void f146(WrenVM* vm);
+extern void f147(WrenVM* vm);
+extern void f148(WrenVM* vm);
+extern void f149(WrenVM* vm);
+extern void f150(WrenVM* vm);
+extern void f151(WrenVM* vm);
+extern void f152(WrenVM* vm);
+extern void f153(WrenVM* vm);
+extern void f154(WrenVM* vm);
+extern void f155(WrenVM* vm);
+extern void f156(WrenVM* vm);
+extern void f157(WrenVM* vm);
+extern void f158(WrenVM* vm);
+extern void f159(WrenVM* vm);
+extern void f160(WrenVM* vm);
+extern void f161(WrenVM* vm);
+extern void f162(WrenVM* vm);
+extern void f163(WrenVM* vm);
+extern void f164(WrenVM* vm);
+extern void f165(WrenVM* vm);
+extern void f166(WrenVM* vm);
+extern void f167(WrenVM* vm);
+extern void f168(WrenVM* vm);
+extern void f169(WrenVM* vm);
+extern void f170(WrenVM* vm);
+extern void f171(WrenVM* vm);
+extern void f172(WrenVM* vm);
+extern void f173(WrenVM* vm);
+extern void f174(WrenVM* vm);
+extern void f175(WrenVM* vm);
+extern void f176(WrenVM* vm);
+extern void f177(WrenVM* vm);
+extern void f178(WrenVM* vm);
+extern void f179(WrenVM* vm);
+extern void f180(WrenVM* vm);
+extern void f181(WrenVM* vm);
+extern void f182(WrenVM* vm);
+extern void f183(WrenVM* vm);
+extern void f184(WrenVM* vm);
+extern void f185(WrenVM* vm);
+extern void f186(WrenVM* vm);
+extern void f187(WrenVM* vm);
+extern void f188(WrenVM* vm);
+extern void f189(WrenVM* vm);
+extern void f190(WrenVM* vm);
+extern void f191(WrenVM* vm);
+extern void f192(WrenVM* vm);
+extern void f193(WrenVM* vm);
+extern void f194(WrenVM* vm);
+extern void f195(WrenVM* vm);
+extern void f196(WrenVM* vm);
+extern void f197(WrenVM* vm);
+extern void f198(WrenVM* vm);
+extern void f199(WrenVM* vm);
+extern void f200(WrenVM* vm);
+extern void f201(WrenVM* vm);
+extern void f202(WrenVM* vm);
+extern void f203(WrenVM* vm);
+extern void f204(WrenVM* vm);
+extern void f205(WrenVM* vm);
+extern void f206(WrenVM* vm);
+extern void f207(WrenVM* vm);
+extern void f208(WrenVM* vm);
+extern void f209(WrenVM* vm);
+extern void f210(WrenVM* vm);
+extern void f211(WrenVM* vm);
+extern void f212(WrenVM* vm);
+extern void f213(WrenVM* vm);
+extern void f214(WrenVM* vm);
+extern void f215(WrenVM* vm);
+extern void f216(WrenVM* vm);
+extern void f217(WrenVM* vm);
+extern void f218(WrenVM* vm);
+extern void f219(WrenVM* vm);
+extern void f220(WrenVM* vm);
+extern void f221(WrenVM* vm);
+extern void f222(WrenVM* vm);
+extern void f223(WrenVM* vm);
+extern void f224(WrenVM* vm);
+extern void f225(WrenVM* vm);
+extern void f226(WrenVM* vm);
+extern void f227(WrenVM* vm);
+extern void f228(WrenVM* vm);
+extern void f229(WrenVM* vm);
+extern void f230(WrenVM* vm);
+extern void f231(WrenVM* vm);
+extern void f232(WrenVM* vm);
+extern void f233(WrenVM* vm);
+extern void f234(WrenVM* vm);
+extern void f235(WrenVM* vm);
+extern void f236(WrenVM* vm);
+extern void f237(WrenVM* vm);
+extern void f238(WrenVM* vm);
+extern void f239(WrenVM* vm);
+extern void f240(WrenVM* vm);
+extern void f241(WrenVM* vm);
+extern void f242(WrenVM* vm);
+extern void f243(WrenVM* vm);
+extern void f244(WrenVM* vm);
+extern void f245(WrenVM* vm);
+extern void f246(WrenVM* vm);
+extern void f247(WrenVM* vm);
+extern void f248(WrenVM* vm);
+extern void f249(WrenVM* vm);
+extern void f250(WrenVM* vm);
+extern void f251(WrenVM* vm);
+extern void f252(WrenVM* vm);
+extern void f253(WrenVM* vm);
+extern void f254(WrenVM* vm);
+extern void f255(WrenVM* vm);
+extern void f256(WrenVM* vm);
+extern void f257(WrenVM* vm);
+extern void f258(WrenVM* vm);
+extern void f259(WrenVM* vm);
+extern void f260(WrenVM* vm);
+extern void f261(WrenVM* vm);
+extern void f262(WrenVM* vm);
+extern void f263(WrenVM* vm);
+extern void f264(WrenVM* vm);
+extern void f265(WrenVM* vm);
+extern void f266(WrenVM* vm);
+extern void f267(WrenVM* vm);
+extern void f268(WrenVM* vm);
+extern void f269(WrenVM* vm);
+extern void f270(WrenVM* vm);
+extern void f271(WrenVM* vm);
+extern void f272(WrenVM* vm);
+extern void f273(WrenVM* vm);
+extern void f274(WrenVM* vm);
+extern void f275(WrenVM* vm);
+extern void f276(WrenVM* vm);
+extern void f277(WrenVM* vm);
+extern void f278(WrenVM* vm);
+extern void f279(WrenVM* vm);
+extern void f280(WrenVM* vm);
+extern void f281(WrenVM* vm);
+extern void f282(WrenVM* vm);
+extern void f283(WrenVM* vm);
+extern void f284(WrenVM* vm);
+extern void f285(WrenVM* vm);
+extern void f286(WrenVM* vm);
+extern void f287(WrenVM* vm);
+extern void f288(WrenVM* vm);
+extern void f289(WrenVM* vm);
+extern void f290(WrenVM* vm);
+extern void f291(WrenVM* vm);
+extern void f292(WrenVM* vm);
+extern void f293(WrenVM* vm);
+extern void f294(WrenVM* vm);
+extern void f295(WrenVM* vm);
+extern void f296(WrenVM* vm);
+extern void f297(WrenVM* vm);
+extern void f298(WrenVM* vm);
+extern void f299(WrenVM* vm);
+extern void f300(WrenVM* vm);
+extern void f301(WrenVM* vm);
+extern void f302(WrenVM* vm);
+extern void f303(WrenVM* vm);
+extern void f304(WrenVM* vm);
+extern void f305(WrenVM* vm);
+extern void f306(WrenVM* vm);
+extern void f307(WrenVM* vm);
+extern void f308(WrenVM* vm);
+extern void f309(WrenVM* vm);
+extern void f310(WrenVM* vm);
+extern void f311(WrenVM* vm);
+extern void f312(WrenVM* vm);
+extern void f313(WrenVM* vm);
+extern void f314(WrenVM* vm);
+extern void f315(WrenVM* vm);
+extern void f316(WrenVM* vm);
+extern void f317(WrenVM* vm);
+extern void f318(WrenVM* vm);
+extern void f319(WrenVM* vm);
+extern void f320(WrenVM* vm);
+extern void f321(WrenVM* vm);
+extern void f322(WrenVM* vm);
+extern void f323(WrenVM* vm);
+extern void f324(WrenVM* vm);
+extern void f325(WrenVM* vm);
+extern void f326(WrenVM* vm);
+extern void f327(WrenVM* vm);
+extern void f328(WrenVM* vm);
+extern void f329(WrenVM* vm);
+extern void f330(WrenVM* vm);
+extern void f331(WrenVM* vm);
+extern void f332(WrenVM* vm);
+extern void f333(WrenVM* vm);
+extern void f334(WrenVM* vm);
+extern void f335(WrenVM* vm);
+extern void f336(WrenVM* vm);
+extern void f337(WrenVM* vm);
+extern void f338(WrenVM* vm);
+extern void f339(WrenVM* vm);
+extern void f340(WrenVM* vm);
+extern void f341(WrenVM* vm);
+extern void f342(WrenVM* vm);
+extern void f343(WrenVM* vm);
+extern void f344(WrenVM* vm);
+extern void f345(WrenVM* vm);
+extern void f346(WrenVM* vm);
+extern void f347(WrenVM* vm);
+extern void f348(WrenVM* vm);
+extern void f349(WrenVM* vm);
+extern void f350(WrenVM* vm);
+extern void f351(WrenVM* vm);
+extern void f352(WrenVM* vm);
+extern void f353(WrenVM* vm);
+extern void f354(WrenVM* vm);
+extern void f355(WrenVM* vm);
+extern void f356(WrenVM* vm);
+extern void f357(WrenVM* vm);
+extern void f358(WrenVM* vm);
+extern void f359(WrenVM* vm);
+extern void f360(WrenVM* vm);
+extern void f361(WrenVM* vm);
+extern void f362(WrenVM* vm);
+extern void f363(WrenVM* vm);
+extern void f364(WrenVM* vm);
+extern void f365(WrenVM* vm);
+extern void f366(WrenVM* vm);
+extern void f367(WrenVM* vm);
+extern void f368(WrenVM* vm);
+extern void f369(WrenVM* vm);
+extern void f370(WrenVM* vm);
+extern void f371(WrenVM* vm);
+extern void f372(WrenVM* vm);
+extern void f373(WrenVM* vm);
+extern void f374(WrenVM* vm);
+extern void f375(WrenVM* vm);
+extern void f376(WrenVM* vm);
+extern void f377(WrenVM* vm);
+extern void f378(WrenVM* vm);
+extern void f379(WrenVM* vm);
+extern void f380(WrenVM* vm);
+extern void f381(WrenVM* vm);
+extern void f382(WrenVM* vm);
+extern void f383(WrenVM* vm);
+extern void f384(WrenVM* vm);
+extern void f385(WrenVM* vm);
+extern void f386(WrenVM* vm);
+extern void f387(WrenVM* vm);
+extern void f388(WrenVM* vm);
+extern void f389(WrenVM* vm);
+extern void f390(WrenVM* vm);
+extern void f391(WrenVM* vm);
+extern void f392(WrenVM* vm);
+extern void f393(WrenVM* vm);
+extern void f394(WrenVM* vm);
+extern void f395(WrenVM* vm);
+extern void f396(WrenVM* vm);
+extern void f397(WrenVM* vm);
+extern void f398(WrenVM* vm);
+extern void f399(WrenVM* vm);
+extern void f400(WrenVM* vm);
+extern void f401(WrenVM* vm);
+extern void f402(WrenVM* vm);
+extern void f403(WrenVM* vm);
+extern void f404(WrenVM* vm);
+extern void f405(WrenVM* vm);
+extern void f406(WrenVM* vm);
+extern void f407(WrenVM* vm);
+extern void f408(WrenVM* vm);
+extern void f409(WrenVM* vm);
+extern void f410(WrenVM* vm);
+extern void f411(WrenVM* vm);
+extern void f412(WrenVM* vm);
+extern void f413(WrenVM* vm);
+extern void f414(WrenVM* vm);
+extern void f415(WrenVM* vm);
+extern void f416(WrenVM* vm);
+extern void f417(WrenVM* vm);
+extern void f418(WrenVM* vm);
+extern void f419(WrenVM* vm);
+extern void f420(WrenVM* vm);
+extern void f421(WrenVM* vm);
+extern void f422(WrenVM* vm);
+extern void f423(WrenVM* vm);
+extern void f424(WrenVM* vm);
+extern void f425(WrenVM* vm);
+extern void f426(WrenVM* vm);
+extern void f427(WrenVM* vm);
+extern void f428(WrenVM* vm);
+extern void f429(WrenVM* vm);
+extern void f430(WrenVM* vm);
+extern void f431(WrenVM* vm);
+extern void f432(WrenVM* vm);
+extern void f433(WrenVM* vm);
+extern void f434(WrenVM* vm);
+extern void f435(WrenVM* vm);
+extern void f436(WrenVM* vm);
+extern void f437(WrenVM* vm);
+extern void f438(WrenVM* vm);
+extern void f439(WrenVM* vm);
+extern void f440(WrenVM* vm);
+extern void f441(WrenVM* vm);
+extern void f442(WrenVM* vm);
+extern void f443(WrenVM* vm);
+extern void f444(WrenVM* vm);
+extern void f445(WrenVM* vm);
+extern void f446(WrenVM* vm);
+extern void f447(WrenVM* vm);
+extern void f448(WrenVM* vm);
+extern void f449(WrenVM* vm);
+extern void f450(WrenVM* vm);
+extern void f451(WrenVM* vm);
+extern void f452(WrenVM* vm);
+extern void f453(WrenVM* vm);
+extern void f454(WrenVM* vm);
+extern void f455(WrenVM* vm);
+extern void f456(WrenVM* vm);
+extern void f457(WrenVM* vm);
+extern void f458(WrenVM* vm);
+extern void f459(WrenVM* vm);
+extern void f460(WrenVM* vm);
+extern void f461(WrenVM* vm);
+extern void f462(WrenVM* vm);
+extern void f463(WrenVM* vm);
+extern void f464(WrenVM* vm);
+extern void f465(WrenVM* vm);
+extern void f466(WrenVM* vm);
+extern void f467(WrenVM* vm);
+extern void f468(WrenVM* vm);
+extern void f469(WrenVM* vm);
+extern void f470(WrenVM* vm);
+extern void f471(WrenVM* vm);
+extern void f472(WrenVM* vm);
+extern void f473(WrenVM* vm);
+extern void f474(WrenVM* vm);
+extern void f475(WrenVM* vm);
+extern void f476(WrenVM* vm);
+extern void f477(WrenVM* vm);
+extern void f478(WrenVM* vm);
+extern void f479(WrenVM* vm);
+extern void f480(WrenVM* vm);
+extern void f481(WrenVM* vm);
+extern void f482(WrenVM* vm);
+extern void f483(WrenVM* vm);
+extern void f484(WrenVM* vm);
+extern void f485(WrenVM* vm);
+extern void f486(WrenVM* vm);
+extern void f487(WrenVM* vm);
+extern void f488(WrenVM* vm);
+extern void f489(WrenVM* vm);
+extern void f490(WrenVM* vm);
+extern void f491(WrenVM* vm);
+extern void f492(WrenVM* vm);
+extern void f493(WrenVM* vm);
+extern void f494(WrenVM* vm);
+extern void f495(WrenVM* vm);
+extern void f496(WrenVM* vm);
+extern void f497(WrenVM* vm);
+extern void f498(WrenVM* vm);
+extern void f499(WrenVM* vm);
+extern void f500(WrenVM* vm);
+extern void f501(WrenVM* vm);
+extern void f502(WrenVM* vm);
+extern void f503(WrenVM* vm);
+extern void f504(WrenVM* vm);
+extern void f505(WrenVM* vm);
+extern void f506(WrenVM* vm);
+extern void f507(WrenVM* vm);
+extern void f508(WrenVM* vm);
+extern void f509(WrenVM* vm);
+extern void f510(WrenVM* vm);
+extern void f511(WrenVM* vm);
 
 static inline WrenForeignMethodFn get_f(int i) {
 	switch (i) {
@@ -266,6 +650,390 @@ static inline WrenForeignMethodFn get_f(int i) {
 		case 125: return f125;
 		case 126: return f126;
 		case 127: return f127;
+		case 128: return f128;
+		case 129: return f129;
+		case 130: return f130;
+		case 131: return f131;
+		case 132: return f132;
+		case 133: return f133;
+		case 134: return f134;
+		case 135: return f135;
+		case 136: return f136;
+		case 137: return f137;
+		case 138: return f138;
+		case 139: return f139;
+		case 140: return f140;
+		case 141: return f141;
+		case 142: return f142;
+		case 143: return f143;
+		case 144: return f144;
+		case 145: return f145;
+		case 146: return f146;
+		case 147: return f147;
+		case 148: return f148;
+		case 149: return f149;
+		case 150: return f150;
+		case 151: return f151;
+		case 152: return f152;
+		case 153: return f153;
+		case 154: return f154;
+		case 155: return f155;
+		case 156: return f156;
+		case 157: return f157;
+		case 158: return f158;
+		case 159: return f159;
+		case 160: return f160;
+		case 161: return f161;
+		case 162: return f162;
+		case 163: return f163;
+		case 164: return f164;
+		case 165: return f165;
+		case 166: return f166;
+		case 167: return f167;
+		case 168: return f168;
+		case 169: return f169;
+		case 170: return f170;
+		case 171: return f171;
+		case 172: return f172;
+		case 173: return f173;
+		case 174: return f174;
+		case 175: return f175;
+		case 176: return f176;
+		case 177: return f177;
+		case 178: return f178;
+		case 179: return f179;
+		case 180: return f180;
+		case 181: return f181;
+		case 182: return f182;
+		case 183: return f183;
+		case 184: return f184;
+		case 185: return f185;
+		case 186: return f186;
+		case 187: return f187;
+		case 188: return f188;
+		case 189: return f189;
+		case 190: return f190;
+		case 191: return f191;
+		case 192: return f192;
+		case 193: return f193;
+		case 194: return f194;
+		case 195: return f195;
+		case 196: return f196;
+		case 197: return f197;
+		case 198: return f198;
+		case 199: return f199;
+		case 200: return f200;
+		case 201: return f201;
+		case 202: return f202;
+		case 203: return f203;
+		case 204: return f204;
+		case 205: return f205;
+		case 206: return f206;
+		case 207: return f207;
+		case 208: return f208;
+		case 209: return f209;
+		case 210: return f210;
+		case 211: return f211;
+		case 212: return f212;
+		case 213: return f213;
+		case 214: return f214;
+		case 215: return f215;
+		case 216: return f216;
+		case 217: return f217;
+		case 218: return f218;
+		case 219: return f219;
+		case 220: return f220;
+		case 221: return f221;
+		case 222: return f222;
+		case 223: return f223;
+		case 224: return f224;
+		case 225: return f225;
+		case 226: return f226;
+		case 227: return f227;
+		case 228: return f228;
+		case 229: return f229;
+		case 230: return f230;
+		case 231: return f231;
+		case 232: return f232;
+		case 233: return f233;
+		case 234: return f234;
+		case 235: return f235;
+		case 236: return f236;
+		case 237: return f237;
+		case 238: return f238;
+		case 239: return f239;
+		case 240: return f240;
+		case 241: return f241;
+		case 242: return f242;
+		case 243: return f243;
+		case 244: return f244;
+		case 245: return f245;
+		case 246: return f246;
+		case 247: return f247;
+		case 248: return f248;
+		case 249: return f249;
+		case 250: return f250;
+		case 251: return f251;
+		case 252: return f252;
+		case 253: return f253;
+		case 254: return f254;
+		case 255: return f255;
+		case 256: return f256;
+		case 257: return f257;
+		case 258: return f258;
+		case 259: return f259;
+		case 260: return f260;
+		case 261: return f261;
+		case 262: return f262;
+		case 263: return f263;
+		case 264: return f264;
+		case 265: return f265;
+		case 266: return f266;
+		case 267: return f267;
+		case 268: return f268;
+		case 269: return f269;
+		case 270: return f270;
+		case 271: return f271;
+		case 272: return f272;
+		case 273: return f273;
+		case 274: return f274;
+		case 275: return f275;
+		case 276: return f276;
+		case 277: return f277;
+		case 278: return f278;
+		case 279: return f279;
+		case 280: return f280;
+		case 281: return f281;
+		case 282: return f282;
+		case 283: return f283;
+		case 284: return f284;
+		case 285: return f285;
+		case 286: return f286;
+		case 287: return f287;
+		case 288: return f288;
+		case 289: return f289;
+		case 290: return f290;
+		case 291: return f291;
+		case 292: return f292;
+		case 293: return f293;
+		case 294: return f294;
+		case 295: return f295;
+		case 296: return f296;
+		case 297: return f297;
+		case 298: return f298;
+		case 299: return f299;
+		case 300: return f300;
+		case 301: return f301;
+		case 302: return f302;
+		case 303: return f303;
+		case 304: return f304;
+		case 305: return f305;
+		case 306: return f306;
+		case 307: return f307;
+		case 308: return f308;
+		case 309: return f309;
+		case 310: return f310;
+		case 311: return f311;
+		case 312: return f312;
+		case 313: return f313;
+		case 314: return f314;
+		case 315: return f315;
+		case 316: return f316;
+		case 317: return f317;
+		case 318: return f318;
+		case 319: return f319;
+		case 320: return f320;
+		case 321: return f321;
+		case 322: return f322;
+		case 323: return f323;
+		case 324: return f324;
+		case 325: return f325;
+		case 326: return f326;
+		case 327: return f327;
+		case 328: return f328;
+		case 329: return f329;
+		case 330: return f330;
+		case 331: return f331;
+		case 332: return f332;
+		case 333: return f333;
+		case 334: return f334;
+		case 335: return f335;
+		case 336: return f336;
+		case 337: return f337;
+		case 338: return f338;
+		case 339: return f339;
+		case 340: return f340;
+		case 341: return f341;
+		case 342: return f342;
+		case 343: return f343;
+		case 344: return f344;
+		case 345: return f345;
+		case 346: return f346;
+		case 347: return f347;
+		case 348: return f348;
+		case 349: return f349;
+		case 350: return f350;
+		case 351: return f351;
+		case 352: return f352;
+		case 353: return f353;
+		case 354: return f354;
+		case 355: return f355;
+		case 356: return f356;
+		case 357: return f357;
+		case 358: return f358;
+		case 359: return f359;
+		case 360: return f360;
+		case 361: return f361;
+		case 362: return f362;
+		case 363: return f363;
+		case 364: return f364;
+		case 365: return f365;
+		case 366: return f366;
+		case 367: return f367;
+		case 368: return f368;
+		case 369: return f369;
+		case 370: return f370;
+		case 371: return f371;
+		case 372: return f372;
+		case 373: return f373;
+		case 374: return f374;
+		case 375: return f375;
+		case 376: return f376;
+		case 377: return f377;
+		case 378: return f378;
+		case 379: return f379;
+		case 380: return f380;
+		case 381: return f381;
+		case 382: return f382;
+		case 383: return f383;
+		case 384: return f384;
+		case 385: return f385;
+		case 386: return f386;
+		case 387: return f387;
+		case 388: return f388;
+		case 389: return f389;
+		case 390: return f390;
+		case 391: return f391;
+		case 392: return f392;
+		case 393: return f393;
+		case 394: return f394;
+		case 395: return f395;
+		case 396: return f396;
+		case 397: return f397;
+		case 398: return f398;
+		case 399: return f399;
+		case 400: return f400;
+		case 401: return f401;
+		case 402: return f402;
+		case 403: return f403;
+		case 404: return f404;
+		case 405: return f405;
+		case 406: return f406;
+		case 407: return f407;
+		case 408: return f408;
+		case 409: return f409;
+		case 410: return f410;
+		case 411: return f411;
+		case 412: return f412;
+		case 413: return f413;
+		case 414: return f414;
+		case 415: return f415;
+		case 416: return f416;
+		case 417: return f417;
+		case 418: return f418;
+		case 419: return f419;
+		case 420: return f420;
+		case 421: return f421;
+		case 422: return f422;
+		case 423: return f423;
+		case 424: return f424;
+		case 425: return f425;
+		case 426: return f426;
+		case 427: return f427;
+		case 428: return f428;
+		case 429: return f429;
+		case 430: return f430;
+		case 431: return f431;
+		case 432: return f432;
+		case 433: return f433;
+		case 434: return f434;
+		case 435: return f435;
+		case 436: return f436;
+		case 437: return f437;
+		case 438: return f438;
+		case 439: return f439;
+		case 440: return f440;
+		case 441: return f441;
+		case 442: return f442;
+		case 443: return f443;
+		case 444: return f444;
+		case 445: return f445;
+		case 446: return f446;
+		case 447: return f447;
+		case 448: return f448;
+		case 449: return f449;
+		case 450: return f450;
+		case 451: return f451;
+		case 452: return f452;
+		case 453: return f453;
+		case 454: return f454;
+		case 455: return f455;
+		case 456: return f456;
+		case 457: return f457;
+		case 458: return f458;
+		case 459: return f459;
+		case 460: return f460;
+		case 461: return f461;
+		case 462: return f462;
+		case 463: return f463;
+		case 464: return f464;
+		case 465: return f465;
+		case 466: return f466;
+		case 467: return f467;
+		case 468: return f468;
+		case 469: return f469;
+		case 470: return f470;
+		case 471: return f471;
+		case 472: return f472;
+		case 473: return f473;
+		case 474: return f474;
+		case 475: return f475;
+		case 476: return f476;
+		case 477: return f477;
+		case 478: return f478;
+		case 479: return f479;
+		case 480: return f480;
+		case 481: return f481;
+		case 482: return f482;
+		case 483: return f483;
+		case 484: return f484;
+		case 485: return f485;
+		case 486: return f486;
+		case 487: return f487;
+		case 488: return f488;
+		case 489: return f489;
+		case 490: return f490;
+		case 491: return f491;
+		case 492: return f492;
+		case 493: return f493;
+		case 494: return f494;
+		case 495: return f495;
+		case 496: return f496;
+		case 497: return f497;
+		case 498: return f498;
+		case 499: return f499;
+		case 500: return f500;
+		case 501: return f501;
+		case 502: return f502;
+		case 503: return f503;
+		case 504: return f504;
+		case 505: return f505;
+		case 506: return f506;
+		case 507: return f507;
+		case 508: return f508;
+		case 509: return f509;
+		case 510: return f510;
+		case 511: return f511;
 		default: return (void*)(0);
 	}
 }
@@ -275,7 +1043,7 @@ import (
 	"fmt"
 )
 
-const MAX_REGISTRATIONS = 128
+const MAX_REGISTRATIONS = 512
 
 //export f0
 func f0(v *C.WrenVM) {
@@ -2570,6 +3338,6918 @@ func f127(v *C.WrenVM) {
 			params := vm.getAllSlots()
 			// println(params)
 			ret, err := vm.bindMap[127](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f128
+func f128(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 128 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[128](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f129
+func f129(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 129 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[129](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f130
+func f130(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 130 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[130](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f131
+func f131(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 131 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[131](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f132
+func f132(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 132 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[132](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f133
+func f133(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 133 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[133](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f134
+func f134(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 134 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[134](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f135
+func f135(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 135 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[135](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f136
+func f136(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 136 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[136](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f137
+func f137(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 137 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[137](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f138
+func f138(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 138 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[138](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f139
+func f139(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 139 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[139](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f140
+func f140(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 140 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[140](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f141
+func f141(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 141 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[141](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f142
+func f142(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 142 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[142](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f143
+func f143(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 143 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[143](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f144
+func f144(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 144 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[144](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f145
+func f145(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 145 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[145](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f146
+func f146(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 146 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[146](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f147
+func f147(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 147 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[147](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f148
+func f148(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 148 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[148](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f149
+func f149(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 149 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[149](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f150
+func f150(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 150 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[150](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f151
+func f151(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 151 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[151](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f152
+func f152(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 152 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[152](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f153
+func f153(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 153 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[153](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f154
+func f154(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 154 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[154](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f155
+func f155(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 155 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[155](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f156
+func f156(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 156 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[156](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f157
+func f157(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 157 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[157](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f158
+func f158(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 158 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[158](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f159
+func f159(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 159 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[159](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f160
+func f160(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 160 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[160](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f161
+func f161(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 161 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[161](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f162
+func f162(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 162 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[162](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f163
+func f163(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 163 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[163](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f164
+func f164(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 164 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[164](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f165
+func f165(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 165 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[165](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f166
+func f166(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 166 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[166](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f167
+func f167(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 167 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[167](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f168
+func f168(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 168 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[168](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f169
+func f169(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 169 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[169](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f170
+func f170(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 170 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[170](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f171
+func f171(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 171 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[171](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f172
+func f172(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 172 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[172](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f173
+func f173(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 173 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[173](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f174
+func f174(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 174 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[174](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f175
+func f175(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 175 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[175](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f176
+func f176(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 176 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[176](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f177
+func f177(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 177 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[177](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f178
+func f178(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 178 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[178](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f179
+func f179(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 179 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[179](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f180
+func f180(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 180 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[180](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f181
+func f181(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 181 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[181](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f182
+func f182(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 182 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[182](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f183
+func f183(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 183 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[183](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f184
+func f184(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 184 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[184](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f185
+func f185(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 185 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[185](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f186
+func f186(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 186 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[186](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f187
+func f187(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 187 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[187](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f188
+func f188(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 188 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[188](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f189
+func f189(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 189 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[189](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f190
+func f190(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 190 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[190](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f191
+func f191(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 191 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[191](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f192
+func f192(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 192 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[192](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f193
+func f193(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 193 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[193](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f194
+func f194(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 194 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[194](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f195
+func f195(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 195 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[195](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f196
+func f196(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 196 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[196](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f197
+func f197(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 197 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[197](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f198
+func f198(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 198 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[198](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f199
+func f199(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 199 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[199](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f200
+func f200(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 200 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[200](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f201
+func f201(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 201 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[201](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f202
+func f202(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 202 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[202](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f203
+func f203(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 203 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[203](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f204
+func f204(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 204 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[204](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f205
+func f205(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 205 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[205](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f206
+func f206(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 206 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[206](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f207
+func f207(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 207 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[207](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f208
+func f208(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 208 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[208](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f209
+func f209(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 209 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[209](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f210
+func f210(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 210 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[210](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f211
+func f211(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 211 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[211](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f212
+func f212(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 212 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[212](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f213
+func f213(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 213 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[213](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f214
+func f214(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 214 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[214](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f215
+func f215(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 215 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[215](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f216
+func f216(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 216 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[216](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f217
+func f217(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 217 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[217](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f218
+func f218(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 218 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[218](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f219
+func f219(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 219 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[219](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f220
+func f220(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 220 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[220](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f221
+func f221(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 221 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[221](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f222
+func f222(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 222 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[222](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f223
+func f223(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 223 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[223](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f224
+func f224(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 224 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[224](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f225
+func f225(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 225 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[225](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f226
+func f226(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 226 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[226](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f227
+func f227(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 227 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[227](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f228
+func f228(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 228 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[228](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f229
+func f229(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 229 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[229](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f230
+func f230(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 230 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[230](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f231
+func f231(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 231 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[231](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f232
+func f232(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 232 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[232](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f233
+func f233(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 233 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[233](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f234
+func f234(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 234 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[234](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f235
+func f235(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 235 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[235](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f236
+func f236(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 236 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[236](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f237
+func f237(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 237 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[237](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f238
+func f238(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 238 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[238](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f239
+func f239(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 239 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[239](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f240
+func f240(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 240 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[240](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f241
+func f241(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 241 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[241](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f242
+func f242(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 242 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[242](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f243
+func f243(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 243 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[243](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f244
+func f244(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 244 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[244](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f245
+func f245(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 245 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[245](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f246
+func f246(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 246 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[246](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f247
+func f247(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 247 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[247](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f248
+func f248(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 248 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[248](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f249
+func f249(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 249 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[249](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f250
+func f250(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 250 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[250](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f251
+func f251(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 251 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[251](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f252
+func f252(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 252 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[252](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f253
+func f253(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 253 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[253](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f254
+func f254(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 254 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[254](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f255
+func f255(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 255 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[255](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f256
+func f256(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 256 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[256](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f257
+func f257(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 257 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[257](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f258
+func f258(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 258 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[258](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f259
+func f259(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 259 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[259](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f260
+func f260(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 260 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[260](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f261
+func f261(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 261 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[261](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f262
+func f262(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 262 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[262](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f263
+func f263(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 263 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[263](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f264
+func f264(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 264 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[264](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f265
+func f265(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 265 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[265](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f266
+func f266(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 266 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[266](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f267
+func f267(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 267 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[267](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f268
+func f268(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 268 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[268](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f269
+func f269(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 269 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[269](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f270
+func f270(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 270 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[270](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f271
+func f271(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 271 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[271](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f272
+func f272(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 272 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[272](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f273
+func f273(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 273 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[273](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f274
+func f274(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 274 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[274](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f275
+func f275(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 275 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[275](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f276
+func f276(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 276 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[276](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f277
+func f277(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 277 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[277](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f278
+func f278(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 278 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[278](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f279
+func f279(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 279 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[279](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f280
+func f280(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 280 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[280](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f281
+func f281(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 281 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[281](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f282
+func f282(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 282 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[282](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f283
+func f283(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 283 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[283](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f284
+func f284(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 284 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[284](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f285
+func f285(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 285 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[285](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f286
+func f286(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 286 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[286](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f287
+func f287(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 287 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[287](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f288
+func f288(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 288 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[288](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f289
+func f289(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 289 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[289](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f290
+func f290(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 290 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[290](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f291
+func f291(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 291 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[291](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f292
+func f292(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 292 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[292](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f293
+func f293(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 293 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[293](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f294
+func f294(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 294 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[294](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f295
+func f295(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 295 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[295](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f296
+func f296(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 296 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[296](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f297
+func f297(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 297 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[297](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f298
+func f298(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 298 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[298](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f299
+func f299(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 299 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[299](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f300
+func f300(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 300 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[300](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f301
+func f301(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 301 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[301](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f302
+func f302(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 302 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[302](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f303
+func f303(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 303 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[303](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f304
+func f304(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 304 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[304](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f305
+func f305(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 305 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[305](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f306
+func f306(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 306 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[306](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f307
+func f307(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 307 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[307](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f308
+func f308(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 308 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[308](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f309
+func f309(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 309 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[309](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f310
+func f310(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 310 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[310](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f311
+func f311(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 311 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[311](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f312
+func f312(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 312 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[312](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f313
+func f313(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 313 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[313](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f314
+func f314(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 314 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[314](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f315
+func f315(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 315 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[315](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f316
+func f316(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 316 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[316](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f317
+func f317(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 317 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[317](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f318
+func f318(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 318 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[318](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f319
+func f319(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 319 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[319](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f320
+func f320(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 320 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[320](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f321
+func f321(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 321 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[321](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f322
+func f322(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 322 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[322](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f323
+func f323(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 323 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[323](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f324
+func f324(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 324 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[324](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f325
+func f325(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 325 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[325](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f326
+func f326(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 326 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[326](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f327
+func f327(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 327 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[327](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f328
+func f328(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 328 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[328](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f329
+func f329(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 329 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[329](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f330
+func f330(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 330 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[330](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f331
+func f331(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 331 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[331](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f332
+func f332(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 332 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[332](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f333
+func f333(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 333 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[333](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f334
+func f334(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 334 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[334](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f335
+func f335(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 335 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[335](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f336
+func f336(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 336 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[336](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f337
+func f337(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 337 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[337](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f338
+func f338(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 338 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[338](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f339
+func f339(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 339 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[339](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f340
+func f340(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 340 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[340](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f341
+func f341(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 341 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[341](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f342
+func f342(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 342 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[342](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f343
+func f343(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 343 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[343](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f344
+func f344(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 344 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[344](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f345
+func f345(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 345 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[345](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f346
+func f346(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 346 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[346](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f347
+func f347(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 347 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[347](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f348
+func f348(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 348 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[348](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f349
+func f349(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 349 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[349](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f350
+func f350(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 350 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[350](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f351
+func f351(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 351 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[351](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f352
+func f352(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 352 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[352](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f353
+func f353(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 353 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[353](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f354
+func f354(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 354 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[354](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f355
+func f355(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 355 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[355](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f356
+func f356(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 356 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[356](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f357
+func f357(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 357 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[357](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f358
+func f358(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 358 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[358](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f359
+func f359(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 359 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[359](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f360
+func f360(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 360 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[360](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f361
+func f361(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 361 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[361](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f362
+func f362(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 362 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[362](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f363
+func f363(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 363 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[363](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f364
+func f364(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 364 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[364](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f365
+func f365(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 365 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[365](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f366
+func f366(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 366 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[366](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f367
+func f367(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 367 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[367](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f368
+func f368(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 368 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[368](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f369
+func f369(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 369 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[369](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f370
+func f370(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 370 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[370](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f371
+func f371(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 371 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[371](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f372
+func f372(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 372 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[372](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f373
+func f373(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 373 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[373](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f374
+func f374(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 374 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[374](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f375
+func f375(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 375 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[375](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f376
+func f376(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 376 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[376](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f377
+func f377(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 377 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[377](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f378
+func f378(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 378 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[378](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f379
+func f379(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 379 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[379](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f380
+func f380(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 380 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[380](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f381
+func f381(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 381 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[381](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f382
+func f382(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 382 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[382](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f383
+func f383(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 383 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[383](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f384
+func f384(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 384 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[384](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f385
+func f385(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 385 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[385](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f386
+func f386(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 386 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[386](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f387
+func f387(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 387 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[387](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f388
+func f388(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 388 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[388](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f389
+func f389(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 389 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[389](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f390
+func f390(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 390 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[390](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f391
+func f391(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 391 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[391](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f392
+func f392(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 392 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[392](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f393
+func f393(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 393 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[393](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f394
+func f394(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 394 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[394](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f395
+func f395(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 395 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[395](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f396
+func f396(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 396 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[396](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f397
+func f397(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 397 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[397](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f398
+func f398(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 398 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[398](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f399
+func f399(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 399 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[399](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f400
+func f400(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 400 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[400](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f401
+func f401(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 401 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[401](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f402
+func f402(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 402 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[402](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f403
+func f403(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 403 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[403](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f404
+func f404(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 404 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[404](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f405
+func f405(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 405 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[405](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f406
+func f406(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 406 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[406](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f407
+func f407(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 407 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[407](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f408
+func f408(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 408 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[408](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f409
+func f409(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 409 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[409](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f410
+func f410(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 410 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[410](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f411
+func f411(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 411 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[411](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f412
+func f412(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 412 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[412](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f413
+func f413(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 413 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[413](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f414
+func f414(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 414 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[414](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f415
+func f415(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 415 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[415](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f416
+func f416(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 416 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[416](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f417
+func f417(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 417 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[417](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f418
+func f418(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 418 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[418](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f419
+func f419(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 419 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[419](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f420
+func f420(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 420 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[420](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f421
+func f421(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 421 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[421](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f422
+func f422(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 422 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[422](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f423
+func f423(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 423 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[423](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f424
+func f424(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 424 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[424](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f425
+func f425(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 425 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[425](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f426
+func f426(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 426 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[426](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f427
+func f427(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 427 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[427](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f428
+func f428(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 428 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[428](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f429
+func f429(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 429 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[429](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f430
+func f430(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 430 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[430](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f431
+func f431(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 431 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[431](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f432
+func f432(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 432 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[432](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f433
+func f433(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 433 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[433](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f434
+func f434(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 434 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[434](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f435
+func f435(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 435 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[435](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f436
+func f436(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 436 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[436](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f437
+func f437(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 437 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[437](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f438
+func f438(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 438 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[438](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f439
+func f439(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 439 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[439](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f440
+func f440(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 440 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[440](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f441
+func f441(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 441 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[441](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f442
+func f442(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 442 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[442](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f443
+func f443(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 443 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[443](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f444
+func f444(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 444 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[444](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f445
+func f445(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 445 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[445](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f446
+func f446(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 446 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[446](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f447
+func f447(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 447 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[447](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f448
+func f448(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 448 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[448](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f449
+func f449(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 449 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[449](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f450
+func f450(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 450 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[450](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f451
+func f451(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 451 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[451](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f452
+func f452(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 452 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[452](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f453
+func f453(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 453 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[453](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f454
+func f454(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 454 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[454](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f455
+func f455(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 455 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[455](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f456
+func f456(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 456 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[456](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f457
+func f457(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 457 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[457](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f458
+func f458(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 458 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[458](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f459
+func f459(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 459 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[459](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f460
+func f460(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 460 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[460](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f461
+func f461(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 461 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[461](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f462
+func f462(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 462 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[462](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f463
+func f463(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 463 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[463](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f464
+func f464(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 464 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[464](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f465
+func f465(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 465 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[465](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f466
+func f466(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 466 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[466](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f467
+func f467(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 467 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[467](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f468
+func f468(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 468 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[468](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f469
+func f469(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 469 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[469](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f470
+func f470(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 470 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[470](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f471
+func f471(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 471 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[471](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f472
+func f472(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 472 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[472](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f473
+func f473(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 473 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[473](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f474
+func f474(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 474 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[474](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f475
+func f475(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 475 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[475](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f476
+func f476(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 476 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[476](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f477
+func f477(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 477 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[477](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f478
+func f478(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 478 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[478](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f479
+func f479(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 479 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[479](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f480
+func f480(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 480 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[480](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f481
+func f481(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 481 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[481](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f482
+func f482(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 482 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[482](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f483
+func f483(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 483 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[483](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f484
+func f484(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 484 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[484](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f485
+func f485(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 485 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[485](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f486
+func f486(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 486 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[486](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f487
+func f487(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 487 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[487](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f488
+func f488(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 488 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[488](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f489
+func f489(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 489 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[489](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f490
+func f490(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 490 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[490](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f491
+func f491(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 491 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[491](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f492
+func f492(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 492 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[492](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f493
+func f493(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 493 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[493](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f494
+func f494(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 494 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[494](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f495
+func f495(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 495 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[495](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f496
+func f496(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 496 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[496](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f497
+func f497(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 497 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[497](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f498
+func f498(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 498 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[498](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f499
+func f499(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 499 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[499](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f500
+func f500(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 500 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[500](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f501
+func f501(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 501 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[501](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f502
+func f502(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 502 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[502](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f503
+func f503(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 503 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[503](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f504
+func f504(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 504 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[504](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f505
+func f505(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 505 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[505](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f506
+func f506(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 506 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[506](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f507
+func f507(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 507 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[507](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f508
+func f508(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 508 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[508](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f509
+func f509(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 509 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[509](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f510
+func f510(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 510 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[510](vm, params)
+			if err != nil {
+				vm.Abort(err)
+			}
+			if ret != nil {
+				vm.setSlotValue(ret, 0)
+			}
+			vm.FreeAll(params)
+		}
+	}
+}
+
+//export f511
+func f511(v *C.WrenVM) {
+	if vm, ok := vmMap[v]; ok {
+		if len(vm.bindMap) > 511 {
+			params := vm.getAllSlots()
+			// println(params)
+			ret, err := vm.bindMap[511](vm, params)
 			if err != nil {
 				vm.Abort(err)
 			}
