@@ -7,11 +7,6 @@ package wren
 */
 import "C"
 
-import (
-	"bytes"
-	"fmt"
-)
-
 // ForeignMethodFn is a function that wren can import or call. The value of parameters[0] will be the foreign object itself while anything after that are the parameters from the wren function. if it returns an error, then it will call `vm.Abort`
 type ForeignMethodFn func(vm *VM, parameters []interface{}) (interface{}, error)
 
