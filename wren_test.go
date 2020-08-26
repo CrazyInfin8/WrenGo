@@ -230,8 +230,8 @@ func TestEditConfig(t *testing.T) {
 	cfg := createConfig(t)
 	vm := NewVM()
 	defer vm.Free()
-	vm.Config.ErrorFn = cfg.ErrorFn;
-	vm.Config.WriteFn = cfg.WriteFn;
+	vm.Config.ErrorFn = cfg.ErrorFn
+	vm.Config.WriteFn = cfg.WriteFn
 	err := vm.InterpretString("main", `
 	System.write("Hello world")
 	`)
@@ -255,4 +255,99 @@ func TestInvalidConstructor(t *testing.T) {
 	`)
 	vm.GC()
 
+}
+
+func TestParallelVM(t *testing.T) {
+	RunNewVM := func(vmNum int, success chan bool, fail chan bool) {
+		cfg := NewConfig()
+		cfg.WriteFn = func(vm *VM, text string) {
+			t.Logf("write %v> %v", vmNum, text)
+		}
+		cfg.ErrorFn = func(vm *VM, err error) {
+			t.Logf("error %v> %v", vmNum, err.Error())
+		}
+		vm := cfg.NewVM()
+		defer vm.Free()
+		type Foo struct {
+			i float32
+		}
+		vm.SetModule("main", NewModule(ClassMap{
+			"Foo": NewClass(
+				func(vm *VM, parameters []interface{}) (interface{}, error) {
+					t.Logf("VM %v called constructor", vmNum)
+					return &Foo{}, nil
+				},
+				func(vm *VM, data interface{}) {
+					if foo, ok := data.(Foo); ok {
+						t.Logf("VM %v called destructor with value: %v", vmNum, foo.i)
+
+					}
+				},
+				MethodMap{
+					"increment(_)": func(vm *VM, parameters []interface{}) (interface{}, error) {
+						var (
+							foo     *Foo
+							foreign *ForeignHandle
+							inter   interface{}
+							ok      bool
+							err     error
+						)
+						if foreign, ok = parameters[0].(*ForeignHandle); !ok {
+							return nil, errors.New("foreign malformed")
+						}
+						if inter, err = foreign.Get(); err != nil {
+							return nil, err
+						}
+						if foo, ok = inter.(*Foo); !ok {
+							return nil, errors.New("foreign malformed")
+						}
+						if i, ok := parameters[1].(float32); ok {
+							foo.i += i
+							return foo.i, nil
+						}
+						return nil, errors.New("Expected an int for the first parameter")
+					},
+				}),
+		}))
+		err := vm.InterpretString("main", `
+		foreign class Foo {
+			construct new() {}
+			foreign increment(i)
+		}
+
+		import "random" for Random
+		
+		var foo = Foo.new()
+		var rand = Random.new()
+		var total = 0
+		for (i in 0...100) {
+			var j = rand.int(100)
+			System.write("incrementing " + total.toString + " by " + j.toString + " to get " + foo.increment(j).toString)
+			total = total + j
+		}
+		`)
+		if err != nil {
+			fail <- true
+		} else {
+			success <- true
+		}
+	}
+	fail := make(chan bool)
+	success := make(chan bool)
+	var numOfVMs int = 100
+	for i := 0; i < numOfVMs; i++ {
+		go RunNewVM(i, success, fail)
+	}
+	var numOfSuccess int = 0
+	var numOfFails int = 0
+	for numOfSuccess + numOfFails < numOfVMs {
+		select {
+		case <-fail:
+			numOfFails++
+			t.Errorf("VM failed")
+		case <-success:
+			numOfSuccess++
+			t.Logf("VM was successful")
+		}
+	}
 }

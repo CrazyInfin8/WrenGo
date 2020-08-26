@@ -35,9 +35,9 @@ type VM struct {
 
 var (
 	vmMap         map[*C.WrenVM]*VM = make(map[*C.WrenVM]*VM)
-	vmMapMux      sync.Mutex
+	vmMapMux      sync.RWMutex
 	foreignMap    map[unsafe.Pointer]foreignInstance = make(map[unsafe.Pointer]foreignInstance)
-	foreignMapMux sync.Mutex
+	foreignMapMux sync.RWMutex
 	// DefaultOutput is where Wren will print to if a VM's config doesn't specify its own output (Set this to nil to disable output)
 	DefaultOutput io.Writer = os.Stdout
 	// DefaultError is where Wren will send error messages to if a VM's config doesn't specify its own place for outputting errors (Set this to nil to disable output)
@@ -559,8 +559,8 @@ func (h *ForeignHandle) Get() (interface{}, error) {
 	C.wrenEnsureSlots(vm.vm, 1)
 	vm.setSlotValue(h.handle, 0)
 	ptr := C.wrenGetSlotForeign(vm.vm, 0)
-	foreignMapMux.Lock()
-	defer foreignMapMux.Unlock()
+	foreignMapMux.RLock()
+	defer foreignMapMux.RUnlock()
 	if foreign, ok := foreignMap[ptr]; ok {
 		return foreign.value, nil
 	}
@@ -780,14 +780,14 @@ func (vm *VM) Abort(err error) {
 func writeFn(v *C.WrenVM, text *C.char) {
 	var output io.Writer
 	unlocked := false
-	vmMapMux.Lock()
+	vmMapMux.RLock()
 	defer func() {
 		if !unlocked {
-			vmMapMux.Unlock()
+			vmMapMux.RUnlock()
 		}
 	}()
 	if vm, ok := vmMap[v]; ok {
-		vmMapMux.Unlock()
+		vmMapMux.RUnlock()
 		unlocked = true
 		if vm.Config != nil {
 			if vm.Config.WriteFn != nil {
@@ -820,14 +820,14 @@ func errorFn(v *C.WrenVM, errorType C.WrenErrorType, module *C.char, line C.int,
 		err = &StackTrace{module: C.GoString(module), line: int(line), message: C.GoString(message)}
 	}
 	unlocked := false
-	vmMapMux.Lock()
+	vmMapMux.RLock()
 	defer func() {
 		if !unlocked {
-			vmMapMux.Unlock()
+			vmMapMux.RUnlock()
 		}
 	}()
 	if vm, ok := vmMap[v]; ok {
-		vmMapMux.Unlock()
+		vmMapMux.RUnlock()
 		unlocked = true
 		if vm.Config != nil {
 			if vm.Config.ErrorFn != nil {
@@ -850,14 +850,14 @@ func errorFn(v *C.WrenVM, errorType C.WrenErrorType, module *C.char, line C.int,
 //export moduleLoaderFn
 func moduleLoaderFn(v *C.WrenVM, name *C.char) *C.char {
 	unlocked := false
-	vmMapMux.Lock()
+	vmMapMux.RLock()
 	defer func() {
 		if !unlocked {
-			vmMapMux.Unlock()
+			vmMapMux.RUnlock()
 		}
 	}()
 	if vm, ok := vmMap[v]; ok {
-		vmMapMux.Unlock()
+		vmMapMux.RUnlock()
 		unlocked = true
 		var source string
 		if vm.Config != nil && vm.Config.LoadModuleFn != nil {
@@ -876,14 +876,14 @@ func moduleLoaderFn(v *C.WrenVM, name *C.char) *C.char {
 //export bindForeignMethodFn
 func bindForeignMethodFn(v *C.WrenVM, cModule *C.char, cClassName *C.char, cIsStatic C.bool, cSignature *C.char) C.WrenForeignMethodFn {
 	unlocked := false
-	vmMapMux.Lock()
+	vmMapMux.RLock()
 	defer func() {
 		if !unlocked {
-			vmMapMux.Unlock()
+			vmMapMux.RUnlock()
 		}
 	}()
 	if vm, ok := vmMap[v]; ok {
-		vmMapMux.Unlock()
+		vmMapMux.RUnlock()
 		unlocked = true
 		if module, ok := vm.moduleMap[C.GoString(cModule)]; ok {
 			if class, ok := module.ClassMap[C.GoString(cClassName)]; ok {
@@ -911,6 +911,7 @@ type foreignInstance struct {
 	vm        *VM
 	value     interface{}
 }
+
 //export invalidConstructor
 func invalidConstructor(v *C.WrenVM) {
 	C.wrenEnsureSlots(v, 1)
@@ -923,14 +924,14 @@ func invalidConstructor(v *C.WrenVM) {
 //export bindForeignClassFn
 func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.WrenForeignClassMethods {
 	unlocked := false
-	vmMapMux.Lock()
+	vmMapMux.RLock()
 	defer func() {
 		if !unlocked {
-			vmMapMux.Unlock()
+			vmMapMux.RUnlock()
 		}
 	}()
 	if vm, ok := vmMap[v]; ok {
-		vmMapMux.Unlock()
+		vmMapMux.RUnlock()
 		unlocked = true
 		if module, ok := vm.moduleMap[C.GoString(cModule)]; ok {
 			if class, ok := module.ClassMap[C.GoString(cClassName)]; ok {
@@ -967,6 +968,12 @@ func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.Wren
 			}
 		}
 	}
+	if C.GoString(cModule) == "random" {
+		return C.WrenForeignClassMethods{
+			allocate: nil,
+			finalize: nil,
+		}
+	}
 	return C.WrenForeignClassMethods{
 		allocate: C.WrenForeignMethodFn(C.invalidConstructor),
 	}
@@ -975,14 +982,14 @@ func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.Wren
 //export foreignFinalizerFn
 func foreignFinalizerFn(ptr unsafe.Pointer) {
 	unlocked := false
-	foreignMapMux.Lock()
+	foreignMapMux.RLock()
 	defer func() {
 		if !unlocked {
-			foreignMapMux.Unlock()
+			foreignMapMux.RUnlock()
 		}
 	}()
 	if foreign, ok := foreignMap[ptr]; ok {
-		foreignMapMux.Unlock()
+		foreignMapMux.RUnlock()
 		unlocked = true
 		if foreign.finalizer != nil {
 			foreign.finalizer(foreign.vm, foreign.value)
