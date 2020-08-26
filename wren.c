@@ -2276,394 +2276,6 @@ void wrenDumpStack(ObjFiber* fiber);
 
 #endif
 // End file "wren_debug.h"
-// Begin file "wren_debug.c"
-#include <stdio.h>
-
-
-void wrenDebugPrintStackTrace(WrenVM* vm)
-{
-  // Bail if the host doesn't enable printing errors.
-  if (vm->config.errorFn == NULL) return;
-  
-  ObjFiber* fiber = vm->fiber;
-  if (IS_STRING(fiber->error))
-  {
-    vm->config.errorFn(vm, WREN_ERROR_RUNTIME,
-                       NULL, -1, AS_CSTRING(fiber->error));
-  }
-  else
-  {
-    // TODO: Print something a little useful here. Maybe the name of the error's
-    // class?
-    vm->config.errorFn(vm, WREN_ERROR_RUNTIME,
-                       NULL, -1, "[error object]");
-  }
-
-  for (int i = fiber->numFrames - 1; i >= 0; i--)
-  {
-    CallFrame* frame = &fiber->frames[i];
-    ObjFn* fn = frame->closure->fn;
-
-    // Skip over stub functions for calling methods from the C API.
-    if (fn->module == NULL) continue;
-    
-    // The built-in core module has no name. We explicitly omit it from stack
-    // traces since we don't want to highlight to a user the implementation
-    // detail of what part of the core module is written in C and what is Wren.
-    if (fn->module->name == NULL) continue;
-    
-    // -1 because IP has advanced past the instruction that it just executed.
-    int line = fn->debug->sourceLines.data[frame->ip - fn->code.data - 1];
-    vm->config.errorFn(vm, WREN_ERROR_STACK_TRACE,
-                       fn->module->name->value, line,
-                       fn->debug->name);
-  }
-}
-
-static void dumpObject(Obj* obj)
-{
-  switch (obj->type)
-  {
-    case OBJ_CLASS:
-      printf("[class %s %p]", ((ObjClass*)obj)->name->value, obj);
-      break;
-    case OBJ_CLOSURE: printf("[closure %p]", obj); break;
-    case OBJ_FIBER: printf("[fiber %p]", obj); break;
-    case OBJ_FN: printf("[fn %p]", obj); break;
-    case OBJ_FOREIGN: printf("[foreign %p]", obj); break;
-    case OBJ_INSTANCE: printf("[instance %p]", obj); break;
-    case OBJ_LIST: printf("[list %p]", obj); break;
-    case OBJ_MAP: printf("[map %p]", obj); break;
-    case OBJ_MODULE: printf("[module %p]", obj); break;
-    case OBJ_RANGE: printf("[range %p]", obj); break;
-    case OBJ_STRING: printf("%s", ((ObjString*)obj)->value); break;
-    case OBJ_UPVALUE: printf("[upvalue %p]", obj); break;
-    default: printf("[unknown object %d]", obj->type); break;
-  }
-}
-
-void wrenDumpValue(Value value)
-{
-#if WREN_NAN_TAGGING
-  if (IS_NUM(value))
-  {
-    printf("%.14g", AS_NUM(value));
-  }
-  else if (IS_OBJ(value))
-  {
-    dumpObject(AS_OBJ(value));
-  }
-  else
-  {
-    switch (GET_TAG(value))
-    {
-      case TAG_FALSE:     printf("false"); break;
-      case TAG_NAN:       printf("NaN"); break;
-      case TAG_NULL:      printf("null"); break;
-      case TAG_TRUE:      printf("true"); break;
-      case TAG_UNDEFINED: UNREACHABLE();
-    }
-  }
-#else
-  switch (value.type)
-  {
-    case VAL_FALSE:     printf("false"); break;
-    case VAL_NULL:      printf("null"); break;
-    case VAL_NUM:       printf("%.14g", AS_NUM(value)); break;
-    case VAL_TRUE:      printf("true"); break;
-    case VAL_OBJ:       dumpObject(AS_OBJ(value)); break;
-    case VAL_UNDEFINED: UNREACHABLE();
-  }
-#endif
-}
-
-static int dumpInstruction(WrenVM* vm, ObjFn* fn, int i, int* lastLine)
-{
-  int start = i;
-  uint8_t* bytecode = fn->code.data;
-  Code code = (Code)bytecode[i];
-
-  int line = fn->debug->sourceLines.data[i];
-  if (lastLine == NULL || *lastLine != line)
-  {
-    printf("%4d:", line);
-    if (lastLine != NULL) *lastLine = line;
-  }
-  else
-  {
-    printf("     ");
-  }
-
-  printf(" %04d  ", i++);
-
-  #define READ_BYTE() (bytecode[i++])
-  #define READ_SHORT() (i += 2, (bytecode[i - 2] << 8) | bytecode[i - 1])
-
-  #define BYTE_INSTRUCTION(name)                                               \
-      printf("%-16s %5d\n", name, READ_BYTE());                                \
-      break
-
-  switch (code)
-  {
-    case CODE_CONSTANT:
-    {
-      int constant = READ_SHORT();
-      printf("%-16s %5d '", "CONSTANT", constant);
-      wrenDumpValue(fn->constants.data[constant]);
-      printf("'\n");
-      break;
-    }
-
-    case CODE_NULL:  printf("NULL\n"); break;
-    case CODE_FALSE: printf("FALSE\n"); break;
-    case CODE_TRUE:  printf("TRUE\n"); break;
-
-    case CODE_LOAD_LOCAL_0: printf("LOAD_LOCAL_0\n"); break;
-    case CODE_LOAD_LOCAL_1: printf("LOAD_LOCAL_1\n"); break;
-    case CODE_LOAD_LOCAL_2: printf("LOAD_LOCAL_2\n"); break;
-    case CODE_LOAD_LOCAL_3: printf("LOAD_LOCAL_3\n"); break;
-    case CODE_LOAD_LOCAL_4: printf("LOAD_LOCAL_4\n"); break;
-    case CODE_LOAD_LOCAL_5: printf("LOAD_LOCAL_5\n"); break;
-    case CODE_LOAD_LOCAL_6: printf("LOAD_LOCAL_6\n"); break;
-    case CODE_LOAD_LOCAL_7: printf("LOAD_LOCAL_7\n"); break;
-    case CODE_LOAD_LOCAL_8: printf("LOAD_LOCAL_8\n"); break;
-
-    case CODE_LOAD_LOCAL: BYTE_INSTRUCTION("LOAD_LOCAL");
-    case CODE_STORE_LOCAL: BYTE_INSTRUCTION("STORE_LOCAL");
-    case CODE_LOAD_UPVALUE: BYTE_INSTRUCTION("LOAD_UPVALUE");
-    case CODE_STORE_UPVALUE: BYTE_INSTRUCTION("STORE_UPVALUE");
-
-    case CODE_LOAD_MODULE_VAR:
-    {
-      int slot = READ_SHORT();
-      printf("%-16s %5d '%s'\n", "LOAD_MODULE_VAR", slot,
-             fn->module->variableNames.data[slot]->value);
-      break;
-    }
-
-    case CODE_STORE_MODULE_VAR:
-    {
-      int slot = READ_SHORT();
-      printf("%-16s %5d '%s'\n", "STORE_MODULE_VAR", slot,
-             fn->module->variableNames.data[slot]->value);
-      break;
-    }
-
-    case CODE_LOAD_FIELD_THIS: BYTE_INSTRUCTION("LOAD_FIELD_THIS");
-    case CODE_STORE_FIELD_THIS: BYTE_INSTRUCTION("STORE_FIELD_THIS");
-    case CODE_LOAD_FIELD: BYTE_INSTRUCTION("LOAD_FIELD");
-    case CODE_STORE_FIELD: BYTE_INSTRUCTION("STORE_FIELD");
-
-    case CODE_POP: printf("POP\n"); break;
-
-    case CODE_CALL_0:
-    case CODE_CALL_1:
-    case CODE_CALL_2:
-    case CODE_CALL_3:
-    case CODE_CALL_4:
-    case CODE_CALL_5:
-    case CODE_CALL_6:
-    case CODE_CALL_7:
-    case CODE_CALL_8:
-    case CODE_CALL_9:
-    case CODE_CALL_10:
-    case CODE_CALL_11:
-    case CODE_CALL_12:
-    case CODE_CALL_13:
-    case CODE_CALL_14:
-    case CODE_CALL_15:
-    case CODE_CALL_16:
-    {
-      int numArgs = bytecode[i - 1] - CODE_CALL_0;
-      int symbol = READ_SHORT();
-      printf("CALL_%-11d %5d '%s'\n", numArgs, symbol,
-             vm->methodNames.data[symbol]->value);
-      break;
-    }
-
-    case CODE_SUPER_0:
-    case CODE_SUPER_1:
-    case CODE_SUPER_2:
-    case CODE_SUPER_3:
-    case CODE_SUPER_4:
-    case CODE_SUPER_5:
-    case CODE_SUPER_6:
-    case CODE_SUPER_7:
-    case CODE_SUPER_8:
-    case CODE_SUPER_9:
-    case CODE_SUPER_10:
-    case CODE_SUPER_11:
-    case CODE_SUPER_12:
-    case CODE_SUPER_13:
-    case CODE_SUPER_14:
-    case CODE_SUPER_15:
-    case CODE_SUPER_16:
-    {
-      int numArgs = bytecode[i - 1] - CODE_SUPER_0;
-      int symbol = READ_SHORT();
-      int superclass = READ_SHORT();
-      printf("SUPER_%-10d %5d '%s' %5d\n", numArgs, symbol,
-             vm->methodNames.data[symbol]->value, superclass);
-      break;
-    }
-
-    case CODE_JUMP:
-    {
-      int offset = READ_SHORT();
-      printf("%-16s %5d to %d\n", "JUMP", offset, i + offset);
-      break;
-    }
-
-    case CODE_LOOP:
-    {
-      int offset = READ_SHORT();
-      printf("%-16s %5d to %d\n", "LOOP", offset, i - offset);
-      break;
-    }
-
-    case CODE_JUMP_IF:
-    {
-      int offset = READ_SHORT();
-      printf("%-16s %5d to %d\n", "JUMP_IF", offset, i + offset);
-      break;
-    }
-
-    case CODE_AND:
-    {
-      int offset = READ_SHORT();
-      printf("%-16s %5d to %d\n", "AND", offset, i + offset);
-      break;
-    }
-
-    case CODE_OR:
-    {
-      int offset = READ_SHORT();
-      printf("%-16s %5d to %d\n", "OR", offset, i + offset);
-      break;
-    }
-
-    case CODE_CLOSE_UPVALUE: printf("CLOSE_UPVALUE\n"); break;
-    case CODE_RETURN:        printf("RETURN\n"); break;
-
-    case CODE_CLOSURE:
-    {
-      int constant = READ_SHORT();
-      printf("%-16s %5d ", "CLOSURE", constant);
-      wrenDumpValue(fn->constants.data[constant]);
-      printf(" ");
-      ObjFn* loadedFn = AS_FN(fn->constants.data[constant]);
-      for (int j = 0; j < loadedFn->numUpvalues; j++)
-      {
-        int isLocal = READ_BYTE();
-        int index = READ_BYTE();
-        if (j > 0) printf(", ");
-        printf("%s %d", isLocal ? "local" : "upvalue", index);
-      }
-      printf("\n");
-      break;
-    }
-
-    case CODE_CONSTRUCT:         printf("CONSTRUCT\n"); break;
-    case CODE_FOREIGN_CONSTRUCT: printf("FOREIGN_CONSTRUCT\n"); break;
-      
-    case CODE_CLASS:
-    {
-      int numFields = READ_BYTE();
-      printf("%-16s %5d fields\n", "CLASS", numFields);
-      break;
-    }
-
-    case CODE_FOREIGN_CLASS: printf("FOREIGN_CLASS\n"); break;
-
-    case CODE_METHOD_INSTANCE:
-    {
-      int symbol = READ_SHORT();
-      printf("%-16s %5d '%s'\n", "METHOD_INSTANCE", symbol,
-             vm->methodNames.data[symbol]->value);
-      break;
-    }
-
-    case CODE_METHOD_STATIC:
-    {
-      int symbol = READ_SHORT();
-      printf("%-16s %5d '%s'\n", "METHOD_STATIC", symbol,
-             vm->methodNames.data[symbol]->value);
-      break;
-    }
-      
-    case CODE_END_MODULE:
-      printf("END_MODULE\n");
-      break;
-      
-    case CODE_IMPORT_MODULE:
-    {
-      int name = READ_SHORT();
-      printf("%-16s %5d '", "IMPORT_MODULE", name);
-      wrenDumpValue(fn->constants.data[name]);
-      printf("'\n");
-      break;
-    }
-      
-    case CODE_IMPORT_VARIABLE:
-    {
-      int variable = READ_SHORT();
-      printf("%-16s %5d '", "IMPORT_VARIABLE", variable);
-      wrenDumpValue(fn->constants.data[variable]);
-      printf("'\n");
-      break;
-    }
-      
-    case CODE_END:
-      printf("END\n");
-      break;
-
-    default:
-      printf("UKNOWN! [%d]\n", bytecode[i - 1]);
-      break;
-  }
-
-  // Return how many bytes this instruction takes, or -1 if it's an END.
-  if (code == CODE_END) return -1;
-  return i - start;
-
-  #undef READ_BYTE
-  #undef READ_SHORT
-}
-
-int wrenDumpInstruction(WrenVM* vm, ObjFn* fn, int i)
-{
-  return dumpInstruction(vm, fn, i, NULL);
-}
-
-void wrenDumpCode(WrenVM* vm, ObjFn* fn)
-{
-  printf("%s: %s\n",
-         fn->module->name == NULL ? "<core>" : fn->module->name->value,
-         fn->debug->name);
-
-  int i = 0;
-  int lastLine = -1;
-  for (;;)
-  {
-    int offset = dumpInstruction(vm, fn, i, &lastLine);
-    if (offset == -1) break;
-    i += offset;
-  }
-
-  printf("\n");
-}
-
-void wrenDumpStack(ObjFiber* fiber)
-{
-  printf("(fiber %p) ", fiber);
-  for (Value* slot = fiber->stack; slot < fiber->stackTop; slot++)
-  {
-    wrenDumpValue(*slot);
-    printf(" | ");
-  }
-  printf("\n");
-}
-// End file "wren_debug.c"
 // Begin file "wren_compiler.c"
 #include <errno.h>
 #include <stdbool.h>
@@ -6469,7 +6081,38 @@ void wrenMarkCompiler(WrenVM* vm, Compiler* compiler)
   while (compiler != NULL);
 }
 // End file "wren_compiler.c"
-// Begin file "wren_primitive.c"
+// Begin file "wren_core.c"
+#include <ctype.h>
+#include <errno.h>
+#include <float.h>
+#include <math.h>
+#include <string.h>
+#include <time.h>
+
+// Begin file "wren_core.h"
+#ifndef wren_core_h
+#define wren_core_h
+
+
+// This module defines the built-in classes and their primitives methods that
+// are implemented directly in C code. Some languages try to implement as much
+// of the core module itself in the primary language instead of in the host
+// language.
+//
+// With Wren, we try to do as much of it in C as possible. Primitive methods
+// are always faster than code written in Wren, and it minimizes startup time
+// since we don't have to parse, compile, and execute Wren code.
+//
+// There is one limitation, though. Methods written in C cannot call Wren ones.
+// They can only be the top of the callstack, and immediately return. This
+// makes it difficult to have primitive methods that rely on polymorphic
+// behavior. For example, `IO.write` should call `toString` on its argument,
+// including user-defined `toString` methods on user-defined classes.
+
+void wrenInitializeCore(WrenVM* vm);
+
+#endif
+// End file "wren_core.h"
 // Begin file "wren_primitive.h"
 #ifndef wren_primitive_h
 #define wren_primitive_h
@@ -6567,6 +6210,2223 @@ uint32_t calculateRange(WrenVM* vm, ObjRange* range, uint32_t* length,
 
 #endif
 // End file "wren_primitive.h"
+
+// Begin file "wren_core.wren.inc"
+// Generated automatically from src/vm/wren_core.wren. Do not edit.
+static const char* coreModuleSource =
+"class Bool {}\n"
+"class Fiber {}\n"
+"class Fn {}\n"
+"class Null {}\n"
+"class Num {}\n"
+"\n"
+"class Sequence {\n"
+"  all(f) {\n"
+"    var result = true\n"
+"    for (element in this) {\n"
+"      result = f.call(element)\n"
+"      if (!result) return result\n"
+"    }\n"
+"    return result\n"
+"  }\n"
+"\n"
+"  any(f) {\n"
+"    var result = false\n"
+"    for (element in this) {\n"
+"      result = f.call(element)\n"
+"      if (result) return result\n"
+"    }\n"
+"    return result\n"
+"  }\n"
+"\n"
+"  contains(element) {\n"
+"    for (item in this) {\n"
+"      if (element == item) return true\n"
+"    }\n"
+"    return false\n"
+"  }\n"
+"\n"
+"  count {\n"
+"    var result = 0\n"
+"    for (element in this) {\n"
+"      result = result + 1\n"
+"    }\n"
+"    return result\n"
+"  }\n"
+"\n"
+"  count(f) {\n"
+"    var result = 0\n"
+"    for (element in this) {\n"
+"      if (f.call(element)) result = result + 1\n"
+"    }\n"
+"    return result\n"
+"  }\n"
+"\n"
+"  each(f) {\n"
+"    for (element in this) {\n"
+"      f.call(element)\n"
+"    }\n"
+"  }\n"
+"\n"
+"  isEmpty { iterate(null) ? false : true }\n"
+"\n"
+"  map(transformation) { MapSequence.new(this, transformation) }\n"
+"\n"
+"  skip(count) {\n"
+"    if (!(count is Num) || !count.isInteger || count < 0) {\n"
+"      Fiber.abort(\"Count must be a non-negative integer.\")\n"
+"    }\n"
+"\n"
+"    return SkipSequence.new(this, count)\n"
+"  }\n"
+"\n"
+"  take(count) {\n"
+"    if (!(count is Num) || !count.isInteger || count < 0) {\n"
+"      Fiber.abort(\"Count must be a non-negative integer.\")\n"
+"    }\n"
+"\n"
+"    return TakeSequence.new(this, count)\n"
+"  }\n"
+"\n"
+"  where(predicate) { WhereSequence.new(this, predicate) }\n"
+"\n"
+"  reduce(acc, f) {\n"
+"    for (element in this) {\n"
+"      acc = f.call(acc, element)\n"
+"    }\n"
+"    return acc\n"
+"  }\n"
+"\n"
+"  reduce(f) {\n"
+"    var iter = iterate(null)\n"
+"    if (!iter) Fiber.abort(\"Can't reduce an empty sequence.\")\n"
+"\n"
+"    // Seed with the first element.\n"
+"    var result = iteratorValue(iter)\n"
+"    while (iter = iterate(iter)) {\n"
+"      result = f.call(result, iteratorValue(iter))\n"
+"    }\n"
+"\n"
+"    return result\n"
+"  }\n"
+"\n"
+"  join() { join(\"\") }\n"
+"\n"
+"  join(sep) {\n"
+"    var first = true\n"
+"    var result = \"\"\n"
+"\n"
+"    for (element in this) {\n"
+"      if (!first) result = result + sep\n"
+"      first = false\n"
+"      result = result + element.toString\n"
+"    }\n"
+"\n"
+"    return result\n"
+"  }\n"
+"\n"
+"  toList {\n"
+"    var result = List.new()\n"
+"    for (element in this) {\n"
+"      result.add(element)\n"
+"    }\n"
+"    return result\n"
+"  }\n"
+"}\n"
+"\n"
+"class MapSequence is Sequence {\n"
+"  construct new(sequence, fn) {\n"
+"    _sequence = sequence\n"
+"    _fn = fn\n"
+"  }\n"
+"\n"
+"  iterate(iterator) { _sequence.iterate(iterator) }\n"
+"  iteratorValue(iterator) { _fn.call(_sequence.iteratorValue(iterator)) }\n"
+"}\n"
+"\n"
+"class SkipSequence is Sequence {\n"
+"  construct new(sequence, count) {\n"
+"    _sequence = sequence\n"
+"    _count = count\n"
+"  }\n"
+"\n"
+"  iterate(iterator) {\n"
+"    if (iterator) {\n"
+"      return _sequence.iterate(iterator)\n"
+"    } else {\n"
+"      iterator = _sequence.iterate(iterator)\n"
+"      var count = _count\n"
+"      while (count > 0 && iterator) {\n"
+"        iterator = _sequence.iterate(iterator)\n"
+"        count = count - 1\n"
+"      }\n"
+"      return iterator\n"
+"    }\n"
+"  }\n"
+"\n"
+"  iteratorValue(iterator) { _sequence.iteratorValue(iterator) }\n"
+"}\n"
+"\n"
+"class TakeSequence is Sequence {\n"
+"  construct new(sequence, count) {\n"
+"    _sequence = sequence\n"
+"    _count = count\n"
+"  }\n"
+"\n"
+"  iterate(iterator) {\n"
+"    if (!iterator) _taken = 1 else _taken = _taken + 1\n"
+"    return _taken > _count ? null : _sequence.iterate(iterator)\n"
+"  }\n"
+"\n"
+"  iteratorValue(iterator) { _sequence.iteratorValue(iterator) }\n"
+"}\n"
+"\n"
+"class WhereSequence is Sequence {\n"
+"  construct new(sequence, fn) {\n"
+"    _sequence = sequence\n"
+"    _fn = fn\n"
+"  }\n"
+"\n"
+"  iterate(iterator) {\n"
+"    while (iterator = _sequence.iterate(iterator)) {\n"
+"      if (_fn.call(_sequence.iteratorValue(iterator))) break\n"
+"    }\n"
+"    return iterator\n"
+"  }\n"
+"\n"
+"  iteratorValue(iterator) { _sequence.iteratorValue(iterator) }\n"
+"}\n"
+"\n"
+"class String is Sequence {\n"
+"  bytes { StringByteSequence.new(this) }\n"
+"  codePoints { StringCodePointSequence.new(this) }\n"
+"\n"
+"  split(delimiter) {\n"
+"    if (!(delimiter is String) || delimiter.isEmpty) {\n"
+"      Fiber.abort(\"Delimiter must be a non-empty string.\")\n"
+"    }\n"
+"\n"
+"    var result = []\n"
+"\n"
+"    var last = 0\n"
+"    var index = 0\n"
+"\n"
+"    var delimSize = delimiter.byteCount_\n"
+"    var size = byteCount_\n"
+"\n"
+"    while (last < size && (index = indexOf(delimiter, last)) != -1) {\n"
+"      result.add(this[last...index])\n"
+"      last = index + delimSize\n"
+"    }\n"
+"\n"
+"    if (last < size) {\n"
+"      result.add(this[last..-1])\n"
+"    } else {\n"
+"      result.add(\"\")\n"
+"    }\n"
+"    return result\n"
+"  }\n"
+"\n"
+"  replace(from, to) {\n"
+"    if (!(from is String) || from.isEmpty) {\n"
+"      Fiber.abort(\"From must be a non-empty string.\")\n"
+"    } else if (!(to is String)) {\n"
+"      Fiber.abort(\"To must be a string.\")\n"
+"    }\n"
+"\n"
+"    var result = \"\"\n"
+"\n"
+"    var last = 0\n"
+"    var index = 0\n"
+"\n"
+"    var fromSize = from.byteCount_\n"
+"    var size = byteCount_\n"
+"\n"
+"    while (last < size && (index = indexOf(from, last)) != -1) {\n"
+"      result = result + this[last...index] + to\n"
+"      last = index + fromSize\n"
+"    }\n"
+"\n"
+"    if (last < size) result = result + this[last..-1]\n"
+"\n"
+"    return result\n"
+"  }\n"
+"\n"
+"  trim() { trim_(\"\t\r\n \", true, true) }\n"
+"  trim(chars) { trim_(chars, true, true) }\n"
+"  trimEnd() { trim_(\"\t\r\n \", false, true) }\n"
+"  trimEnd(chars) { trim_(chars, false, true) }\n"
+"  trimStart() { trim_(\"\t\r\n \", true, false) }\n"
+"  trimStart(chars) { trim_(chars, true, false) }\n"
+"\n"
+"  trim_(chars, trimStart, trimEnd) {\n"
+"    if (!(chars is String)) {\n"
+"      Fiber.abort(\"Characters must be a string.\")\n"
+"    }\n"
+"\n"
+"    var codePoints = chars.codePoints.toList\n"
+"\n"
+"    var start\n"
+"    if (trimStart) {\n"
+"      while (start = iterate(start)) {\n"
+"        if (!codePoints.contains(codePointAt_(start))) break\n"
+"      }\n"
+"\n"
+"      if (start == false) return \"\"\n"
+"    } else {\n"
+"      start = 0\n"
+"    }\n"
+"\n"
+"    var end\n"
+"    if (trimEnd) {\n"
+"      end = byteCount_ - 1\n"
+"      while (end >= start) {\n"
+"        var codePoint = codePointAt_(end)\n"
+"        if (codePoint != -1 && !codePoints.contains(codePoint)) break\n"
+"        end = end - 1\n"
+"      }\n"
+"\n"
+"      if (end < start) return \"\"\n"
+"    } else {\n"
+"      end = -1\n"
+"    }\n"
+"\n"
+"    return this[start..end]\n"
+"  }\n"
+"\n"
+"  *(count) {\n"
+"    if (!(count is Num) || !count.isInteger || count < 0) {\n"
+"      Fiber.abort(\"Count must be a non-negative integer.\")\n"
+"    }\n"
+"\n"
+"    var result = \"\"\n"
+"    for (i in 0...count) {\n"
+"      result = result + this\n"
+"    }\n"
+"    return result\n"
+"  }\n"
+"}\n"
+"\n"
+"class StringByteSequence is Sequence {\n"
+"  construct new(string) {\n"
+"    _string = string\n"
+"  }\n"
+"\n"
+"  [index] { _string.byteAt_(index) }\n"
+"  iterate(iterator) { _string.iterateByte_(iterator) }\n"
+"  iteratorValue(iterator) { _string.byteAt_(iterator) }\n"
+"\n"
+"  count { _string.byteCount_ }\n"
+"}\n"
+"\n"
+"class StringCodePointSequence is Sequence {\n"
+"  construct new(string) {\n"
+"    _string = string\n"
+"  }\n"
+"\n"
+"  [index] { _string.codePointAt_(index) }\n"
+"  iterate(iterator) { _string.iterate(iterator) }\n"
+"  iteratorValue(iterator) { _string.codePointAt_(iterator) }\n"
+"\n"
+"  count { _string.count }\n"
+"}\n"
+"\n"
+"class List is Sequence {\n"
+"  addAll(other) {\n"
+"    for (element in other) {\n"
+"      add(element)\n"
+"    }\n"
+"    return other\n"
+"  }\n"
+"\n"
+"  toString { \"[%(join(\", \"))]\" }\n"
+"\n"
+"  +(other) {\n"
+"    var result = this[0..-1]\n"
+"    for (element in other) {\n"
+"      result.add(element)\n"
+"    }\n"
+"    return result\n"
+"  }\n"
+"\n"
+"  *(count) {\n"
+"    if (!(count is Num) || !count.isInteger || count < 0) {\n"
+"      Fiber.abort(\"Count must be a non-negative integer.\")\n"
+"    }\n"
+"\n"
+"    var result = []\n"
+"    for (i in 0...count) {\n"
+"      result.addAll(this)\n"
+"    }\n"
+"    return result\n"
+"  }\n"
+"}\n"
+"\n"
+"class Map is Sequence {\n"
+"  keys { MapKeySequence.new(this) }\n"
+"  values { MapValueSequence.new(this) }\n"
+"\n"
+"  toString {\n"
+"    var first = true\n"
+"    var result = \"{\"\n"
+"\n"
+"    for (key in keys) {\n"
+"      if (!first) result = result + \", \"\n"
+"      first = false\n"
+"      result = result + \"%(key): %(this[key])\"\n"
+"    }\n"
+"\n"
+"    return result + \"}\"\n"
+"  }\n"
+"\n"
+"  iteratorValue(iterator) {\n"
+"    return MapEntry.new(\n"
+"        keyIteratorValue_(iterator),\n"
+"        valueIteratorValue_(iterator))\n"
+"  }\n"
+"}\n"
+"\n"
+"class MapEntry {\n"
+"  construct new(key, value) {\n"
+"    _key = key\n"
+"    _value = value\n"
+"  }\n"
+"\n"
+"  key { _key }\n"
+"  value { _value }\n"
+"\n"
+"  toString { \"%(_key):%(_value)\" }\n"
+"}\n"
+"\n"
+"class MapKeySequence is Sequence {\n"
+"  construct new(map) {\n"
+"    _map = map\n"
+"  }\n"
+"\n"
+"  iterate(n) { _map.iterate(n) }\n"
+"  iteratorValue(iterator) { _map.keyIteratorValue_(iterator) }\n"
+"}\n"
+"\n"
+"class MapValueSequence is Sequence {\n"
+"  construct new(map) {\n"
+"    _map = map\n"
+"  }\n"
+"\n"
+"  iterate(n) { _map.iterate(n) }\n"
+"  iteratorValue(iterator) { _map.valueIteratorValue_(iterator) }\n"
+"}\n"
+"\n"
+"class Range is Sequence {}\n"
+"\n"
+"class System {\n"
+"  static print() {\n"
+"    writeString_(\"\n\")\n"
+"  }\n"
+"\n"
+"  static print(obj) {\n"
+"    writeObject_(obj)\n"
+"    writeString_(\"\n\")\n"
+"    return obj\n"
+"  }\n"
+"\n"
+"  static printAll(sequence) {\n"
+"    for (object in sequence) writeObject_(object)\n"
+"    writeString_(\"\n\")\n"
+"  }\n"
+"\n"
+"  static write(obj) {\n"
+"    writeObject_(obj)\n"
+"    return obj\n"
+"  }\n"
+"\n"
+"  static writeAll(sequence) {\n"
+"    for (object in sequence) writeObject_(object)\n"
+"  }\n"
+"\n"
+"  static writeObject_(obj) {\n"
+"    var string = obj.toString\n"
+"    if (string is String) {\n"
+"      writeString_(string)\n"
+"    } else {\n"
+"      writeString_(\"[invalid toString]\")\n"
+"    }\n"
+"  }\n"
+"}\n";
+// End file "wren_core.wren.inc"
+
+DEF_PRIMITIVE(bool_not)
+{
+  RETURN_BOOL(!AS_BOOL(args[0]));
+}
+
+DEF_PRIMITIVE(bool_toString)
+{
+  if (AS_BOOL(args[0]))
+  {
+    RETURN_VAL(CONST_STRING(vm, "true"));
+  }
+  else
+  {
+    RETURN_VAL(CONST_STRING(vm, "false"));
+  }
+}
+
+DEF_PRIMITIVE(class_name)
+{
+  RETURN_OBJ(AS_CLASS(args[0])->name);
+}
+
+DEF_PRIMITIVE(class_supertype)
+{
+  ObjClass* classObj = AS_CLASS(args[0]);
+
+  // Object has no superclass.
+  if (classObj->superclass == NULL) RETURN_NULL;
+
+  RETURN_OBJ(classObj->superclass);
+}
+
+DEF_PRIMITIVE(class_toString)
+{
+  RETURN_OBJ(AS_CLASS(args[0])->name);
+}
+
+DEF_PRIMITIVE(fiber_new)
+{
+  if (!validateFn(vm, args[1], "Argument")) return false;
+
+  ObjClosure* closure = AS_CLOSURE(args[1]);
+  if (closure->fn->arity > 1)
+  {
+    RETURN_ERROR("Function cannot take more than one parameter.");
+  }
+  
+  RETURN_OBJ(wrenNewFiber(vm, closure));
+}
+
+DEF_PRIMITIVE(fiber_abort)
+{
+  vm->fiber->error = args[1];
+
+  // If the error is explicitly null, it's not really an abort.
+  return IS_NULL(args[1]);
+}
+
+// Transfer execution to [fiber] coming from the current fiber whose stack has
+// [args].
+//
+// [isCall] is true if [fiber] is being called and not transferred.
+//
+// [hasValue] is true if a value in [args] is being passed to the new fiber.
+// Otherwise, `null` is implicitly being passed.
+static bool runFiber(WrenVM* vm, ObjFiber* fiber, Value* args, bool isCall,
+                     bool hasValue, const char* verb)
+{
+
+  if (wrenHasError(fiber))
+  {
+    RETURN_ERROR_FMT("Cannot $ an aborted fiber.", verb);
+  }
+
+  if (isCall)
+  {
+    // You can't call a called fiber, but you can transfer directly to it,
+    // which is why this check is gated on `isCall`. This way, after resuming a
+    // suspended fiber, it will run and then return to the fiber that called it
+    // and so on.
+    if (fiber->caller != NULL) RETURN_ERROR("Fiber has already been called.");
+
+    if (fiber->state == FIBER_ROOT) RETURN_ERROR("Cannot call root fiber.");
+    
+    // Remember who ran it.
+    fiber->caller = vm->fiber;
+  }
+
+  if (fiber->numFrames == 0)
+  {
+    RETURN_ERROR_FMT("Cannot $ a finished fiber.", verb);
+  }
+
+  // When the calling fiber resumes, we'll store the result of the call in its
+  // stack. If the call has two arguments (the fiber and the value), we only
+  // need one slot for the result, so discard the other slot now.
+  if (hasValue) vm->fiber->stackTop--;
+
+  if (fiber->numFrames == 1 &&
+      fiber->frames[0].ip == fiber->frames[0].closure->fn->code.data)
+  {
+    // The fiber is being started for the first time. If its function takes a
+    // parameter, bind an argument to it.
+    if (fiber->frames[0].closure->fn->arity == 1)
+    {
+      fiber->stackTop[0] = hasValue ? args[1] : NULL_VAL;
+      fiber->stackTop++;
+    }
+  }
+  else
+  {
+    // The fiber is being resumed, make yield() or transfer() return the result.
+    fiber->stackTop[-1] = hasValue ? args[1] : NULL_VAL;
+  }
+
+  vm->fiber = fiber;
+  return false;
+}
+
+DEF_PRIMITIVE(fiber_call)
+{
+  return runFiber(vm, AS_FIBER(args[0]), args, true, false, "call");
+}
+
+DEF_PRIMITIVE(fiber_call1)
+{
+  return runFiber(vm, AS_FIBER(args[0]), args, true, true, "call");
+}
+
+DEF_PRIMITIVE(fiber_current)
+{
+  RETURN_OBJ(vm->fiber);
+}
+
+DEF_PRIMITIVE(fiber_error)
+{
+  RETURN_VAL(AS_FIBER(args[0])->error);
+}
+
+DEF_PRIMITIVE(fiber_isDone)
+{
+  ObjFiber* runFiber = AS_FIBER(args[0]);
+  RETURN_BOOL(runFiber->numFrames == 0 || wrenHasError(runFiber));
+}
+
+DEF_PRIMITIVE(fiber_suspend)
+{
+  // Switching to a null fiber tells the interpreter to stop and exit.
+  vm->fiber = NULL;
+  vm->apiStack = NULL;
+  return false;
+}
+
+DEF_PRIMITIVE(fiber_transfer)
+{
+  return runFiber(vm, AS_FIBER(args[0]), args, false, false, "transfer to");
+}
+
+DEF_PRIMITIVE(fiber_transfer1)
+{
+  return runFiber(vm, AS_FIBER(args[0]), args, false, true, "transfer to");
+}
+
+DEF_PRIMITIVE(fiber_transferError)
+{
+  runFiber(vm, AS_FIBER(args[0]), args, false, true, "transfer to");
+  vm->fiber->error = args[1];
+  return false;
+}
+
+DEF_PRIMITIVE(fiber_try)
+{
+  runFiber(vm, AS_FIBER(args[0]), args, true, false, "try");
+  
+  // If we're switching to a valid fiber to try, remember that we're trying it.
+  if (!wrenHasError(vm->fiber)) vm->fiber->state = FIBER_TRY;
+  return false;
+}
+
+DEF_PRIMITIVE(fiber_yield)
+{
+  ObjFiber* current = vm->fiber;
+  vm->fiber = current->caller;
+
+  // Unhook this fiber from the one that called it.
+  current->caller = NULL;
+  current->state = FIBER_OTHER;
+
+  if (vm->fiber != NULL)
+  {
+    // Make the caller's run method return null.
+    vm->fiber->stackTop[-1] = NULL_VAL;
+  }
+
+  return false;
+}
+
+DEF_PRIMITIVE(fiber_yield1)
+{
+  ObjFiber* current = vm->fiber;
+  vm->fiber = current->caller;
+
+  // Unhook this fiber from the one that called it.
+  current->caller = NULL;
+  current->state = FIBER_OTHER;
+
+  if (vm->fiber != NULL)
+  {
+    // Make the caller's run method return the argument passed to yield.
+    vm->fiber->stackTop[-1] = args[1];
+
+    // When the yielding fiber resumes, we'll store the result of the yield
+    // call in its stack. Since Fiber.yield(value) has two arguments (the Fiber
+    // class and the value) and we only need one slot for the result, discard
+    // the other slot now.
+    current->stackTop--;
+  }
+
+  return false;
+}
+
+DEF_PRIMITIVE(fn_new)
+{
+  if (!validateFn(vm, args[1], "Argument")) return false;
+
+  // The block argument is already a function, so just return it.
+  RETURN_VAL(args[1]);
+}
+
+DEF_PRIMITIVE(fn_arity)
+{
+  RETURN_NUM(AS_CLOSURE(args[0])->fn->arity);
+}
+
+static void call_fn(WrenVM* vm, Value* args, int numArgs)
+{
+  // We only care about missing arguments, not extras.
+  if (AS_CLOSURE(args[0])->fn->arity > numArgs)
+  {
+    vm->fiber->error = CONST_STRING(vm, "Function expects more arguments.");
+    return;
+  }
+
+  // +1 to include the function itself.
+  wrenCallFunction(vm, vm->fiber, AS_CLOSURE(args[0]), numArgs + 1);
+}
+
+#define DEF_FN_CALL(numArgs)                                                   \
+    DEF_PRIMITIVE(fn_call##numArgs)                                            \
+    {                                                                          \
+      call_fn(vm, args, numArgs);                                              \
+      return false;                                                            \
+    }
+
+DEF_FN_CALL(0)
+DEF_FN_CALL(1)
+DEF_FN_CALL(2)
+DEF_FN_CALL(3)
+DEF_FN_CALL(4)
+DEF_FN_CALL(5)
+DEF_FN_CALL(6)
+DEF_FN_CALL(7)
+DEF_FN_CALL(8)
+DEF_FN_CALL(9)
+DEF_FN_CALL(10)
+DEF_FN_CALL(11)
+DEF_FN_CALL(12)
+DEF_FN_CALL(13)
+DEF_FN_CALL(14)
+DEF_FN_CALL(15)
+DEF_FN_CALL(16)
+
+DEF_PRIMITIVE(fn_toString)
+{
+  RETURN_VAL(CONST_STRING(vm, "<fn>"));
+}
+
+// Creates a new list of size args[1], with all elements initialized to args[2].
+DEF_PRIMITIVE(list_filled)
+{
+  if (!validateInt(vm, args[1], "Size")) return false;  
+  if (AS_NUM(args[1]) < 0) RETURN_ERROR("Size cannot be negative.");
+  
+  uint32_t size = (uint32_t)AS_NUM(args[1]);
+  ObjList* list = wrenNewList(vm, size);
+  
+  for (uint32_t i = 0; i < size; i++)
+  {
+    list->elements.data[i] = args[2];
+  }
+  
+  RETURN_OBJ(list);
+}
+
+DEF_PRIMITIVE(list_new)
+{
+  RETURN_OBJ(wrenNewList(vm, 0));
+}
+
+DEF_PRIMITIVE(list_add)
+{
+  wrenValueBufferWrite(vm, &AS_LIST(args[0])->elements, args[1]);
+  RETURN_VAL(args[1]);
+}
+
+// Adds an element to the list and then returns the list itself. This is called
+// by the compiler when compiling list literals instead of using add() to
+// minimize stack churn.
+DEF_PRIMITIVE(list_addCore)
+{
+  wrenValueBufferWrite(vm, &AS_LIST(args[0])->elements, args[1]);
+  
+  // Return the list.
+  RETURN_VAL(args[0]);
+}
+
+DEF_PRIMITIVE(list_clear)
+{
+  wrenValueBufferClear(vm, &AS_LIST(args[0])->elements);
+  RETURN_NULL;
+}
+
+DEF_PRIMITIVE(list_count)
+{
+  RETURN_NUM(AS_LIST(args[0])->elements.count);
+}
+
+DEF_PRIMITIVE(list_insert)
+{
+  ObjList* list = AS_LIST(args[0]);
+
+  // count + 1 here so you can "insert" at the very end.
+  uint32_t index = validateIndex(vm, args[1], list->elements.count + 1,
+                                 "Index");
+  if (index == UINT32_MAX) return false;
+
+  wrenListInsert(vm, list, args[2], index);
+  RETURN_VAL(args[2]);
+}
+
+DEF_PRIMITIVE(list_iterate)
+{
+  ObjList* list = AS_LIST(args[0]);
+
+  // If we're starting the iteration, return the first index.
+  if (IS_NULL(args[1]))
+  {
+    if (list->elements.count == 0) RETURN_FALSE;
+    RETURN_NUM(0);
+  }
+
+  if (!validateInt(vm, args[1], "Iterator")) return false;
+
+  // Stop if we're out of bounds.
+  double index = AS_NUM(args[1]);
+  if (index < 0 || index >= list->elements.count - 1) RETURN_FALSE;
+
+  // Otherwise, move to the next index.
+  RETURN_NUM(index + 1);
+}
+
+DEF_PRIMITIVE(list_iteratorValue)
+{
+  ObjList* list = AS_LIST(args[0]);
+  uint32_t index = validateIndex(vm, args[1], list->elements.count, "Iterator");
+  if (index == UINT32_MAX) return false;
+
+  RETURN_VAL(list->elements.data[index]);
+}
+
+DEF_PRIMITIVE(list_removeAt)
+{
+  ObjList* list = AS_LIST(args[0]);
+  uint32_t index = validateIndex(vm, args[1], list->elements.count, "Index");
+  if (index == UINT32_MAX) return false;
+
+  RETURN_VAL(wrenListRemoveAt(vm, list, index));
+}
+
+DEF_PRIMITIVE(list_subscript)
+{
+  ObjList* list = AS_LIST(args[0]);
+
+  if (IS_NUM(args[1]))
+  {
+    uint32_t index = validateIndex(vm, args[1], list->elements.count,
+                                   "Subscript");
+    if (index == UINT32_MAX) return false;
+
+    RETURN_VAL(list->elements.data[index]);
+  }
+
+  if (!IS_RANGE(args[1]))
+  {
+    RETURN_ERROR("Subscript must be a number or a range.");
+  }
+
+  int step;
+  uint32_t count = list->elements.count;
+  uint32_t start = calculateRange(vm, AS_RANGE(args[1]), &count, &step);
+  if (start == UINT32_MAX) return false;
+
+  ObjList* result = wrenNewList(vm, count);
+  for (uint32_t i = 0; i < count; i++)
+  {
+    result->elements.data[i] = list->elements.data[start + i * step];
+  }
+
+  RETURN_OBJ(result);
+}
+
+DEF_PRIMITIVE(list_subscriptSetter)
+{
+  ObjList* list = AS_LIST(args[0]);
+  uint32_t index = validateIndex(vm, args[1], list->elements.count,
+                                 "Subscript");
+  if (index == UINT32_MAX) return false;
+
+  list->elements.data[index] = args[2];
+  RETURN_VAL(args[2]);
+}
+
+DEF_PRIMITIVE(map_new)
+{
+  RETURN_OBJ(wrenNewMap(vm));
+}
+
+DEF_PRIMITIVE(map_subscript)
+{
+  if (!validateKey(vm, args[1])) return false;
+
+  ObjMap* map = AS_MAP(args[0]);
+  Value value = wrenMapGet(map, args[1]);
+  if (IS_UNDEFINED(value)) RETURN_NULL;
+
+  RETURN_VAL(value);
+}
+
+DEF_PRIMITIVE(map_subscriptSetter)
+{
+  if (!validateKey(vm, args[1])) return false;
+
+  wrenMapSet(vm, AS_MAP(args[0]), args[1], args[2]);
+  RETURN_VAL(args[2]);
+}
+
+// Adds an entry to the map and then returns the map itself. This is called by
+// the compiler when compiling map literals instead of using [_]=(_) to
+// minimize stack churn.
+DEF_PRIMITIVE(map_addCore)
+{
+  if (!validateKey(vm, args[1])) return false;
+  
+  wrenMapSet(vm, AS_MAP(args[0]), args[1], args[2]);
+  
+  // Return the map itself.
+  RETURN_VAL(args[0]);
+}
+
+DEF_PRIMITIVE(map_clear)
+{
+  wrenMapClear(vm, AS_MAP(args[0]));
+  RETURN_NULL;
+}
+
+DEF_PRIMITIVE(map_containsKey)
+{
+  if (!validateKey(vm, args[1])) return false;
+
+  RETURN_BOOL(!IS_UNDEFINED(wrenMapGet(AS_MAP(args[0]), args[1])));
+}
+
+DEF_PRIMITIVE(map_count)
+{
+  RETURN_NUM(AS_MAP(args[0])->count);
+}
+
+DEF_PRIMITIVE(map_iterate)
+{
+  ObjMap* map = AS_MAP(args[0]);
+
+  if (map->count == 0) RETURN_FALSE;
+
+  // If we're starting the iteration, start at the first used entry.
+  uint32_t index = 0;
+
+  // Otherwise, start one past the last entry we stopped at.
+  if (!IS_NULL(args[1]))
+  {
+    if (!validateInt(vm, args[1], "Iterator")) return false;
+
+    if (AS_NUM(args[1]) < 0) RETURN_FALSE;
+    index = (uint32_t)AS_NUM(args[1]);
+
+    if (index >= map->capacity) RETURN_FALSE;
+
+    // Advance the iterator.
+    index++;
+  }
+
+  // Find a used entry, if any.
+  for (; index < map->capacity; index++)
+  {
+    if (!IS_UNDEFINED(map->entries[index].key)) RETURN_NUM(index);
+  }
+
+  // If we get here, walked all of the entries.
+  RETURN_FALSE;
+}
+
+DEF_PRIMITIVE(map_remove)
+{
+  if (!validateKey(vm, args[1])) return false;
+
+  RETURN_VAL(wrenMapRemoveKey(vm, AS_MAP(args[0]), args[1]));
+}
+
+DEF_PRIMITIVE(map_keyIteratorValue)
+{
+  ObjMap* map = AS_MAP(args[0]);
+  uint32_t index = validateIndex(vm, args[1], map->capacity, "Iterator");
+  if (index == UINT32_MAX) return false;
+
+  MapEntry* entry = &map->entries[index];
+  if (IS_UNDEFINED(entry->key))
+  {
+    RETURN_ERROR("Invalid map iterator.");
+  }
+
+  RETURN_VAL(entry->key);
+}
+
+DEF_PRIMITIVE(map_valueIteratorValue)
+{
+  ObjMap* map = AS_MAP(args[0]);
+  uint32_t index = validateIndex(vm, args[1], map->capacity, "Iterator");
+  if (index == UINT32_MAX) return false;
+
+  MapEntry* entry = &map->entries[index];
+  if (IS_UNDEFINED(entry->key))
+  {
+    RETURN_ERROR("Invalid map iterator.");
+  }
+
+  RETURN_VAL(entry->value);
+}
+
+DEF_PRIMITIVE(null_not)
+{
+  RETURN_VAL(TRUE_VAL);
+}
+
+DEF_PRIMITIVE(null_toString)
+{
+  RETURN_VAL(CONST_STRING(vm, "null"));
+}
+
+DEF_PRIMITIVE(num_fromString)
+{
+  if (!validateString(vm, args[1], "Argument")) return false;
+
+  ObjString* string = AS_STRING(args[1]);
+
+  // Corner case: Can't parse an empty string.
+  if (string->length == 0) RETURN_NULL;
+
+  errno = 0;
+  char* end;
+  double number = strtod(string->value, &end);
+
+  // Skip past any trailing whitespace.
+  while (*end != '\0' && isspace((unsigned char)*end)) end++;
+
+  if (errno == ERANGE) RETURN_ERROR("Number literal is too large.");
+
+  // We must have consumed the entire string. Otherwise, it contains non-number
+  // characters and we can't parse it.
+  if (end < string->value + string->length) RETURN_NULL;
+
+  RETURN_NUM(number);
+}
+
+DEF_PRIMITIVE(num_pi)
+{
+  RETURN_NUM(3.14159265358979323846);
+}
+
+// Defines a primitive on Num that calls infix [op] and returns [type].
+#define DEF_NUM_INFIX(name, op, type)                                          \
+    DEF_PRIMITIVE(num_##name)                                                  \
+    {                                                                          \
+      if (!validateNum(vm, args[1], "Right operand")) return false;            \
+      RETURN_##type(AS_NUM(args[0]) op AS_NUM(args[1]));                       \
+    }
+
+DEF_NUM_INFIX(minus,    -,  NUM)
+DEF_NUM_INFIX(plus,     +,  NUM)
+DEF_NUM_INFIX(multiply, *,  NUM)
+DEF_NUM_INFIX(divide,   /,  NUM)
+DEF_NUM_INFIX(lt,       <,  BOOL)
+DEF_NUM_INFIX(gt,       >,  BOOL)
+DEF_NUM_INFIX(lte,      <=, BOOL)
+DEF_NUM_INFIX(gte,      >=, BOOL)
+
+// Defines a primitive on Num that call infix bitwise [op].
+#define DEF_NUM_BITWISE(name, op)                                              \
+    DEF_PRIMITIVE(num_bitwise##name)                                           \
+    {                                                                          \
+      if (!validateNum(vm, args[1], "Right operand")) return false;            \
+      uint32_t left = (uint32_t)AS_NUM(args[0]);                               \
+      uint32_t right = (uint32_t)AS_NUM(args[1]);                              \
+      RETURN_NUM(left op right);                                               \
+    }
+
+DEF_NUM_BITWISE(And,        &)
+DEF_NUM_BITWISE(Or,         |)
+DEF_NUM_BITWISE(Xor,        ^)
+DEF_NUM_BITWISE(LeftShift,  <<)
+DEF_NUM_BITWISE(RightShift, >>)
+
+// Defines a primitive method on Num that returns the result of [fn].
+#define DEF_NUM_FN(name, fn)                                                   \
+    DEF_PRIMITIVE(num_##name)                                                  \
+    {                                                                          \
+      RETURN_NUM(fn(AS_NUM(args[0])));                                         \
+    }
+
+DEF_NUM_FN(abs,     fabs)
+DEF_NUM_FN(acos,    acos)
+DEF_NUM_FN(asin,    asin)
+DEF_NUM_FN(atan,    atan)
+DEF_NUM_FN(ceil,    ceil)
+DEF_NUM_FN(cos,     cos)
+DEF_NUM_FN(floor,   floor)
+DEF_NUM_FN(negate,  -)
+DEF_NUM_FN(round,   round)
+DEF_NUM_FN(sin,     sin)
+DEF_NUM_FN(sqrt,    sqrt)
+DEF_NUM_FN(tan,     tan)
+DEF_NUM_FN(log,     log)
+DEF_NUM_FN(log2,    log2)
+DEF_NUM_FN(exp,     exp)
+
+DEF_PRIMITIVE(num_mod)
+{
+  if (!validateNum(vm, args[1], "Right operand")) return false;
+  RETURN_NUM(fmod(AS_NUM(args[0]), AS_NUM(args[1])));
+}
+
+DEF_PRIMITIVE(num_eqeq)
+{
+  if (!IS_NUM(args[1])) RETURN_FALSE;
+  RETURN_BOOL(AS_NUM(args[0]) == AS_NUM(args[1]));
+}
+
+DEF_PRIMITIVE(num_bangeq)
+{
+  if (!IS_NUM(args[1])) RETURN_TRUE;
+  RETURN_BOOL(AS_NUM(args[0]) != AS_NUM(args[1]));
+}
+
+DEF_PRIMITIVE(num_bitwiseNot)
+{
+  // Bitwise operators always work on 32-bit unsigned ints.
+  RETURN_NUM(~(uint32_t)AS_NUM(args[0]));
+}
+
+DEF_PRIMITIVE(num_dotDot)
+{
+  if (!validateNum(vm, args[1], "Right hand side of range")) return false;
+
+  double from = AS_NUM(args[0]);
+  double to = AS_NUM(args[1]);
+  RETURN_VAL(wrenNewRange(vm, from, to, true));
+}
+
+DEF_PRIMITIVE(num_dotDotDot)
+{
+  if (!validateNum(vm, args[1], "Right hand side of range")) return false;
+
+  double from = AS_NUM(args[0]);
+  double to = AS_NUM(args[1]);
+  RETURN_VAL(wrenNewRange(vm, from, to, false));
+}
+
+DEF_PRIMITIVE(num_atan2)
+{
+  RETURN_NUM(atan2(AS_NUM(args[0]), AS_NUM(args[1])));
+}
+
+DEF_PRIMITIVE(num_pow)
+{
+  RETURN_NUM(pow(AS_NUM(args[0]), AS_NUM(args[1])));
+}
+
+DEF_PRIMITIVE(num_fraction)
+{
+  double dummy;
+  RETURN_NUM(modf(AS_NUM(args[0]) , &dummy));
+}
+
+DEF_PRIMITIVE(num_isInfinity)
+{
+  RETURN_BOOL(isinf(AS_NUM(args[0])));
+}
+
+DEF_PRIMITIVE(num_isInteger)
+{
+  double value = AS_NUM(args[0]);
+  if (isnan(value) || isinf(value)) RETURN_FALSE;
+  RETURN_BOOL(trunc(value) == value);
+}
+
+DEF_PRIMITIVE(num_isNan)
+{
+  RETURN_BOOL(isnan(AS_NUM(args[0])));
+}
+
+DEF_PRIMITIVE(num_sign)
+{
+  double value = AS_NUM(args[0]);
+  if (value > 0)
+  {
+    RETURN_NUM(1);
+  }
+  else if (value < 0)
+  {
+    RETURN_NUM(-1);
+  }
+  else
+  {
+    RETURN_NUM(0);
+  }
+}
+
+DEF_PRIMITIVE(num_largest)
+{
+  RETURN_NUM(DBL_MAX);
+}
+
+DEF_PRIMITIVE(num_smallest)
+{
+  RETURN_NUM(DBL_MIN);
+}
+
+DEF_PRIMITIVE(num_toString)
+{
+  RETURN_VAL(wrenNumToString(vm, AS_NUM(args[0])));
+}
+
+DEF_PRIMITIVE(num_truncate)
+{
+  double integer;
+  modf(AS_NUM(args[0]) , &integer);
+  RETURN_NUM(integer);
+}
+
+DEF_PRIMITIVE(object_same)
+{
+  RETURN_BOOL(wrenValuesEqual(args[1], args[2]));
+}
+
+DEF_PRIMITIVE(object_not)
+{
+  RETURN_VAL(FALSE_VAL);
+}
+
+DEF_PRIMITIVE(object_eqeq)
+{
+  RETURN_BOOL(wrenValuesEqual(args[0], args[1]));
+}
+
+DEF_PRIMITIVE(object_bangeq)
+{
+  RETURN_BOOL(!wrenValuesEqual(args[0], args[1]));
+}
+
+DEF_PRIMITIVE(object_is)
+{
+  if (!IS_CLASS(args[1]))
+  {
+    RETURN_ERROR("Right operand must be a class.");
+  }
+
+  ObjClass *classObj = wrenGetClass(vm, args[0]);
+  ObjClass *baseClassObj = AS_CLASS(args[1]);
+
+  // Walk the superclass chain looking for the class.
+  do
+  {
+    if (baseClassObj == classObj) RETURN_BOOL(true);
+
+    classObj = classObj->superclass;
+  }
+  while (classObj != NULL);
+
+  RETURN_BOOL(false);
+}
+
+DEF_PRIMITIVE(object_toString)
+{
+  Obj* obj = AS_OBJ(args[0]);
+  Value name = OBJ_VAL(obj->classObj->name);
+  RETURN_VAL(wrenStringFormat(vm, "instance of @", name));
+}
+
+DEF_PRIMITIVE(object_type)
+{
+  RETURN_OBJ(wrenGetClass(vm, args[0]));
+}
+
+DEF_PRIMITIVE(range_from)
+{
+  RETURN_NUM(AS_RANGE(args[0])->from);
+}
+
+DEF_PRIMITIVE(range_to)
+{
+  RETURN_NUM(AS_RANGE(args[0])->to);
+}
+
+DEF_PRIMITIVE(range_min)
+{
+  ObjRange* range = AS_RANGE(args[0]);
+  RETURN_NUM(fmin(range->from, range->to));
+}
+
+DEF_PRIMITIVE(range_max)
+{
+  ObjRange* range = AS_RANGE(args[0]);
+  RETURN_NUM(fmax(range->from, range->to));
+}
+
+DEF_PRIMITIVE(range_isInclusive)
+{
+  RETURN_BOOL(AS_RANGE(args[0])->isInclusive);
+}
+
+DEF_PRIMITIVE(range_iterate)
+{
+  ObjRange* range = AS_RANGE(args[0]);
+
+  // Special case: empty range.
+  if (range->from == range->to && !range->isInclusive) RETURN_FALSE;
+
+  // Start the iteration.
+  if (IS_NULL(args[1])) RETURN_NUM(range->from);
+
+  if (!validateNum(vm, args[1], "Iterator")) return false;
+
+  double iterator = AS_NUM(args[1]);
+
+  // Iterate towards [to] from [from].
+  if (range->from < range->to)
+  {
+    iterator++;
+    if (iterator > range->to) RETURN_FALSE;
+  }
+  else
+  {
+    iterator--;
+    if (iterator < range->to) RETURN_FALSE;
+  }
+
+  if (!range->isInclusive && iterator == range->to) RETURN_FALSE;
+
+  RETURN_NUM(iterator);
+}
+
+DEF_PRIMITIVE(range_iteratorValue)
+{
+  // Assume the iterator is a number so that is the value of the range.
+  RETURN_VAL(args[1]);
+}
+
+DEF_PRIMITIVE(range_toString)
+{
+  ObjRange* range = AS_RANGE(args[0]);
+
+  Value from = wrenNumToString(vm, range->from);
+  wrenPushRoot(vm, AS_OBJ(from));
+
+  Value to = wrenNumToString(vm, range->to);
+  wrenPushRoot(vm, AS_OBJ(to));
+
+  Value result = wrenStringFormat(vm, "@$@", from,
+                                  range->isInclusive ? ".." : "...", to);
+
+  wrenPopRoot(vm);
+  wrenPopRoot(vm);
+  RETURN_VAL(result);
+}
+
+DEF_PRIMITIVE(string_fromCodePoint)
+{
+  if (!validateInt(vm, args[1], "Code point")) return false;
+
+  int codePoint = (int)AS_NUM(args[1]);
+  if (codePoint < 0)
+  {
+    RETURN_ERROR("Code point cannot be negative.");
+  }
+  else if (codePoint > 0x10ffff)
+  {
+    RETURN_ERROR("Code point cannot be greater than 0x10ffff.");
+  }
+
+  RETURN_VAL(wrenStringFromCodePoint(vm, codePoint));
+}
+
+DEF_PRIMITIVE(string_fromByte)
+{
+  if (!validateInt(vm, args[1], "Byte")) return false;
+  int byte = (int) AS_NUM(args[1]);
+  if (byte < 0)
+  {
+    RETURN_ERROR("Byte cannot be negative.");
+  }
+  else if (byte > 0xff)
+  {
+    RETURN_ERROR("Byte cannot be greater than 0xff.");
+  }
+  RETURN_VAL(wrenStringFromByte(vm, (uint8_t) byte));
+}
+
+DEF_PRIMITIVE(string_byteAt)
+{
+  ObjString* string = AS_STRING(args[0]);
+
+  uint32_t index = validateIndex(vm, args[1], string->length, "Index");
+  if (index == UINT32_MAX) return false;
+
+  RETURN_NUM((uint8_t)string->value[index]);
+}
+
+DEF_PRIMITIVE(string_byteCount)
+{
+  RETURN_NUM(AS_STRING(args[0])->length);
+}
+
+DEF_PRIMITIVE(string_codePointAt)
+{
+  ObjString* string = AS_STRING(args[0]);
+
+  uint32_t index = validateIndex(vm, args[1], string->length, "Index");
+  if (index == UINT32_MAX) return false;
+
+  // If we are in the middle of a UTF-8 sequence, indicate that.
+  const uint8_t* bytes = (uint8_t*)string->value;
+  if ((bytes[index] & 0xc0) == 0x80) RETURN_NUM(-1);
+
+  // Decode the UTF-8 sequence.
+  RETURN_NUM(wrenUtf8Decode((uint8_t*)string->value + index,
+                            string->length - index));
+}
+
+DEF_PRIMITIVE(string_contains)
+{
+  if (!validateString(vm, args[1], "Argument")) return false;
+
+  ObjString* string = AS_STRING(args[0]);
+  ObjString* search = AS_STRING(args[1]);
+
+  RETURN_BOOL(wrenStringFind(string, search, 0) != UINT32_MAX);
+}
+
+DEF_PRIMITIVE(string_endsWith)
+{
+  if (!validateString(vm, args[1], "Argument")) return false;
+
+  ObjString* string = AS_STRING(args[0]);
+  ObjString* search = AS_STRING(args[1]);
+
+  // Edge case: If the search string is longer then return false right away.
+  if (search->length > string->length) RETURN_FALSE;
+
+  RETURN_BOOL(memcmp(string->value + string->length - search->length,
+                     search->value, search->length) == 0);
+}
+
+DEF_PRIMITIVE(string_indexOf1)
+{
+  if (!validateString(vm, args[1], "Argument")) return false;
+
+  ObjString* string = AS_STRING(args[0]);
+  ObjString* search = AS_STRING(args[1]);
+
+  uint32_t index = wrenStringFind(string, search, 0);
+  RETURN_NUM(index == UINT32_MAX ? -1 : (int)index);
+}
+
+DEF_PRIMITIVE(string_indexOf2)
+{
+  if (!validateString(vm, args[1], "Argument")) return false;
+
+  ObjString* string = AS_STRING(args[0]);
+  ObjString* search = AS_STRING(args[1]);
+  uint32_t start = validateIndex(vm, args[2], string->length, "Start");
+  if (start == UINT32_MAX) return false;
+  
+  uint32_t index = wrenStringFind(string, search, start);
+  RETURN_NUM(index == UINT32_MAX ? -1 : (int)index);
+}
+
+DEF_PRIMITIVE(string_iterate)
+{
+  ObjString* string = AS_STRING(args[0]);
+
+  // If we're starting the iteration, return the first index.
+  if (IS_NULL(args[1]))
+  {
+    if (string->length == 0) RETURN_FALSE;
+    RETURN_NUM(0);
+  }
+
+  if (!validateInt(vm, args[1], "Iterator")) return false;
+
+  if (AS_NUM(args[1]) < 0) RETURN_FALSE;
+  uint32_t index = (uint32_t)AS_NUM(args[1]);
+
+  // Advance to the beginning of the next UTF-8 sequence.
+  do
+  {
+    index++;
+    if (index >= string->length) RETURN_FALSE;
+  } while ((string->value[index] & 0xc0) == 0x80);
+
+  RETURN_NUM(index);
+}
+
+DEF_PRIMITIVE(string_iterateByte)
+{
+  ObjString* string = AS_STRING(args[0]);
+
+  // If we're starting the iteration, return the first index.
+  if (IS_NULL(args[1]))
+  {
+    if (string->length == 0) RETURN_FALSE;
+    RETURN_NUM(0);
+  }
+
+  if (!validateInt(vm, args[1], "Iterator")) return false;
+
+  if (AS_NUM(args[1]) < 0) RETURN_FALSE;
+  uint32_t index = (uint32_t)AS_NUM(args[1]);
+
+  // Advance to the next byte.
+  index++;
+  if (index >= string->length) RETURN_FALSE;
+
+  RETURN_NUM(index);
+}
+
+DEF_PRIMITIVE(string_iteratorValue)
+{
+  ObjString* string = AS_STRING(args[0]);
+  uint32_t index = validateIndex(vm, args[1], string->length, "Iterator");
+  if (index == UINT32_MAX) return false;
+
+  RETURN_VAL(wrenStringCodePointAt(vm, string, index));
+}
+
+DEF_PRIMITIVE(string_startsWith)
+{
+  if (!validateString(vm, args[1], "Argument")) return false;
+
+  ObjString* string = AS_STRING(args[0]);
+  ObjString* search = AS_STRING(args[1]);
+
+  // Edge case: If the search string is longer then return false right away.
+  if (search->length > string->length) RETURN_FALSE;
+
+  RETURN_BOOL(memcmp(string->value, search->value, search->length) == 0);
+}
+
+DEF_PRIMITIVE(string_plus)
+{
+  if (!validateString(vm, args[1], "Right operand")) return false;
+  RETURN_VAL(wrenStringFormat(vm, "@@", args[0], args[1]));
+}
+
+DEF_PRIMITIVE(string_subscript)
+{
+  ObjString* string = AS_STRING(args[0]);
+
+  if (IS_NUM(args[1]))
+  {
+    int index = validateIndex(vm, args[1], string->length, "Subscript");
+    if (index == -1) return false;
+
+    RETURN_VAL(wrenStringCodePointAt(vm, string, index));
+  }
+
+  if (!IS_RANGE(args[1]))
+  {
+    RETURN_ERROR("Subscript must be a number or a range.");
+  }
+
+  int step;
+  uint32_t count = string->length;
+  int start = calculateRange(vm, AS_RANGE(args[1]), &count, &step);
+  if (start == -1) return false;
+
+  RETURN_VAL(wrenNewStringFromRange(vm, string, start, count, step));
+}
+
+DEF_PRIMITIVE(string_toString)
+{
+  RETURN_VAL(args[0]);
+}
+
+DEF_PRIMITIVE(system_clock)
+{
+  RETURN_NUM((double)clock() / CLOCKS_PER_SEC);
+}
+
+DEF_PRIMITIVE(system_gc)
+{
+  wrenCollectGarbage(vm);
+  RETURN_NULL;
+}
+
+DEF_PRIMITIVE(system_writeString)
+{
+  if (vm->config.writeFn != NULL)
+  {
+    vm->config.writeFn(vm, AS_CSTRING(args[1]));
+  }
+
+  RETURN_VAL(args[1]);
+}
+
+// Creates either the Object or Class class in the core module with [name].
+static ObjClass* defineClass(WrenVM* vm, ObjModule* module, const char* name)
+{
+  ObjString* nameString = AS_STRING(wrenNewString(vm, name));
+  wrenPushRoot(vm, (Obj*)nameString);
+
+  ObjClass* classObj = wrenNewSingleClass(vm, 0, nameString);
+
+  wrenDefineVariable(vm, module, name, nameString->length, OBJ_VAL(classObj), NULL);
+
+  wrenPopRoot(vm);
+  return classObj;
+}
+
+void wrenInitializeCore(WrenVM* vm)
+{
+  ObjModule* coreModule = wrenNewModule(vm, NULL);
+  wrenPushRoot(vm, (Obj*)coreModule);
+  
+  // The core module's key is null in the module map.
+  wrenMapSet(vm, vm->modules, NULL_VAL, OBJ_VAL(coreModule));
+  wrenPopRoot(vm); // coreModule.
+
+  // Define the root Object class. This has to be done a little specially
+  // because it has no superclass.
+  vm->objectClass = defineClass(vm, coreModule, "Object");
+  PRIMITIVE(vm->objectClass, "!", object_not);
+  PRIMITIVE(vm->objectClass, "==(_)", object_eqeq);
+  PRIMITIVE(vm->objectClass, "!=(_)", object_bangeq);
+  PRIMITIVE(vm->objectClass, "is(_)", object_is);
+  PRIMITIVE(vm->objectClass, "toString", object_toString);
+  PRIMITIVE(vm->objectClass, "type", object_type);
+
+  // Now we can define Class, which is a subclass of Object.
+  vm->classClass = defineClass(vm, coreModule, "Class");
+  wrenBindSuperclass(vm, vm->classClass, vm->objectClass);
+  PRIMITIVE(vm->classClass, "name", class_name);
+  PRIMITIVE(vm->classClass, "supertype", class_supertype);
+  PRIMITIVE(vm->classClass, "toString", class_toString);
+
+  // Finally, we can define Object's metaclass which is a subclass of Class.
+  ObjClass* objectMetaclass = defineClass(vm, coreModule, "Object metaclass");
+
+  // Wire up the metaclass relationships now that all three classes are built.
+  vm->objectClass->obj.classObj = objectMetaclass;
+  objectMetaclass->obj.classObj = vm->classClass;
+  vm->classClass->obj.classObj = vm->classClass;
+
+  // Do this after wiring up the metaclasses so objectMetaclass doesn't get
+  // collected.
+  wrenBindSuperclass(vm, objectMetaclass, vm->classClass);
+
+  PRIMITIVE(objectMetaclass, "same(_,_)", object_same);
+
+  // The core class diagram ends up looking like this, where single lines point
+  // to a class's superclass, and double lines point to its metaclass:
+  //
+  //        .------------------------------------. .====.
+  //        |                  .---------------. | #    #
+  //        v                  |               v | v    #
+  //   .---------.   .-------------------.   .-------.  #
+  //   | Object  |==>| Object metaclass  |==>| Class |=="
+  //   '---------'   '-------------------'   '-------'
+  //        ^                                 ^ ^ ^ ^
+  //        |                  .--------------' # | #
+  //        |                  |                # | #
+  //   .---------.   .-------------------.      # | # -.
+  //   |  Base   |==>|  Base metaclass   |======" | #  |
+  //   '---------'   '-------------------'        | #  |
+  //        ^                                     | #  |
+  //        |                  .------------------' #  | Example classes
+  //        |                  |                    #  |
+  //   .---------.   .-------------------.          #  |
+  //   | Derived |==>| Derived metaclass |=========="  |
+  //   '---------'   '-------------------'            -'
+
+  // The rest of the classes can now be defined normally.
+  wrenInterpret(vm, NULL, coreModuleSource);
+
+  vm->boolClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Bool"));
+  PRIMITIVE(vm->boolClass, "toString", bool_toString);
+  PRIMITIVE(vm->boolClass, "!", bool_not);
+
+  vm->fiberClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Fiber"));
+  PRIMITIVE(vm->fiberClass->obj.classObj, "new(_)", fiber_new);
+  PRIMITIVE(vm->fiberClass->obj.classObj, "abort(_)", fiber_abort);
+  PRIMITIVE(vm->fiberClass->obj.classObj, "current", fiber_current);
+  PRIMITIVE(vm->fiberClass->obj.classObj, "suspend()", fiber_suspend);
+  PRIMITIVE(vm->fiberClass->obj.classObj, "yield()", fiber_yield);
+  PRIMITIVE(vm->fiberClass->obj.classObj, "yield(_)", fiber_yield1);
+  PRIMITIVE(vm->fiberClass, "call()", fiber_call);
+  PRIMITIVE(vm->fiberClass, "call(_)", fiber_call1);
+  PRIMITIVE(vm->fiberClass, "error", fiber_error);
+  PRIMITIVE(vm->fiberClass, "isDone", fiber_isDone);
+  PRIMITIVE(vm->fiberClass, "transfer()", fiber_transfer);
+  PRIMITIVE(vm->fiberClass, "transfer(_)", fiber_transfer1);
+  PRIMITIVE(vm->fiberClass, "transferError(_)", fiber_transferError);
+  PRIMITIVE(vm->fiberClass, "try()", fiber_try);
+
+  vm->fnClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Fn"));
+  PRIMITIVE(vm->fnClass->obj.classObj, "new(_)", fn_new);
+
+  PRIMITIVE(vm->fnClass, "arity", fn_arity);
+  PRIMITIVE(vm->fnClass, "call()", fn_call0);
+  PRIMITIVE(vm->fnClass, "call(_)", fn_call1);
+  PRIMITIVE(vm->fnClass, "call(_,_)", fn_call2);
+  PRIMITIVE(vm->fnClass, "call(_,_,_)", fn_call3);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_)", fn_call4);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_)", fn_call5);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_)", fn_call6);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_)", fn_call7);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_)", fn_call8);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_)", fn_call9);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_)", fn_call10);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_)", fn_call11);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_)", fn_call12);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call13);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call14);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call15);
+  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call16);
+  PRIMITIVE(vm->fnClass, "toString", fn_toString);
+
+  vm->nullClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Null"));
+  PRIMITIVE(vm->nullClass, "!", null_not);
+  PRIMITIVE(vm->nullClass, "toString", null_toString);
+
+  vm->numClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Num"));
+  PRIMITIVE(vm->numClass->obj.classObj, "fromString(_)", num_fromString);
+  PRIMITIVE(vm->numClass->obj.classObj, "pi", num_pi);
+  PRIMITIVE(vm->numClass->obj.classObj, "largest", num_largest);
+  PRIMITIVE(vm->numClass->obj.classObj, "smallest", num_smallest);
+  PRIMITIVE(vm->numClass, "-(_)", num_minus);
+  PRIMITIVE(vm->numClass, "+(_)", num_plus);
+  PRIMITIVE(vm->numClass, "*(_)", num_multiply);
+  PRIMITIVE(vm->numClass, "/(_)", num_divide);
+  PRIMITIVE(vm->numClass, "<(_)", num_lt);
+  PRIMITIVE(vm->numClass, ">(_)", num_gt);
+  PRIMITIVE(vm->numClass, "<=(_)", num_lte);
+  PRIMITIVE(vm->numClass, ">=(_)", num_gte);
+  PRIMITIVE(vm->numClass, "&(_)", num_bitwiseAnd);
+  PRIMITIVE(vm->numClass, "|(_)", num_bitwiseOr);
+  PRIMITIVE(vm->numClass, "^(_)", num_bitwiseXor);
+  PRIMITIVE(vm->numClass, "<<(_)", num_bitwiseLeftShift);
+  PRIMITIVE(vm->numClass, ">>(_)", num_bitwiseRightShift);
+  PRIMITIVE(vm->numClass, "abs", num_abs);
+  PRIMITIVE(vm->numClass, "acos", num_acos);
+  PRIMITIVE(vm->numClass, "asin", num_asin);
+  PRIMITIVE(vm->numClass, "atan", num_atan);
+  PRIMITIVE(vm->numClass, "ceil", num_ceil);
+  PRIMITIVE(vm->numClass, "cos", num_cos);
+  PRIMITIVE(vm->numClass, "floor", num_floor);
+  PRIMITIVE(vm->numClass, "-", num_negate);
+  PRIMITIVE(vm->numClass, "round", num_round);
+  PRIMITIVE(vm->numClass, "sin", num_sin);
+  PRIMITIVE(vm->numClass, "sqrt", num_sqrt);
+  PRIMITIVE(vm->numClass, "tan", num_tan);
+  PRIMITIVE(vm->numClass, "log", num_log);
+  PRIMITIVE(vm->numClass, "log2", num_log2);
+  PRIMITIVE(vm->numClass, "exp", num_exp);
+  PRIMITIVE(vm->numClass, "%(_)", num_mod);
+  PRIMITIVE(vm->numClass, "~", num_bitwiseNot);
+  PRIMITIVE(vm->numClass, "..(_)", num_dotDot);
+  PRIMITIVE(vm->numClass, "...(_)", num_dotDotDot);
+  PRIMITIVE(vm->numClass, "atan(_)", num_atan2);
+  PRIMITIVE(vm->numClass, "pow(_)", num_pow);
+  PRIMITIVE(vm->numClass, "fraction", num_fraction);
+  PRIMITIVE(vm->numClass, "isInfinity", num_isInfinity);
+  PRIMITIVE(vm->numClass, "isInteger", num_isInteger);
+  PRIMITIVE(vm->numClass, "isNan", num_isNan);
+  PRIMITIVE(vm->numClass, "sign", num_sign);
+  PRIMITIVE(vm->numClass, "toString", num_toString);
+  PRIMITIVE(vm->numClass, "truncate", num_truncate);
+
+  // These are defined just so that 0 and -0 are equal, which is specified by
+  // IEEE 754 even though they have different bit representations.
+  PRIMITIVE(vm->numClass, "==(_)", num_eqeq);
+  PRIMITIVE(vm->numClass, "!=(_)", num_bangeq);
+
+  vm->stringClass = AS_CLASS(wrenFindVariable(vm, coreModule, "String"));
+  PRIMITIVE(vm->stringClass->obj.classObj, "fromCodePoint(_)", string_fromCodePoint);
+  PRIMITIVE(vm->stringClass->obj.classObj, "fromByte(_)", string_fromByte);
+  PRIMITIVE(vm->stringClass, "+(_)", string_plus);
+  PRIMITIVE(vm->stringClass, "[_]", string_subscript);
+  PRIMITIVE(vm->stringClass, "byteAt_(_)", string_byteAt);
+  PRIMITIVE(vm->stringClass, "byteCount_", string_byteCount);
+  PRIMITIVE(vm->stringClass, "codePointAt_(_)", string_codePointAt);
+  PRIMITIVE(vm->stringClass, "contains(_)", string_contains);
+  PRIMITIVE(vm->stringClass, "endsWith(_)", string_endsWith);
+  PRIMITIVE(vm->stringClass, "indexOf(_)", string_indexOf1);
+  PRIMITIVE(vm->stringClass, "indexOf(_,_)", string_indexOf2);
+  PRIMITIVE(vm->stringClass, "iterate(_)", string_iterate);
+  PRIMITIVE(vm->stringClass, "iterateByte_(_)", string_iterateByte);
+  PRIMITIVE(vm->stringClass, "iteratorValue(_)", string_iteratorValue);
+  PRIMITIVE(vm->stringClass, "startsWith(_)", string_startsWith);
+  PRIMITIVE(vm->stringClass, "toString", string_toString);
+
+  vm->listClass = AS_CLASS(wrenFindVariable(vm, coreModule, "List"));
+  PRIMITIVE(vm->listClass->obj.classObj, "filled(_,_)", list_filled);
+  PRIMITIVE(vm->listClass->obj.classObj, "new()", list_new);
+  PRIMITIVE(vm->listClass, "[_]", list_subscript);
+  PRIMITIVE(vm->listClass, "[_]=(_)", list_subscriptSetter);
+  PRIMITIVE(vm->listClass, "add(_)", list_add);
+  PRIMITIVE(vm->listClass, "addCore_(_)", list_addCore);
+  PRIMITIVE(vm->listClass, "clear()", list_clear);
+  PRIMITIVE(vm->listClass, "count", list_count);
+  PRIMITIVE(vm->listClass, "insert(_,_)", list_insert);
+  PRIMITIVE(vm->listClass, "iterate(_)", list_iterate);
+  PRIMITIVE(vm->listClass, "iteratorValue(_)", list_iteratorValue);
+  PRIMITIVE(vm->listClass, "removeAt(_)", list_removeAt);
+
+  vm->mapClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Map"));
+  PRIMITIVE(vm->mapClass->obj.classObj, "new()", map_new);
+  PRIMITIVE(vm->mapClass, "[_]", map_subscript);
+  PRIMITIVE(vm->mapClass, "[_]=(_)", map_subscriptSetter);
+  PRIMITIVE(vm->mapClass, "addCore_(_,_)", map_addCore);
+  PRIMITIVE(vm->mapClass, "clear()", map_clear);
+  PRIMITIVE(vm->mapClass, "containsKey(_)", map_containsKey);
+  PRIMITIVE(vm->mapClass, "count", map_count);
+  PRIMITIVE(vm->mapClass, "remove(_)", map_remove);
+  PRIMITIVE(vm->mapClass, "iterate(_)", map_iterate);
+  PRIMITIVE(vm->mapClass, "keyIteratorValue_(_)", map_keyIteratorValue);
+  PRIMITIVE(vm->mapClass, "valueIteratorValue_(_)", map_valueIteratorValue);
+
+  vm->rangeClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Range"));
+  PRIMITIVE(vm->rangeClass, "from", range_from);
+  PRIMITIVE(vm->rangeClass, "to", range_to);
+  PRIMITIVE(vm->rangeClass, "min", range_min);
+  PRIMITIVE(vm->rangeClass, "max", range_max);
+  PRIMITIVE(vm->rangeClass, "isInclusive", range_isInclusive);
+  PRIMITIVE(vm->rangeClass, "iterate(_)", range_iterate);
+  PRIMITIVE(vm->rangeClass, "iteratorValue(_)", range_iteratorValue);
+  PRIMITIVE(vm->rangeClass, "toString", range_toString);
+
+  ObjClass* systemClass = AS_CLASS(wrenFindVariable(vm, coreModule, "System"));
+  PRIMITIVE(systemClass->obj.classObj, "clock", system_clock);
+  PRIMITIVE(systemClass->obj.classObj, "gc()", system_gc);
+  PRIMITIVE(systemClass->obj.classObj, "writeString_(_)", system_writeString);
+
+  // While bootstrapping the core types and running the core module, a number
+  // of string objects have been created, many of which were instantiated
+  // before stringClass was stored in the VM. Some of them *must* be created
+  // first -- the ObjClass for string itself has a reference to the ObjString
+  // for its name.
+  //
+  // These all currently have a NULL classObj pointer, so go back and assign
+  // them now that the string class is known.
+  for (Obj* obj = vm->first; obj != NULL; obj = obj->next)
+  {
+    if (obj->type == OBJ_STRING) obj->classObj = vm->stringClass;
+  }
+}
+// End file "wren_core.c"
+// Begin file "wren_debug.c"
+#include <stdio.h>
+
+
+void wrenDebugPrintStackTrace(WrenVM* vm)
+{
+  // Bail if the host doesn't enable printing errors.
+  if (vm->config.errorFn == NULL) return;
+  
+  ObjFiber* fiber = vm->fiber;
+  if (IS_STRING(fiber->error))
+  {
+    vm->config.errorFn(vm, WREN_ERROR_RUNTIME,
+                       NULL, -1, AS_CSTRING(fiber->error));
+  }
+  else
+  {
+    // TODO: Print something a little useful here. Maybe the name of the error's
+    // class?
+    vm->config.errorFn(vm, WREN_ERROR_RUNTIME,
+                       NULL, -1, "[error object]");
+  }
+
+  for (int i = fiber->numFrames - 1; i >= 0; i--)
+  {
+    CallFrame* frame = &fiber->frames[i];
+    ObjFn* fn = frame->closure->fn;
+
+    // Skip over stub functions for calling methods from the C API.
+    if (fn->module == NULL) continue;
+    
+    // The built-in core module has no name. We explicitly omit it from stack
+    // traces since we don't want to highlight to a user the implementation
+    // detail of what part of the core module is written in C and what is Wren.
+    if (fn->module->name == NULL) continue;
+    
+    // -1 because IP has advanced past the instruction that it just executed.
+    int line = fn->debug->sourceLines.data[frame->ip - fn->code.data - 1];
+    vm->config.errorFn(vm, WREN_ERROR_STACK_TRACE,
+                       fn->module->name->value, line,
+                       fn->debug->name);
+  }
+}
+
+static void dumpObject(Obj* obj)
+{
+  switch (obj->type)
+  {
+    case OBJ_CLASS:
+      printf("[class %s %p]", ((ObjClass*)obj)->name->value, obj);
+      break;
+    case OBJ_CLOSURE: printf("[closure %p]", obj); break;
+    case OBJ_FIBER: printf("[fiber %p]", obj); break;
+    case OBJ_FN: printf("[fn %p]", obj); break;
+    case OBJ_FOREIGN: printf("[foreign %p]", obj); break;
+    case OBJ_INSTANCE: printf("[instance %p]", obj); break;
+    case OBJ_LIST: printf("[list %p]", obj); break;
+    case OBJ_MAP: printf("[map %p]", obj); break;
+    case OBJ_MODULE: printf("[module %p]", obj); break;
+    case OBJ_RANGE: printf("[range %p]", obj); break;
+    case OBJ_STRING: printf("%s", ((ObjString*)obj)->value); break;
+    case OBJ_UPVALUE: printf("[upvalue %p]", obj); break;
+    default: printf("[unknown object %d]", obj->type); break;
+  }
+}
+
+void wrenDumpValue(Value value)
+{
+#if WREN_NAN_TAGGING
+  if (IS_NUM(value))
+  {
+    printf("%.14g", AS_NUM(value));
+  }
+  else if (IS_OBJ(value))
+  {
+    dumpObject(AS_OBJ(value));
+  }
+  else
+  {
+    switch (GET_TAG(value))
+    {
+      case TAG_FALSE:     printf("false"); break;
+      case TAG_NAN:       printf("NaN"); break;
+      case TAG_NULL:      printf("null"); break;
+      case TAG_TRUE:      printf("true"); break;
+      case TAG_UNDEFINED: UNREACHABLE();
+    }
+  }
+#else
+  switch (value.type)
+  {
+    case VAL_FALSE:     printf("false"); break;
+    case VAL_NULL:      printf("null"); break;
+    case VAL_NUM:       printf("%.14g", AS_NUM(value)); break;
+    case VAL_TRUE:      printf("true"); break;
+    case VAL_OBJ:       dumpObject(AS_OBJ(value)); break;
+    case VAL_UNDEFINED: UNREACHABLE();
+  }
+#endif
+}
+
+static int dumpInstruction(WrenVM* vm, ObjFn* fn, int i, int* lastLine)
+{
+  int start = i;
+  uint8_t* bytecode = fn->code.data;
+  Code code = (Code)bytecode[i];
+
+  int line = fn->debug->sourceLines.data[i];
+  if (lastLine == NULL || *lastLine != line)
+  {
+    printf("%4d:", line);
+    if (lastLine != NULL) *lastLine = line;
+  }
+  else
+  {
+    printf("     ");
+  }
+
+  printf(" %04d  ", i++);
+
+  #define READ_BYTE() (bytecode[i++])
+  #define READ_SHORT() (i += 2, (bytecode[i - 2] << 8) | bytecode[i - 1])
+
+  #define BYTE_INSTRUCTION(name)                                               \
+      printf("%-16s %5d\n", name, READ_BYTE());                                \
+      break
+
+  switch (code)
+  {
+    case CODE_CONSTANT:
+    {
+      int constant = READ_SHORT();
+      printf("%-16s %5d '", "CONSTANT", constant);
+      wrenDumpValue(fn->constants.data[constant]);
+      printf("'\n");
+      break;
+    }
+
+    case CODE_NULL:  printf("NULL\n"); break;
+    case CODE_FALSE: printf("FALSE\n"); break;
+    case CODE_TRUE:  printf("TRUE\n"); break;
+
+    case CODE_LOAD_LOCAL_0: printf("LOAD_LOCAL_0\n"); break;
+    case CODE_LOAD_LOCAL_1: printf("LOAD_LOCAL_1\n"); break;
+    case CODE_LOAD_LOCAL_2: printf("LOAD_LOCAL_2\n"); break;
+    case CODE_LOAD_LOCAL_3: printf("LOAD_LOCAL_3\n"); break;
+    case CODE_LOAD_LOCAL_4: printf("LOAD_LOCAL_4\n"); break;
+    case CODE_LOAD_LOCAL_5: printf("LOAD_LOCAL_5\n"); break;
+    case CODE_LOAD_LOCAL_6: printf("LOAD_LOCAL_6\n"); break;
+    case CODE_LOAD_LOCAL_7: printf("LOAD_LOCAL_7\n"); break;
+    case CODE_LOAD_LOCAL_8: printf("LOAD_LOCAL_8\n"); break;
+
+    case CODE_LOAD_LOCAL: BYTE_INSTRUCTION("LOAD_LOCAL");
+    case CODE_STORE_LOCAL: BYTE_INSTRUCTION("STORE_LOCAL");
+    case CODE_LOAD_UPVALUE: BYTE_INSTRUCTION("LOAD_UPVALUE");
+    case CODE_STORE_UPVALUE: BYTE_INSTRUCTION("STORE_UPVALUE");
+
+    case CODE_LOAD_MODULE_VAR:
+    {
+      int slot = READ_SHORT();
+      printf("%-16s %5d '%s'\n", "LOAD_MODULE_VAR", slot,
+             fn->module->variableNames.data[slot]->value);
+      break;
+    }
+
+    case CODE_STORE_MODULE_VAR:
+    {
+      int slot = READ_SHORT();
+      printf("%-16s %5d '%s'\n", "STORE_MODULE_VAR", slot,
+             fn->module->variableNames.data[slot]->value);
+      break;
+    }
+
+    case CODE_LOAD_FIELD_THIS: BYTE_INSTRUCTION("LOAD_FIELD_THIS");
+    case CODE_STORE_FIELD_THIS: BYTE_INSTRUCTION("STORE_FIELD_THIS");
+    case CODE_LOAD_FIELD: BYTE_INSTRUCTION("LOAD_FIELD");
+    case CODE_STORE_FIELD: BYTE_INSTRUCTION("STORE_FIELD");
+
+    case CODE_POP: printf("POP\n"); break;
+
+    case CODE_CALL_0:
+    case CODE_CALL_1:
+    case CODE_CALL_2:
+    case CODE_CALL_3:
+    case CODE_CALL_4:
+    case CODE_CALL_5:
+    case CODE_CALL_6:
+    case CODE_CALL_7:
+    case CODE_CALL_8:
+    case CODE_CALL_9:
+    case CODE_CALL_10:
+    case CODE_CALL_11:
+    case CODE_CALL_12:
+    case CODE_CALL_13:
+    case CODE_CALL_14:
+    case CODE_CALL_15:
+    case CODE_CALL_16:
+    {
+      int numArgs = bytecode[i - 1] - CODE_CALL_0;
+      int symbol = READ_SHORT();
+      printf("CALL_%-11d %5d '%s'\n", numArgs, symbol,
+             vm->methodNames.data[symbol]->value);
+      break;
+    }
+
+    case CODE_SUPER_0:
+    case CODE_SUPER_1:
+    case CODE_SUPER_2:
+    case CODE_SUPER_3:
+    case CODE_SUPER_4:
+    case CODE_SUPER_5:
+    case CODE_SUPER_6:
+    case CODE_SUPER_7:
+    case CODE_SUPER_8:
+    case CODE_SUPER_9:
+    case CODE_SUPER_10:
+    case CODE_SUPER_11:
+    case CODE_SUPER_12:
+    case CODE_SUPER_13:
+    case CODE_SUPER_14:
+    case CODE_SUPER_15:
+    case CODE_SUPER_16:
+    {
+      int numArgs = bytecode[i - 1] - CODE_SUPER_0;
+      int symbol = READ_SHORT();
+      int superclass = READ_SHORT();
+      printf("SUPER_%-10d %5d '%s' %5d\n", numArgs, symbol,
+             vm->methodNames.data[symbol]->value, superclass);
+      break;
+    }
+
+    case CODE_JUMP:
+    {
+      int offset = READ_SHORT();
+      printf("%-16s %5d to %d\n", "JUMP", offset, i + offset);
+      break;
+    }
+
+    case CODE_LOOP:
+    {
+      int offset = READ_SHORT();
+      printf("%-16s %5d to %d\n", "LOOP", offset, i - offset);
+      break;
+    }
+
+    case CODE_JUMP_IF:
+    {
+      int offset = READ_SHORT();
+      printf("%-16s %5d to %d\n", "JUMP_IF", offset, i + offset);
+      break;
+    }
+
+    case CODE_AND:
+    {
+      int offset = READ_SHORT();
+      printf("%-16s %5d to %d\n", "AND", offset, i + offset);
+      break;
+    }
+
+    case CODE_OR:
+    {
+      int offset = READ_SHORT();
+      printf("%-16s %5d to %d\n", "OR", offset, i + offset);
+      break;
+    }
+
+    case CODE_CLOSE_UPVALUE: printf("CLOSE_UPVALUE\n"); break;
+    case CODE_RETURN:        printf("RETURN\n"); break;
+
+    case CODE_CLOSURE:
+    {
+      int constant = READ_SHORT();
+      printf("%-16s %5d ", "CLOSURE", constant);
+      wrenDumpValue(fn->constants.data[constant]);
+      printf(" ");
+      ObjFn* loadedFn = AS_FN(fn->constants.data[constant]);
+      for (int j = 0; j < loadedFn->numUpvalues; j++)
+      {
+        int isLocal = READ_BYTE();
+        int index = READ_BYTE();
+        if (j > 0) printf(", ");
+        printf("%s %d", isLocal ? "local" : "upvalue", index);
+      }
+      printf("\n");
+      break;
+    }
+
+    case CODE_CONSTRUCT:         printf("CONSTRUCT\n"); break;
+    case CODE_FOREIGN_CONSTRUCT: printf("FOREIGN_CONSTRUCT\n"); break;
+      
+    case CODE_CLASS:
+    {
+      int numFields = READ_BYTE();
+      printf("%-16s %5d fields\n", "CLASS", numFields);
+      break;
+    }
+
+    case CODE_FOREIGN_CLASS: printf("FOREIGN_CLASS\n"); break;
+
+    case CODE_METHOD_INSTANCE:
+    {
+      int symbol = READ_SHORT();
+      printf("%-16s %5d '%s'\n", "METHOD_INSTANCE", symbol,
+             vm->methodNames.data[symbol]->value);
+      break;
+    }
+
+    case CODE_METHOD_STATIC:
+    {
+      int symbol = READ_SHORT();
+      printf("%-16s %5d '%s'\n", "METHOD_STATIC", symbol,
+             vm->methodNames.data[symbol]->value);
+      break;
+    }
+      
+    case CODE_END_MODULE:
+      printf("END_MODULE\n");
+      break;
+      
+    case CODE_IMPORT_MODULE:
+    {
+      int name = READ_SHORT();
+      printf("%-16s %5d '", "IMPORT_MODULE", name);
+      wrenDumpValue(fn->constants.data[name]);
+      printf("'\n");
+      break;
+    }
+      
+    case CODE_IMPORT_VARIABLE:
+    {
+      int variable = READ_SHORT();
+      printf("%-16s %5d '", "IMPORT_VARIABLE", variable);
+      wrenDumpValue(fn->constants.data[variable]);
+      printf("'\n");
+      break;
+    }
+      
+    case CODE_END:
+      printf("END\n");
+      break;
+
+    default:
+      printf("UKNOWN! [%d]\n", bytecode[i - 1]);
+      break;
+  }
+
+  // Return how many bytes this instruction takes, or -1 if it's an END.
+  if (code == CODE_END) return -1;
+  return i - start;
+
+  #undef READ_BYTE
+  #undef READ_SHORT
+}
+
+int wrenDumpInstruction(WrenVM* vm, ObjFn* fn, int i)
+{
+  return dumpInstruction(vm, fn, i, NULL);
+}
+
+void wrenDumpCode(WrenVM* vm, ObjFn* fn)
+{
+  printf("%s: %s\n",
+         fn->module->name == NULL ? "<core>" : fn->module->name->value,
+         fn->debug->name);
+
+  int i = 0;
+  int lastLine = -1;
+  for (;;)
+  {
+    int offset = dumpInstruction(vm, fn, i, &lastLine);
+    if (offset == -1) break;
+    i += offset;
+  }
+
+  printf("\n");
+}
+
+void wrenDumpStack(ObjFiber* fiber)
+{
+  printf("(fiber %p) ", fiber);
+  for (Value* slot = fiber->stack; slot < fiber->stackTop; slot++)
+  {
+    wrenDumpValue(*slot);
+    printf(" | ");
+  }
+  printf("\n");
+}
+// End file "wren_debug.c"
+// Begin file "wren_primitive.c"
 
 #include <math.h>
 
@@ -6886,34 +8746,1323 @@ int wrenPowerOf2Ceil(int n)
   return n;
 }
 // End file "wren_utils.c"
+// Begin file "wren_value.c"
+#include <math.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+
+
+#if WREN_DEBUG_TRACE_MEMORY
+#endif
+
+// TODO: Tune these.
+// The initial (and minimum) capacity of a non-empty list or map object.
+#define MIN_CAPACITY 16
+
+// The rate at which a collection's capacity grows when the size exceeds the
+// current capacity. The new capacity will be determined by *multiplying* the
+// old capacity by this. Growing geometrically is necessary to ensure that
+// adding to a collection has O(1) amortized complexity.
+#define GROW_FACTOR 2
+
+// The maximum percentage of map entries that can be filled before the map is
+// grown. A lower load takes more memory but reduces collisions which makes
+// lookup faster.
+#define MAP_LOAD_PERCENT 75
+
+// The number of call frames initially allocated when a fiber is created. Making
+// this smaller makes fibers use less memory (at first) but spends more time
+// reallocating when the call stack grows.
+#define INITIAL_CALL_FRAMES 4
+
+DEFINE_BUFFER(Value, Value);
+DEFINE_BUFFER(Method, Method);
+
+static void initObj(WrenVM* vm, Obj* obj, ObjType type, ObjClass* classObj)
+{
+  obj->type = type;
+  obj->isDark = false;
+  obj->classObj = classObj;
+  obj->next = vm->first;
+  vm->first = obj;
+}
+
+ObjClass* wrenNewSingleClass(WrenVM* vm, int numFields, ObjString* name)
+{
+  ObjClass* classObj = ALLOCATE(vm, ObjClass);
+  initObj(vm, &classObj->obj, OBJ_CLASS, NULL);
+  classObj->superclass = NULL;
+  classObj->numFields = numFields;
+  classObj->name = name;
+
+  wrenPushRoot(vm, (Obj*)classObj);
+  wrenMethodBufferInit(&classObj->methods);
+  wrenPopRoot(vm);
+
+  return classObj;
+}
+
+void wrenBindSuperclass(WrenVM* vm, ObjClass* subclass, ObjClass* superclass)
+{
+  ASSERT(superclass != NULL, "Must have superclass.");
+
+  subclass->superclass = superclass;
+
+  // Include the superclass in the total number of fields.
+  if (subclass->numFields != -1)
+  {
+    subclass->numFields += superclass->numFields;
+  }
+  else
+  {
+    ASSERT(superclass->numFields == 0,
+           "A foreign class cannot inherit from a class with fields.");
+  }
+
+  // Inherit methods from its superclass.
+  for (int i = 0; i < superclass->methods.count; i++)
+  {
+    wrenBindMethod(vm, subclass, i, superclass->methods.data[i]);
+  }
+}
+
+ObjClass* wrenNewClass(WrenVM* vm, ObjClass* superclass, int numFields,
+                       ObjString* name)
+{
+  // Create the metaclass.
+  Value metaclassName = wrenStringFormat(vm, "@ metaclass", OBJ_VAL(name));
+  wrenPushRoot(vm, AS_OBJ(metaclassName));
+
+  ObjClass* metaclass = wrenNewSingleClass(vm, 0, AS_STRING(metaclassName));
+  metaclass->obj.classObj = vm->classClass;
+
+  wrenPopRoot(vm);
+
+  // Make sure the metaclass isn't collected when we allocate the class.
+  wrenPushRoot(vm, (Obj*)metaclass);
+
+  // Metaclasses always inherit Class and do not parallel the non-metaclass
+  // hierarchy.
+  wrenBindSuperclass(vm, metaclass, vm->classClass);
+
+  ObjClass* classObj = wrenNewSingleClass(vm, numFields, name);
+
+  // Make sure the class isn't collected while the inherited methods are being
+  // bound.
+  wrenPushRoot(vm, (Obj*)classObj);
+
+  classObj->obj.classObj = metaclass;
+  wrenBindSuperclass(vm, classObj, superclass);
+
+  wrenPopRoot(vm);
+  wrenPopRoot(vm);
+
+  return classObj;
+}
+
+void wrenBindMethod(WrenVM* vm, ObjClass* classObj, int symbol, Method method)
+{
+  // Make sure the buffer is big enough to contain the symbol's index.
+  if (symbol >= classObj->methods.count)
+  {
+    Method noMethod;
+    noMethod.type = METHOD_NONE;
+    wrenMethodBufferFill(vm, &classObj->methods, noMethod,
+                         symbol - classObj->methods.count + 1);
+  }
+
+  classObj->methods.data[symbol] = method;
+}
+
+ObjClosure* wrenNewClosure(WrenVM* vm, ObjFn* fn)
+{
+  ObjClosure* closure = ALLOCATE_FLEX(vm, ObjClosure,
+                                      ObjUpvalue*, fn->numUpvalues);
+  initObj(vm, &closure->obj, OBJ_CLOSURE, vm->fnClass);
+
+  closure->fn = fn;
+
+  // Clear the upvalue array. We need to do this in case a GC is triggered
+  // after the closure is created but before the upvalue array is populated.
+  for (int i = 0; i < fn->numUpvalues; i++) closure->upvalues[i] = NULL;
+
+  return closure;
+}
+
+ObjFiber* wrenNewFiber(WrenVM* vm, ObjClosure* closure)
+{
+  // Allocate the arrays before the fiber in case it triggers a GC.
+  CallFrame* frames = ALLOCATE_ARRAY(vm, CallFrame, INITIAL_CALL_FRAMES);
+  
+  // Add one slot for the unused implicit receiver slot that the compiler
+  // assumes all functions have.
+  int stackCapacity = closure == NULL
+      ? 1
+      : wrenPowerOf2Ceil(closure->fn->maxSlots + 1);
+  Value* stack = ALLOCATE_ARRAY(vm, Value, stackCapacity);
+  
+  ObjFiber* fiber = ALLOCATE(vm, ObjFiber);
+  initObj(vm, &fiber->obj, OBJ_FIBER, vm->fiberClass);
+
+  fiber->stack = stack;
+  fiber->stackTop = fiber->stack;
+  fiber->stackCapacity = stackCapacity;
+
+  fiber->frames = frames;
+  fiber->frameCapacity = INITIAL_CALL_FRAMES;
+  fiber->numFrames = 0;
+
+  fiber->openUpvalues = NULL;
+  fiber->caller = NULL;
+  fiber->error = NULL_VAL;
+  fiber->state = FIBER_OTHER;
+  
+  if (closure != NULL)
+  {
+    // Initialize the first call frame.
+    wrenAppendCallFrame(vm, fiber, closure, fiber->stack);
+
+    // The first slot always holds the closure.
+    fiber->stackTop[0] = OBJ_VAL(closure);
+    fiber->stackTop++;
+  }
+  
+  return fiber;
+}
+
+void wrenEnsureStack(WrenVM* vm, ObjFiber* fiber, int needed)
+{
+  if (fiber->stackCapacity >= needed) return;
+  
+  int capacity = wrenPowerOf2Ceil(needed);
+  
+  Value* oldStack = fiber->stack;
+  fiber->stack = (Value*)wrenReallocate(vm, fiber->stack,
+                                        sizeof(Value) * fiber->stackCapacity,
+                                        sizeof(Value) * capacity);
+  fiber->stackCapacity = capacity;
+  
+  // If the reallocation moves the stack, then we need to recalculate every
+  // pointer that points into the old stack to into the same relative distance
+  // in the new stack. We have to be a little careful about how these are
+  // calculated because pointer subtraction is only well-defined within a
+  // single array, hence the slightly redundant-looking arithmetic below.
+  if (fiber->stack != oldStack)
+  {
+    // Top of the stack.
+    if (vm->apiStack >= oldStack && vm->apiStack <= fiber->stackTop)
+    {
+      vm->apiStack = fiber->stack + (vm->apiStack - oldStack);
+    }
+    
+    // Stack pointer for each call frame.
+    for (int i = 0; i < fiber->numFrames; i++)
+    {
+      CallFrame* frame = &fiber->frames[i];
+      frame->stackStart = fiber->stack + (frame->stackStart - oldStack);
+    }
+    
+    // Open upvalues.
+    for (ObjUpvalue* upvalue = fiber->openUpvalues;
+         upvalue != NULL;
+         upvalue = upvalue->next)
+    {
+      upvalue->value = fiber->stack + (upvalue->value - oldStack);
+    }
+    
+    fiber->stackTop = fiber->stack + (fiber->stackTop - oldStack);
+  }
+}
+
+ObjForeign* wrenNewForeign(WrenVM* vm, ObjClass* classObj, size_t size)
+{
+  ObjForeign* object = ALLOCATE_FLEX(vm, ObjForeign, uint8_t, size);
+  initObj(vm, &object->obj, OBJ_FOREIGN, classObj);
+
+  // Zero out the bytes.
+  memset(object->data, 0, size);
+  return object;
+}
+
+ObjFn* wrenNewFunction(WrenVM* vm, ObjModule* module, int maxSlots)
+{
+  FnDebug* debug = ALLOCATE(vm, FnDebug);
+  debug->name = NULL;
+  wrenIntBufferInit(&debug->sourceLines);
+
+  ObjFn* fn = ALLOCATE(vm, ObjFn);
+  initObj(vm, &fn->obj, OBJ_FN, vm->fnClass);
+  
+  wrenValueBufferInit(&fn->constants);
+  wrenByteBufferInit(&fn->code);
+  fn->module = module;
+  fn->maxSlots = maxSlots;
+  fn->numUpvalues = 0;
+  fn->arity = 0;
+  fn->debug = debug;
+  
+  return fn;
+}
+
+void wrenFunctionBindName(WrenVM* vm, ObjFn* fn, const char* name, int length)
+{
+  fn->debug->name = ALLOCATE_ARRAY(vm, char, length + 1);
+  memcpy(fn->debug->name, name, length);
+  fn->debug->name[length] = '\0';
+}
+
+Value wrenNewInstance(WrenVM* vm, ObjClass* classObj)
+{
+  ObjInstance* instance = ALLOCATE_FLEX(vm, ObjInstance,
+                                        Value, classObj->numFields);
+  initObj(vm, &instance->obj, OBJ_INSTANCE, classObj);
+
+  // Initialize fields to null.
+  for (int i = 0; i < classObj->numFields; i++)
+  {
+    instance->fields[i] = NULL_VAL;
+  }
+
+  return OBJ_VAL(instance);
+}
+
+ObjList* wrenNewList(WrenVM* vm, uint32_t numElements)
+{
+  // Allocate this before the list object in case it triggers a GC which would
+  // free the list.
+  Value* elements = NULL;
+  if (numElements > 0)
+  {
+    elements = ALLOCATE_ARRAY(vm, Value, numElements);
+  }
+
+  ObjList* list = ALLOCATE(vm, ObjList);
+  initObj(vm, &list->obj, OBJ_LIST, vm->listClass);
+  list->elements.capacity = numElements;
+  list->elements.count = numElements;
+  list->elements.data = elements;
+  return list;
+}
+
+void wrenListInsert(WrenVM* vm, ObjList* list, Value value, uint32_t index)
+{
+  if (IS_OBJ(value)) wrenPushRoot(vm, AS_OBJ(value));
+
+  // Add a slot at the end of the list.
+  wrenValueBufferWrite(vm, &list->elements, NULL_VAL);
+
+  if (IS_OBJ(value)) wrenPopRoot(vm);
+
+  // Shift the existing elements down.
+  for (uint32_t i = list->elements.count - 1; i > index; i--)
+  {
+    list->elements.data[i] = list->elements.data[i - 1];
+  }
+
+  // Store the new element.
+  list->elements.data[index] = value;
+}
+
+Value wrenListRemoveAt(WrenVM* vm, ObjList* list, uint32_t index)
+{
+  Value removed = list->elements.data[index];
+
+  if (IS_OBJ(removed)) wrenPushRoot(vm, AS_OBJ(removed));
+
+  // Shift items up.
+  for (int i = index; i < list->elements.count - 1; i++)
+  {
+    list->elements.data[i] = list->elements.data[i + 1];
+  }
+
+  // If we have too much excess capacity, shrink it.
+  if (list->elements.capacity / GROW_FACTOR >= list->elements.count)
+  {
+    list->elements.data = (Value*)wrenReallocate(vm, list->elements.data,
+        sizeof(Value) * list->elements.capacity,
+        sizeof(Value) * (list->elements.capacity / GROW_FACTOR));
+    list->elements.capacity /= GROW_FACTOR;
+  }
+
+  if (IS_OBJ(removed)) wrenPopRoot(vm);
+
+  list->elements.count--;
+  return removed;
+}
+
+ObjMap* wrenNewMap(WrenVM* vm)
+{
+  ObjMap* map = ALLOCATE(vm, ObjMap);
+  initObj(vm, &map->obj, OBJ_MAP, vm->mapClass);
+  map->capacity = 0;
+  map->count = 0;
+  map->entries = NULL;
+  return map;
+}
+
+static inline uint32_t hashBits(uint64_t hash)
+{
+  // From v8's ComputeLongHash() which in turn cites:
+  // Thomas Wang, Integer Hash Functions.
+  // http://www.concentric.net/~Ttwang/tech/inthash.htm
+  hash = ~hash + (hash << 18);  // hash = (hash << 18) - hash - 1;
+  hash = hash ^ (hash >> 31);
+  hash = hash * 21;  // hash = (hash + (hash << 2)) + (hash << 4);
+  hash = hash ^ (hash >> 11);
+  hash = hash + (hash << 6);
+  hash = hash ^ (hash >> 22);
+  return (uint32_t)(hash & 0x3fffffff);
+}
+
+// Generates a hash code for [num].
+static inline uint32_t hashNumber(double num)
+{
+  // Hash the raw bits of the value.
+  DoubleBits bits;
+  bits.num = num;
+  return hashBits(bits.bits64);
+}
+
+// Generates a hash code for [object].
+static uint32_t hashObject(Obj* object)
+{
+  switch (object->type)
+  {
+    case OBJ_CLASS:
+      // Classes just use their name.
+      return hashObject((Obj*)((ObjClass*)object)->name);
+      
+      // Allow bare (non-closure) functions so that we can use a map to find
+      // existing constants in a function's constant table. This is only used
+      // internally. Since user code never sees a non-closure function, they
+      // cannot use them as map keys.
+    case OBJ_FN:
+    {
+      ObjFn* fn = (ObjFn*)object;
+      return hashNumber(fn->arity) ^ hashNumber(fn->code.count);
+    }
+
+    case OBJ_RANGE:
+    {
+      ObjRange* range = (ObjRange*)object;
+      return hashNumber(range->from) ^ hashNumber(range->to);
+    }
+
+    case OBJ_STRING:
+      return ((ObjString*)object)->hash;
+
+    default:
+      ASSERT(false, "Only immutable objects can be hashed.");
+      return 0;
+  }
+}
+
+// Generates a hash code for [value], which must be one of the built-in
+// immutable types: null, bool, class, num, range, or string.
+static uint32_t hashValue(Value value)
+{
+  // TODO: We'll probably want to randomize this at some point.
+
+#if WREN_NAN_TAGGING
+  if (IS_OBJ(value)) return hashObject(AS_OBJ(value));
+
+  // Hash the raw bits of the unboxed value.
+  return hashBits(value);
+#else
+  switch (value.type)
+  {
+    case VAL_FALSE: return 0;
+    case VAL_NULL:  return 1;
+    case VAL_NUM:   return hashNumber(AS_NUM(value));
+    case VAL_TRUE:  return 2;
+    case VAL_OBJ:   return hashObject(AS_OBJ(value));
+    default:        UNREACHABLE();
+  }
+  
+  return 0;
+#endif
+}
+
+// Looks for an entry with [key] in an array of [capacity] [entries].
+//
+// If found, sets [result] to point to it and returns `true`. Otherwise,
+// returns `false` and points [result] to the entry where the key/value pair
+// should be inserted.
+static bool findEntry(MapEntry* entries, uint32_t capacity, Value key,
+                      MapEntry** result)
+{
+  // If there is no entry array (an empty map), we definitely won't find it.
+  if (capacity == 0) return false;
+  
+  // Figure out where to insert it in the table. Use open addressing and
+  // basic linear probing.
+  uint32_t startIndex = hashValue(key) % capacity;
+  uint32_t index = startIndex;
+  
+  // If we pass a tombstone and don't end up finding the key, its entry will
+  // be re-used for the insert.
+  MapEntry* tombstone = NULL;
+  
+  // Walk the probe sequence until we've tried every slot.
+  do
+  {
+    MapEntry* entry = &entries[index];
+    
+    if (IS_UNDEFINED(entry->key))
+    {
+      // If we found an empty slot, the key is not in the table. If we found a
+      // slot that contains a deleted key, we have to keep looking.
+      if (IS_FALSE(entry->value))
+      {
+        // We found an empty slot, so we've reached the end of the probe
+        // sequence without finding the key. If we passed a tombstone, then
+        // that's where we should insert the item, otherwise, put it here at
+        // the end of the sequence.
+        *result = tombstone != NULL ? tombstone : entry;
+        return false;
+      }
+      else
+      {
+        // We found a tombstone. We need to keep looking in case the key is
+        // after it, but we'll use this entry as the insertion point if the
+        // key ends up not being found.
+        if (tombstone == NULL) tombstone = entry;
+      }
+    }
+    else if (wrenValuesEqual(entry->key, key))
+    {
+      // We found the key.
+      *result = entry;
+      return true;
+    }
+    
+    // Try the next slot.
+    index = (index + 1) % capacity;
+  }
+  while (index != startIndex);
+  
+  // If we get here, the table is full of tombstones. Return the first one we
+  // found.
+  ASSERT(tombstone != NULL, "Map should have tombstones or empty entries.");
+  *result = tombstone;
+  return false;
+}
+
+// Inserts [key] and [value] in the array of [entries] with the given
+// [capacity].
+//
+// Returns `true` if this is the first time [key] was added to the map.
+static bool insertEntry(MapEntry* entries, uint32_t capacity,
+                        Value key, Value value)
+{
+  ASSERT(entries != NULL, "Should ensure capacity before inserting.");
+  
+  MapEntry* entry;
+  if (findEntry(entries, capacity, key, &entry))
+  {
+    // Already present, so just replace the value.
+    entry->value = value;
+    return false;
+  }
+  else
+  {
+    entry->key = key;
+    entry->value = value;
+    return true;
+  }
+}
+
+// Updates [map]'s entry array to [capacity].
+static void resizeMap(WrenVM* vm, ObjMap* map, uint32_t capacity)
+{
+  // Create the new empty hash table.
+  MapEntry* entries = ALLOCATE_ARRAY(vm, MapEntry, capacity);
+  for (uint32_t i = 0; i < capacity; i++)
+  {
+    entries[i].key = UNDEFINED_VAL;
+    entries[i].value = FALSE_VAL;
+  }
+
+  // Re-add the existing entries.
+  if (map->capacity > 0)
+  {
+    for (uint32_t i = 0; i < map->capacity; i++)
+    {
+      MapEntry* entry = &map->entries[i];
+      
+      // Don't copy empty entries or tombstones.
+      if (IS_UNDEFINED(entry->key)) continue;
+
+      insertEntry(entries, capacity, entry->key, entry->value);
+    }
+  }
+
+  // Replace the array.
+  DEALLOCATE(vm, map->entries);
+  map->entries = entries;
+  map->capacity = capacity;
+}
+
+Value wrenMapGet(ObjMap* map, Value key)
+{
+  MapEntry* entry;
+  if (findEntry(map->entries, map->capacity, key, &entry)) return entry->value;
+
+  return UNDEFINED_VAL;
+}
+
+void wrenMapSet(WrenVM* vm, ObjMap* map, Value key, Value value)
+{
+  // If the map is getting too full, make room first.
+  if (map->count + 1 > map->capacity * MAP_LOAD_PERCENT / 100)
+  {
+    // Figure out the new hash table size.
+    uint32_t capacity = map->capacity * GROW_FACTOR;
+    if (capacity < MIN_CAPACITY) capacity = MIN_CAPACITY;
+
+    resizeMap(vm, map, capacity);
+  }
+
+  if (insertEntry(map->entries, map->capacity, key, value))
+  {
+    // A new key was added.
+    map->count++;
+  }
+}
+
+void wrenMapClear(WrenVM* vm, ObjMap* map)
+{
+  DEALLOCATE(vm, map->entries);
+  map->entries = NULL;
+  map->capacity = 0;
+  map->count = 0;
+}
+
+Value wrenMapRemoveKey(WrenVM* vm, ObjMap* map, Value key)
+{
+  MapEntry* entry;
+  if (!findEntry(map->entries, map->capacity, key, &entry)) return NULL_VAL;
+
+  // Remove the entry from the map. Set this value to true, which marks it as a
+  // deleted slot. When searching for a key, we will stop on empty slots, but
+  // continue past deleted slots.
+  Value value = entry->value;
+  entry->key = UNDEFINED_VAL;
+  entry->value = TRUE_VAL;
+
+  if (IS_OBJ(value)) wrenPushRoot(vm, AS_OBJ(value));
+
+  map->count--;
+
+  if (map->count == 0)
+  {
+    // Removed the last item, so free the array.
+    wrenMapClear(vm, map);
+  }
+  else if (map->capacity > MIN_CAPACITY &&
+           map->count < map->capacity / GROW_FACTOR * MAP_LOAD_PERCENT / 100)
+  {
+    uint32_t capacity = map->capacity / GROW_FACTOR;
+    if (capacity < MIN_CAPACITY) capacity = MIN_CAPACITY;
+
+    // The map is getting empty, so shrink the entry array back down.
+    // TODO: Should we do this less aggressively than we grow?
+    resizeMap(vm, map, capacity);
+  }
+
+  if (IS_OBJ(value)) wrenPopRoot(vm);
+  return value;
+}
+
+ObjModule* wrenNewModule(WrenVM* vm, ObjString* name)
+{
+  ObjModule* module = ALLOCATE(vm, ObjModule);
+
+  // Modules are never used as first-class objects, so don't need a class.
+  initObj(vm, (Obj*)module, OBJ_MODULE, NULL);
+
+  wrenPushRoot(vm, (Obj*)module);
+
+  wrenSymbolTableInit(&module->variableNames);
+  wrenValueBufferInit(&module->variables);
+
+  module->name = name;
+
+  wrenPopRoot(vm);
+  return module;
+}
+
+Value wrenNewRange(WrenVM* vm, double from, double to, bool isInclusive)
+{
+  ObjRange* range = ALLOCATE(vm, ObjRange);
+  initObj(vm, &range->obj, OBJ_RANGE, vm->rangeClass);
+  range->from = from;
+  range->to = to;
+  range->isInclusive = isInclusive;
+
+  return OBJ_VAL(range);
+}
+
+// Creates a new string object with a null-terminated buffer large enough to
+// hold a string of [length] but does not fill in the bytes.
+//
+// The caller is expected to fill in the buffer and then calculate the string's
+// hash.
+static ObjString* allocateString(WrenVM* vm, size_t length)
+{
+  ObjString* string = ALLOCATE_FLEX(vm, ObjString, char, length + 1);
+  initObj(vm, &string->obj, OBJ_STRING, vm->stringClass);
+  string->length = (int)length;
+  string->value[length] = '\0';
+
+  return string;
+}
+
+// Calculates and stores the hash code for [string].
+static void hashString(ObjString* string)
+{
+  // FNV-1a hash. See: http://www.isthe.com/chongo/tech/comp/fnv/
+  uint32_t hash = 2166136261u;
+
+  // This is O(n) on the length of the string, but we only call this when a new
+  // string is created. Since the creation is also O(n) (to copy/initialize all
+  // the bytes), we allow this here.
+  for (uint32_t i = 0; i < string->length; i++)
+  {
+    hash ^= string->value[i];
+    hash *= 16777619;
+  }
+
+  string->hash = hash;
+}
+
+Value wrenNewString(WrenVM* vm, const char* text)
+{
+  return wrenNewStringLength(vm, text, strlen(text));
+}
+
+Value wrenNewStringLength(WrenVM* vm, const char* text, size_t length)
+{
+  // Allow NULL if the string is empty since byte buffers don't allocate any
+  // characters for a zero-length string.
+  ASSERT(length == 0 || text != NULL, "Unexpected NULL string.");
+  
+  ObjString* string = allocateString(vm, length);
+  
+  // Copy the string (if given one).
+  if (length > 0 && text != NULL) memcpy(string->value, text, length);
+  
+  hashString(string);
+  return OBJ_VAL(string);
+}
+
+
+Value wrenNewStringFromRange(WrenVM* vm, ObjString* source, int start,
+                             uint32_t count, int step)
+{
+  uint8_t* from = (uint8_t*)source->value;
+  int length = 0;
+  for (uint32_t i = 0; i < count; i++)
+  {
+    length += wrenUtf8DecodeNumBytes(from[start + i * step]);
+  }
+
+  ObjString* result = allocateString(vm, length);
+  result->value[length] = '\0';
+
+  uint8_t* to = (uint8_t*)result->value;
+  for (uint32_t i = 0; i < count; i++)
+  {
+    int index = start + i * step;
+    int codePoint = wrenUtf8Decode(from + index, source->length - index);
+
+    if (codePoint != -1)
+    {
+      to += wrenUtf8Encode(codePoint, to);
+    }
+  }
+
+  hashString(result);
+  return OBJ_VAL(result);
+}
+
+Value wrenNumToString(WrenVM* vm, double value)
+{
+  // Edge case: If the value is NaN or infinity, different versions of libc
+  // produce different outputs (some will format it signed and some won't). To
+  // get reliable output, handle it ourselves.
+  if (isnan(value)) return CONST_STRING(vm, "nan");
+  if (isinf(value))
+  {
+    if (value > 0.0)
+    {
+      return CONST_STRING(vm, "infinity");
+    }
+    else
+    {
+      return CONST_STRING(vm, "-infinity");
+    }
+  }
+
+  // This is large enough to hold any double converted to a string using
+  // "%.14g". Example:
+  //
+  //     -1.12345678901234e-1022
+  //
+  // So we have:
+  //
+  // + 1 char for sign
+  // + 1 char for digit
+  // + 1 char for "."
+  // + 14 chars for decimal digits
+  // + 1 char for "e"
+  // + 1 char for "-" or "+"
+  // + 4 chars for exponent
+  // + 1 char for "\0"
+  // = 24
+  char buffer[24];
+  int length = sprintf(buffer, "%.14g", value);
+  return wrenNewStringLength(vm, buffer, length);
+}
+
+Value wrenStringFromCodePoint(WrenVM* vm, int value)
+{
+  int length = wrenUtf8EncodeNumBytes(value);
+  ASSERT(length != 0, "Value out of range.");
+
+  ObjString* string = allocateString(vm, length);
+
+  wrenUtf8Encode(value, (uint8_t*)string->value);
+  hashString(string);
+
+  return OBJ_VAL(string);
+}
+
+Value wrenStringFromByte(WrenVM *vm, uint8_t value)
+{
+  int length = 1;
+  ObjString* string = allocateString(vm, length);
+  string->value[0] = value;
+  hashString(string);
+  return OBJ_VAL(string);
+}
+
+Value wrenStringFormat(WrenVM* vm, const char* format, ...)
+{
+  va_list argList;
+
+  // Calculate the length of the result string. Do this up front so we can
+  // create the final string with a single allocation.
+  va_start(argList, format);
+  size_t totalLength = 0;
+  for (const char* c = format; *c != '\0'; c++)
+  {
+    switch (*c)
+    {
+      case '$':
+        totalLength += strlen(va_arg(argList, const char*));
+        break;
+
+      case '@':
+        totalLength += AS_STRING(va_arg(argList, Value))->length;
+        break;
+
+      default:
+        // Any other character is interpreted literally.
+        totalLength++;
+    }
+  }
+  va_end(argList);
+
+  // Concatenate the string.
+  ObjString* result = allocateString(vm, totalLength);
+
+  va_start(argList, format);
+  char* start = result->value;
+  for (const char* c = format; *c != '\0'; c++)
+  {
+    switch (*c)
+    {
+      case '$':
+      {
+        const char* string = va_arg(argList, const char*);
+        size_t length = strlen(string);
+        memcpy(start, string, length);
+        start += length;
+        break;
+      }
+
+      case '@':
+      {
+        ObjString* string = AS_STRING(va_arg(argList, Value));
+        memcpy(start, string->value, string->length);
+        start += string->length;
+        break;
+      }
+
+      default:
+        // Any other character is interpreted literally.
+        *start++ = *c;
+    }
+  }
+  va_end(argList);
+
+  hashString(result);
+
+  return OBJ_VAL(result);
+}
+
+Value wrenStringCodePointAt(WrenVM* vm, ObjString* string, uint32_t index)
+{
+  ASSERT(index < string->length, "Index out of bounds.");
+
+  int codePoint = wrenUtf8Decode((uint8_t*)string->value + index,
+                                 string->length - index);
+  if (codePoint == -1)
+  {
+    // If it isn't a valid UTF-8 sequence, treat it as a single raw byte.
+    char bytes[2];
+    bytes[0] = string->value[index];
+    bytes[1] = '\0';
+    return wrenNewStringLength(vm, bytes, 1);
+  }
+
+  return wrenStringFromCodePoint(vm, codePoint);
+}
+
+// Uses the Boyer-Moore-Horspool string matching algorithm.
+uint32_t wrenStringFind(ObjString* haystack, ObjString* needle, uint32_t start)
+{
+  // Edge case: An empty needle is always found.
+  if (needle->length == 0) return start;
+
+  // If the needle goes past the haystack it won't be found.
+  if (start + needle->length > haystack->length) return UINT32_MAX;
+
+  // If the startIndex is too far it also won't be found.
+  if (start >= haystack->length) return UINT32_MAX;
+
+  // Pre-calculate the shift table. For each character (8-bit value), we
+  // determine how far the search window can be advanced if that character is
+  // the last character in the haystack where we are searching for the needle
+  // and the needle doesn't match there.
+  uint32_t shift[UINT8_MAX];
+  uint32_t needleEnd = needle->length - 1;
+
+  // By default, we assume the character is not the needle at all. In that case
+  // case, if a match fails on that character, we can advance one whole needle
+  // width since.
+  for (uint32_t index = 0; index < UINT8_MAX; index++)
+  {
+    shift[index] = needle->length;
+  }
+
+  // Then, for every character in the needle, determine how far it is from the
+  // end. If a match fails on that character, we can advance the window such
+  // that it the last character in it lines up with the last place we could
+  // find it in the needle.
+  for (uint32_t index = 0; index < needleEnd; index++)
+  {
+    char c = needle->value[index];
+    shift[(uint8_t)c] = needleEnd - index;
+  }
+
+  // Slide the needle across the haystack, looking for the first match or
+  // stopping if the needle goes off the end.
+  char lastChar = needle->value[needleEnd];
+  uint32_t range = haystack->length - needle->length;
+
+  for (uint32_t index = start; index <= range; )
+  {
+    // Compare the last character in the haystack's window to the last character
+    // in the needle. If it matches, see if the whole needle matches.
+    char c = haystack->value[index + needleEnd];
+    if (lastChar == c &&
+        memcmp(haystack->value + index, needle->value, needleEnd) == 0)
+    {
+      // Found a match.
+      return index;
+    }
+
+    // Otherwise, slide the needle forward.
+    index += shift[(uint8_t)c];
+  }
+
+  // Not found.
+  return UINT32_MAX;
+}
+
+ObjUpvalue* wrenNewUpvalue(WrenVM* vm, Value* value)
+{
+  ObjUpvalue* upvalue = ALLOCATE(vm, ObjUpvalue);
+
+  // Upvalues are never used as first-class objects, so don't need a class.
+  initObj(vm, &upvalue->obj, OBJ_UPVALUE, NULL);
+
+  upvalue->value = value;
+  upvalue->closed = NULL_VAL;
+  upvalue->next = NULL;
+  return upvalue;
+}
+
+void wrenGrayObj(WrenVM* vm, Obj* obj)
+{
+  if (obj == NULL) return;
+
+  // Stop if the object is already darkened so we don't get stuck in a cycle.
+  if (obj->isDark) return;
+
+  // It's been reached.
+  obj->isDark = true;
+
+  // Add it to the gray list so it can be recursively explored for
+  // more marks later.
+  if (vm->grayCount >= vm->grayCapacity)
+  {
+    vm->grayCapacity = vm->grayCount * 2;
+    vm->gray = (Obj**)vm->config.reallocateFn(vm->gray,
+                                              vm->grayCapacity * sizeof(Obj*));
+  }
+
+  vm->gray[vm->grayCount++] = obj;
+}
+
+void wrenGrayValue(WrenVM* vm, Value value)
+{
+  if (!IS_OBJ(value)) return;
+  wrenGrayObj(vm, AS_OBJ(value));
+}
+
+void wrenGrayBuffer(WrenVM* vm, ValueBuffer* buffer)
+{
+  for (int i = 0; i < buffer->count; i++)
+  {
+    wrenGrayValue(vm, buffer->data[i]);
+  }
+}
+
+static void blackenClass(WrenVM* vm, ObjClass* classObj)
+{
+  // The metaclass.
+  wrenGrayObj(vm, (Obj*)classObj->obj.classObj);
+
+  // The superclass.
+  wrenGrayObj(vm, (Obj*)classObj->superclass);
+
+  // Method function objects.
+  for (int i = 0; i < classObj->methods.count; i++)
+  {
+    if (classObj->methods.data[i].type == METHOD_BLOCK)
+    {
+      wrenGrayObj(vm, (Obj*)classObj->methods.data[i].as.closure);
+    }
+  }
+
+  wrenGrayObj(vm, (Obj*)classObj->name);
+
+  // Keep track of how much memory is still in use.
+  vm->bytesAllocated += sizeof(ObjClass);
+  vm->bytesAllocated += classObj->methods.capacity * sizeof(Method);
+}
+
+static void blackenClosure(WrenVM* vm, ObjClosure* closure)
+{
+  // Mark the function.
+  wrenGrayObj(vm, (Obj*)closure->fn);
+
+  // Mark the upvalues.
+  for (int i = 0; i < closure->fn->numUpvalues; i++)
+  {
+    wrenGrayObj(vm, (Obj*)closure->upvalues[i]);
+  }
+
+  // Keep track of how much memory is still in use.
+  vm->bytesAllocated += sizeof(ObjClosure);
+  vm->bytesAllocated += sizeof(ObjUpvalue*) * closure->fn->numUpvalues;
+}
+
+static void blackenFiber(WrenVM* vm, ObjFiber* fiber)
+{
+  // Stack functions.
+  for (int i = 0; i < fiber->numFrames; i++)
+  {
+    wrenGrayObj(vm, (Obj*)fiber->frames[i].closure);
+  }
+
+  // Stack variables.
+  for (Value* slot = fiber->stack; slot < fiber->stackTop; slot++)
+  {
+    wrenGrayValue(vm, *slot);
+  }
+
+  // Open upvalues.
+  ObjUpvalue* upvalue = fiber->openUpvalues;
+  while (upvalue != NULL)
+  {
+    wrenGrayObj(vm, (Obj*)upvalue);
+    upvalue = upvalue->next;
+  }
+
+  // The caller.
+  wrenGrayObj(vm, (Obj*)fiber->caller);
+  wrenGrayValue(vm, fiber->error);
+
+  // Keep track of how much memory is still in use.
+  vm->bytesAllocated += sizeof(ObjFiber);
+  vm->bytesAllocated += fiber->frameCapacity * sizeof(CallFrame);
+  vm->bytesAllocated += fiber->stackCapacity * sizeof(Value);
+}
+
+static void blackenFn(WrenVM* vm, ObjFn* fn)
+{
+  // Mark the constants.
+  wrenGrayBuffer(vm, &fn->constants);
+
+  // Keep track of how much memory is still in use.
+  vm->bytesAllocated += sizeof(ObjFn);
+  vm->bytesAllocated += sizeof(uint8_t) * fn->code.capacity;
+  vm->bytesAllocated += sizeof(Value) * fn->constants.capacity;
+  
+  // The debug line number buffer.
+  vm->bytesAllocated += sizeof(int) * fn->code.capacity;
+  // TODO: What about the function name?
+}
+
+static void blackenForeign(WrenVM* vm, ObjForeign* foreign)
+{
+  // TODO: Keep track of how much memory the foreign object uses. We can store
+  // this in each foreign object, but it will balloon the size. We may not want
+  // that much overhead. One option would be to let the foreign class register
+  // a C function that returns a size for the object. That way the VM doesn't
+  // always have to explicitly store it.
+}
+
+static void blackenInstance(WrenVM* vm, ObjInstance* instance)
+{
+  wrenGrayObj(vm, (Obj*)instance->obj.classObj);
+
+  // Mark the fields.
+  for (int i = 0; i < instance->obj.classObj->numFields; i++)
+  {
+    wrenGrayValue(vm, instance->fields[i]);
+  }
+
+  // Keep track of how much memory is still in use.
+  vm->bytesAllocated += sizeof(ObjInstance);
+  vm->bytesAllocated += sizeof(Value) * instance->obj.classObj->numFields;
+}
+
+static void blackenList(WrenVM* vm, ObjList* list)
+{
+  // Mark the elements.
+  wrenGrayBuffer(vm, &list->elements);
+
+  // Keep track of how much memory is still in use.
+  vm->bytesAllocated += sizeof(ObjList);
+  vm->bytesAllocated += sizeof(Value) * list->elements.capacity;
+}
+
+static void blackenMap(WrenVM* vm, ObjMap* map)
+{
+  // Mark the entries.
+  for (uint32_t i = 0; i < map->capacity; i++)
+  {
+    MapEntry* entry = &map->entries[i];
+    if (IS_UNDEFINED(entry->key)) continue;
+
+    wrenGrayValue(vm, entry->key);
+    wrenGrayValue(vm, entry->value);
+  }
+
+  // Keep track of how much memory is still in use.
+  vm->bytesAllocated += sizeof(ObjMap);
+  vm->bytesAllocated += sizeof(MapEntry) * map->capacity;
+}
+
+static void blackenModule(WrenVM* vm, ObjModule* module)
+{
+  // Top-level variables.
+  for (int i = 0; i < module->variables.count; i++)
+  {
+    wrenGrayValue(vm, module->variables.data[i]);
+  }
+
+  wrenBlackenSymbolTable(vm, &module->variableNames);
+
+  wrenGrayObj(vm, (Obj*)module->name);
+
+  // Keep track of how much memory is still in use.
+  vm->bytesAllocated += sizeof(ObjModule);
+}
+
+static void blackenRange(WrenVM* vm, ObjRange* range)
+{
+  // Keep track of how much memory is still in use.
+  vm->bytesAllocated += sizeof(ObjRange);
+}
+
+static void blackenString(WrenVM* vm, ObjString* string)
+{
+  // Keep track of how much memory is still in use.
+  vm->bytesAllocated += sizeof(ObjString) + string->length + 1;
+}
+
+static void blackenUpvalue(WrenVM* vm, ObjUpvalue* upvalue)
+{
+  // Mark the closed-over object (in case it is closed).
+  wrenGrayValue(vm, upvalue->closed);
+
+  // Keep track of how much memory is still in use.
+  vm->bytesAllocated += sizeof(ObjUpvalue);
+}
+
+static void blackenObject(WrenVM* vm, Obj* obj)
+{
+#if WREN_DEBUG_TRACE_MEMORY
+  printf("mark ");
+  wrenDumpValue(OBJ_VAL(obj));
+  printf(" @ %p\n", obj);
+#endif
+
+  // Traverse the object's fields.
+  switch (obj->type)
+  {
+    case OBJ_CLASS:    blackenClass(   vm, (ObjClass*)   obj); break;
+    case OBJ_CLOSURE:  blackenClosure( vm, (ObjClosure*) obj); break;
+    case OBJ_FIBER:    blackenFiber(   vm, (ObjFiber*)   obj); break;
+    case OBJ_FN:       blackenFn(      vm, (ObjFn*)      obj); break;
+    case OBJ_FOREIGN:  blackenForeign( vm, (ObjForeign*) obj); break;
+    case OBJ_INSTANCE: blackenInstance(vm, (ObjInstance*)obj); break;
+    case OBJ_LIST:     blackenList(    vm, (ObjList*)    obj); break;
+    case OBJ_MAP:      blackenMap(     vm, (ObjMap*)     obj); break;
+    case OBJ_MODULE:   blackenModule(  vm, (ObjModule*)  obj); break;
+    case OBJ_RANGE:    blackenRange(   vm, (ObjRange*)   obj); break;
+    case OBJ_STRING:   blackenString(  vm, (ObjString*)  obj); break;
+    case OBJ_UPVALUE:  blackenUpvalue( vm, (ObjUpvalue*) obj); break;
+  }
+}
+
+void wrenBlackenObjects(WrenVM* vm)
+{
+  while (vm->grayCount > 0)
+  {
+    // Pop an item from the gray stack.
+    Obj* obj = vm->gray[--vm->grayCount];
+    blackenObject(vm, obj);
+  }
+}
+
+void wrenFreeObj(WrenVM* vm, Obj* obj)
+{
+#if WREN_DEBUG_TRACE_MEMORY
+  printf("free ");
+  wrenDumpValue(OBJ_VAL(obj));
+  printf(" @ %p\n", obj);
+#endif
+
+  switch (obj->type)
+  {
+    case OBJ_CLASS:
+      wrenMethodBufferClear(vm, &((ObjClass*)obj)->methods);
+      break;
+
+    case OBJ_FIBER:
+    {
+      ObjFiber* fiber = (ObjFiber*)obj;
+      DEALLOCATE(vm, fiber->frames);
+      DEALLOCATE(vm, fiber->stack);
+      break;
+    }
+      
+    case OBJ_FN:
+    {
+      ObjFn* fn = (ObjFn*)obj;
+      wrenValueBufferClear(vm, &fn->constants);
+      wrenByteBufferClear(vm, &fn->code);
+      wrenIntBufferClear(vm, &fn->debug->sourceLines);
+      DEALLOCATE(vm, fn->debug->name);
+      DEALLOCATE(vm, fn->debug);
+      break;
+    }
+
+    case OBJ_FOREIGN:
+      wrenFinalizeForeign(vm, (ObjForeign*)obj);
+      break;
+
+    case OBJ_LIST:
+      wrenValueBufferClear(vm, &((ObjList*)obj)->elements);
+      break;
+
+    case OBJ_MAP:
+      DEALLOCATE(vm, ((ObjMap*)obj)->entries);
+      break;
+
+    case OBJ_MODULE:
+      wrenSymbolTableClear(vm, &((ObjModule*)obj)->variableNames);
+      wrenValueBufferClear(vm, &((ObjModule*)obj)->variables);
+      break;
+
+    case OBJ_CLOSURE:
+    case OBJ_INSTANCE:
+    case OBJ_RANGE:
+    case OBJ_STRING:
+    case OBJ_UPVALUE:
+      break;
+  }
+
+  DEALLOCATE(vm, obj);
+}
+
+ObjClass* wrenGetClass(WrenVM* vm, Value value)
+{
+  return wrenGetClassInline(vm, value);
+}
+
+bool wrenValuesEqual(Value a, Value b)
+{
+  if (wrenValuesSame(a, b)) return true;
+
+  // If we get here, it's only possible for two heap-allocated immutable objects
+  // to be equal.
+  if (!IS_OBJ(a) || !IS_OBJ(b)) return false;
+
+  Obj* aObj = AS_OBJ(a);
+  Obj* bObj = AS_OBJ(b);
+
+  // Must be the same type.
+  if (aObj->type != bObj->type) return false;
+
+  switch (aObj->type)
+  {
+    case OBJ_RANGE:
+    {
+      ObjRange* aRange = (ObjRange*)aObj;
+      ObjRange* bRange = (ObjRange*)bObj;
+      return aRange->from == bRange->from &&
+             aRange->to == bRange->to &&
+             aRange->isInclusive == bRange->isInclusive;
+    }
+
+    case OBJ_STRING:
+    {
+      ObjString* aString = (ObjString*)aObj;
+      ObjString* bString = (ObjString*)bObj;
+      return aString->hash == bString->hash &&
+      wrenStringEqualsCString(aString, bString->value, bString->length);
+    }
+
+    default:
+      // All other types are only equal if they are same, which they aren't if
+      // we get here.
+      return false;
+  }
+}
+// End file "wren_value.c"
 // Begin file "wren_vm.c"
 #include <stdarg.h>
 #include <string.h>
 
-// Begin file "wren_core.h"
-#ifndef wren_core_h
-#define wren_core_h
-
-
-// This module defines the built-in classes and their primitives methods that
-// are implemented directly in C code. Some languages try to implement as much
-// of the core module itself in the primary language instead of in the host
-// language.
-//
-// With Wren, we try to do as much of it in C as possible. Primitive methods
-// are always faster than code written in Wren, and it minimizes startup time
-// since we don't have to parse, compile, and execute Wren code.
-//
-// There is one limitation, though. Methods written in C cannot call Wren ones.
-// They can only be the top of the callstack, and immediately return. This
-// makes it difficult to have primitive methods that rely on polymorphic
-// behavior. For example, `IO.write` should call `toString` on its argument,
-// including user-defined `toString` methods on user-defined classes.
-
-void wrenInitializeCore(WrenVM* vm);
-
-#endif
-// End file "wren_core.h"
 
 #if WREN_OPT_META
 // Begin file "wren_opt_meta.h"
@@ -9027,3155 +12176,6 @@ void wrenSetUserData(WrenVM* vm, void* userData)
 	vm->config.userData = userData;
 }
 // End file "wren_vm.c"
-// Begin file "wren_core.c"
-#include <ctype.h>
-#include <errno.h>
-#include <float.h>
-#include <math.h>
-#include <string.h>
-#include <time.h>
-
-
-// Begin file "wren_core.wren.inc"
-// Generated automatically from src/vm/wren_core.wren. Do not edit.
-static const char* coreModuleSource =
-"class Bool {}\n"
-"class Fiber {}\n"
-"class Fn {}\n"
-"class Null {}\n"
-"class Num {}\n"
-"\n"
-"class Sequence {\n"
-"  all(f) {\n"
-"    var result = true\n"
-"    for (element in this) {\n"
-"      result = f.call(element)\n"
-"      if (!result) return result\n"
-"    }\n"
-"    return result\n"
-"  }\n"
-"\n"
-"  any(f) {\n"
-"    var result = false\n"
-"    for (element in this) {\n"
-"      result = f.call(element)\n"
-"      if (result) return result\n"
-"    }\n"
-"    return result\n"
-"  }\n"
-"\n"
-"  contains(element) {\n"
-"    for (item in this) {\n"
-"      if (element == item) return true\n"
-"    }\n"
-"    return false\n"
-"  }\n"
-"\n"
-"  count {\n"
-"    var result = 0\n"
-"    for (element in this) {\n"
-"      result = result + 1\n"
-"    }\n"
-"    return result\n"
-"  }\n"
-"\n"
-"  count(f) {\n"
-"    var result = 0\n"
-"    for (element in this) {\n"
-"      if (f.call(element)) result = result + 1\n"
-"    }\n"
-"    return result\n"
-"  }\n"
-"\n"
-"  each(f) {\n"
-"    for (element in this) {\n"
-"      f.call(element)\n"
-"    }\n"
-"  }\n"
-"\n"
-"  isEmpty { iterate(null) ? false : true }\n"
-"\n"
-"  map(transformation) { MapSequence.new(this, transformation) }\n"
-"\n"
-"  skip(count) {\n"
-"    if (!(count is Num) || !count.isInteger || count < 0) {\n"
-"      Fiber.abort(\"Count must be a non-negative integer.\")\n"
-"    }\n"
-"\n"
-"    return SkipSequence.new(this, count)\n"
-"  }\n"
-"\n"
-"  take(count) {\n"
-"    if (!(count is Num) || !count.isInteger || count < 0) {\n"
-"      Fiber.abort(\"Count must be a non-negative integer.\")\n"
-"    }\n"
-"\n"
-"    return TakeSequence.new(this, count)\n"
-"  }\n"
-"\n"
-"  where(predicate) { WhereSequence.new(this, predicate) }\n"
-"\n"
-"  reduce(acc, f) {\n"
-"    for (element in this) {\n"
-"      acc = f.call(acc, element)\n"
-"    }\n"
-"    return acc\n"
-"  }\n"
-"\n"
-"  reduce(f) {\n"
-"    var iter = iterate(null)\n"
-"    if (!iter) Fiber.abort(\"Can't reduce an empty sequence.\")\n"
-"\n"
-"    // Seed with the first element.\n"
-"    var result = iteratorValue(iter)\n"
-"    while (iter = iterate(iter)) {\n"
-"      result = f.call(result, iteratorValue(iter))\n"
-"    }\n"
-"\n"
-"    return result\n"
-"  }\n"
-"\n"
-"  join() { join(\"\") }\n"
-"\n"
-"  join(sep) {\n"
-"    var first = true\n"
-"    var result = \"\"\n"
-"\n"
-"    for (element in this) {\n"
-"      if (!first) result = result + sep\n"
-"      first = false\n"
-"      result = result + element.toString\n"
-"    }\n"
-"\n"
-"    return result\n"
-"  }\n"
-"\n"
-"  toList {\n"
-"    var result = List.new()\n"
-"    for (element in this) {\n"
-"      result.add(element)\n"
-"    }\n"
-"    return result\n"
-"  }\n"
-"}\n"
-"\n"
-"class MapSequence is Sequence {\n"
-"  construct new(sequence, fn) {\n"
-"    _sequence = sequence\n"
-"    _fn = fn\n"
-"  }\n"
-"\n"
-"  iterate(iterator) { _sequence.iterate(iterator) }\n"
-"  iteratorValue(iterator) { _fn.call(_sequence.iteratorValue(iterator)) }\n"
-"}\n"
-"\n"
-"class SkipSequence is Sequence {\n"
-"  construct new(sequence, count) {\n"
-"    _sequence = sequence\n"
-"    _count = count\n"
-"  }\n"
-"\n"
-"  iterate(iterator) {\n"
-"    if (iterator) {\n"
-"      return _sequence.iterate(iterator)\n"
-"    } else {\n"
-"      iterator = _sequence.iterate(iterator)\n"
-"      var count = _count\n"
-"      while (count > 0 && iterator) {\n"
-"        iterator = _sequence.iterate(iterator)\n"
-"        count = count - 1\n"
-"      }\n"
-"      return iterator\n"
-"    }\n"
-"  }\n"
-"\n"
-"  iteratorValue(iterator) { _sequence.iteratorValue(iterator) }\n"
-"}\n"
-"\n"
-"class TakeSequence is Sequence {\n"
-"  construct new(sequence, count) {\n"
-"    _sequence = sequence\n"
-"    _count = count\n"
-"  }\n"
-"\n"
-"  iterate(iterator) {\n"
-"    if (!iterator) _taken = 1 else _taken = _taken + 1\n"
-"    return _taken > _count ? null : _sequence.iterate(iterator)\n"
-"  }\n"
-"\n"
-"  iteratorValue(iterator) { _sequence.iteratorValue(iterator) }\n"
-"}\n"
-"\n"
-"class WhereSequence is Sequence {\n"
-"  construct new(sequence, fn) {\n"
-"    _sequence = sequence\n"
-"    _fn = fn\n"
-"  }\n"
-"\n"
-"  iterate(iterator) {\n"
-"    while (iterator = _sequence.iterate(iterator)) {\n"
-"      if (_fn.call(_sequence.iteratorValue(iterator))) break\n"
-"    }\n"
-"    return iterator\n"
-"  }\n"
-"\n"
-"  iteratorValue(iterator) { _sequence.iteratorValue(iterator) }\n"
-"}\n"
-"\n"
-"class String is Sequence {\n"
-"  bytes { StringByteSequence.new(this) }\n"
-"  codePoints { StringCodePointSequence.new(this) }\n"
-"\n"
-"  split(delimiter) {\n"
-"    if (!(delimiter is String) || delimiter.isEmpty) {\n"
-"      Fiber.abort(\"Delimiter must be a non-empty string.\")\n"
-"    }\n"
-"\n"
-"    var result = []\n"
-"\n"
-"    var last = 0\n"
-"    var index = 0\n"
-"\n"
-"    var delimSize = delimiter.byteCount_\n"
-"    var size = byteCount_\n"
-"\n"
-"    while (last < size && (index = indexOf(delimiter, last)) != -1) {\n"
-"      result.add(this[last...index])\n"
-"      last = index + delimSize\n"
-"    }\n"
-"\n"
-"    if (last < size) {\n"
-"      result.add(this[last..-1])\n"
-"    } else {\n"
-"      result.add(\"\")\n"
-"    }\n"
-"    return result\n"
-"  }\n"
-"\n"
-"  replace(from, to) {\n"
-"    if (!(from is String) || from.isEmpty) {\n"
-"      Fiber.abort(\"From must be a non-empty string.\")\n"
-"    } else if (!(to is String)) {\n"
-"      Fiber.abort(\"To must be a string.\")\n"
-"    }\n"
-"\n"
-"    var result = \"\"\n"
-"\n"
-"    var last = 0\n"
-"    var index = 0\n"
-"\n"
-"    var fromSize = from.byteCount_\n"
-"    var size = byteCount_\n"
-"\n"
-"    while (last < size && (index = indexOf(from, last)) != -1) {\n"
-"      result = result + this[last...index] + to\n"
-"      last = index + fromSize\n"
-"    }\n"
-"\n"
-"    if (last < size) result = result + this[last..-1]\n"
-"\n"
-"    return result\n"
-"  }\n"
-"\n"
-"  trim() { trim_(\"\t\r\n \", true, true) }\n"
-"  trim(chars) { trim_(chars, true, true) }\n"
-"  trimEnd() { trim_(\"\t\r\n \", false, true) }\n"
-"  trimEnd(chars) { trim_(chars, false, true) }\n"
-"  trimStart() { trim_(\"\t\r\n \", true, false) }\n"
-"  trimStart(chars) { trim_(chars, true, false) }\n"
-"\n"
-"  trim_(chars, trimStart, trimEnd) {\n"
-"    if (!(chars is String)) {\n"
-"      Fiber.abort(\"Characters must be a string.\")\n"
-"    }\n"
-"\n"
-"    var codePoints = chars.codePoints.toList\n"
-"\n"
-"    var start\n"
-"    if (trimStart) {\n"
-"      while (start = iterate(start)) {\n"
-"        if (!codePoints.contains(codePointAt_(start))) break\n"
-"      }\n"
-"\n"
-"      if (start == false) return \"\"\n"
-"    } else {\n"
-"      start = 0\n"
-"    }\n"
-"\n"
-"    var end\n"
-"    if (trimEnd) {\n"
-"      end = byteCount_ - 1\n"
-"      while (end >= start) {\n"
-"        var codePoint = codePointAt_(end)\n"
-"        if (codePoint != -1 && !codePoints.contains(codePoint)) break\n"
-"        end = end - 1\n"
-"      }\n"
-"\n"
-"      if (end < start) return \"\"\n"
-"    } else {\n"
-"      end = -1\n"
-"    }\n"
-"\n"
-"    return this[start..end]\n"
-"  }\n"
-"\n"
-"  *(count) {\n"
-"    if (!(count is Num) || !count.isInteger || count < 0) {\n"
-"      Fiber.abort(\"Count must be a non-negative integer.\")\n"
-"    }\n"
-"\n"
-"    var result = \"\"\n"
-"    for (i in 0...count) {\n"
-"      result = result + this\n"
-"    }\n"
-"    return result\n"
-"  }\n"
-"}\n"
-"\n"
-"class StringByteSequence is Sequence {\n"
-"  construct new(string) {\n"
-"    _string = string\n"
-"  }\n"
-"\n"
-"  [index] { _string.byteAt_(index) }\n"
-"  iterate(iterator) { _string.iterateByte_(iterator) }\n"
-"  iteratorValue(iterator) { _string.byteAt_(iterator) }\n"
-"\n"
-"  count { _string.byteCount_ }\n"
-"}\n"
-"\n"
-"class StringCodePointSequence is Sequence {\n"
-"  construct new(string) {\n"
-"    _string = string\n"
-"  }\n"
-"\n"
-"  [index] { _string.codePointAt_(index) }\n"
-"  iterate(iterator) { _string.iterate(iterator) }\n"
-"  iteratorValue(iterator) { _string.codePointAt_(iterator) }\n"
-"\n"
-"  count { _string.count }\n"
-"}\n"
-"\n"
-"class List is Sequence {\n"
-"  addAll(other) {\n"
-"    for (element in other) {\n"
-"      add(element)\n"
-"    }\n"
-"    return other\n"
-"  }\n"
-"\n"
-"  toString { \"[%(join(\", \"))]\" }\n"
-"\n"
-"  +(other) {\n"
-"    var result = this[0..-1]\n"
-"    for (element in other) {\n"
-"      result.add(element)\n"
-"    }\n"
-"    return result\n"
-"  }\n"
-"\n"
-"  *(count) {\n"
-"    if (!(count is Num) || !count.isInteger || count < 0) {\n"
-"      Fiber.abort(\"Count must be a non-negative integer.\")\n"
-"    }\n"
-"\n"
-"    var result = []\n"
-"    for (i in 0...count) {\n"
-"      result.addAll(this)\n"
-"    }\n"
-"    return result\n"
-"  }\n"
-"}\n"
-"\n"
-"class Map is Sequence {\n"
-"  keys { MapKeySequence.new(this) }\n"
-"  values { MapValueSequence.new(this) }\n"
-"\n"
-"  toString {\n"
-"    var first = true\n"
-"    var result = \"{\"\n"
-"\n"
-"    for (key in keys) {\n"
-"      if (!first) result = result + \", \"\n"
-"      first = false\n"
-"      result = result + \"%(key): %(this[key])\"\n"
-"    }\n"
-"\n"
-"    return result + \"}\"\n"
-"  }\n"
-"\n"
-"  iteratorValue(iterator) {\n"
-"    return MapEntry.new(\n"
-"        keyIteratorValue_(iterator),\n"
-"        valueIteratorValue_(iterator))\n"
-"  }\n"
-"}\n"
-"\n"
-"class MapEntry {\n"
-"  construct new(key, value) {\n"
-"    _key = key\n"
-"    _value = value\n"
-"  }\n"
-"\n"
-"  key { _key }\n"
-"  value { _value }\n"
-"\n"
-"  toString { \"%(_key):%(_value)\" }\n"
-"}\n"
-"\n"
-"class MapKeySequence is Sequence {\n"
-"  construct new(map) {\n"
-"    _map = map\n"
-"  }\n"
-"\n"
-"  iterate(n) { _map.iterate(n) }\n"
-"  iteratorValue(iterator) { _map.keyIteratorValue_(iterator) }\n"
-"}\n"
-"\n"
-"class MapValueSequence is Sequence {\n"
-"  construct new(map) {\n"
-"    _map = map\n"
-"  }\n"
-"\n"
-"  iterate(n) { _map.iterate(n) }\n"
-"  iteratorValue(iterator) { _map.valueIteratorValue_(iterator) }\n"
-"}\n"
-"\n"
-"class Range is Sequence {}\n"
-"\n"
-"class System {\n"
-"  static print() {\n"
-"    writeString_(\"\n\")\n"
-"  }\n"
-"\n"
-"  static print(obj) {\n"
-"    writeObject_(obj)\n"
-"    writeString_(\"\n\")\n"
-"    return obj\n"
-"  }\n"
-"\n"
-"  static printAll(sequence) {\n"
-"    for (object in sequence) writeObject_(object)\n"
-"    writeString_(\"\n\")\n"
-"  }\n"
-"\n"
-"  static write(obj) {\n"
-"    writeObject_(obj)\n"
-"    return obj\n"
-"  }\n"
-"\n"
-"  static writeAll(sequence) {\n"
-"    for (object in sequence) writeObject_(object)\n"
-"  }\n"
-"\n"
-"  static writeObject_(obj) {\n"
-"    var string = obj.toString\n"
-"    if (string is String) {\n"
-"      writeString_(string)\n"
-"    } else {\n"
-"      writeString_(\"[invalid toString]\")\n"
-"    }\n"
-"  }\n"
-"}\n";
-// End file "wren_core.wren.inc"
-
-DEF_PRIMITIVE(bool_not)
-{
-  RETURN_BOOL(!AS_BOOL(args[0]));
-}
-
-DEF_PRIMITIVE(bool_toString)
-{
-  if (AS_BOOL(args[0]))
-  {
-    RETURN_VAL(CONST_STRING(vm, "true"));
-  }
-  else
-  {
-    RETURN_VAL(CONST_STRING(vm, "false"));
-  }
-}
-
-DEF_PRIMITIVE(class_name)
-{
-  RETURN_OBJ(AS_CLASS(args[0])->name);
-}
-
-DEF_PRIMITIVE(class_supertype)
-{
-  ObjClass* classObj = AS_CLASS(args[0]);
-
-  // Object has no superclass.
-  if (classObj->superclass == NULL) RETURN_NULL;
-
-  RETURN_OBJ(classObj->superclass);
-}
-
-DEF_PRIMITIVE(class_toString)
-{
-  RETURN_OBJ(AS_CLASS(args[0])->name);
-}
-
-DEF_PRIMITIVE(fiber_new)
-{
-  if (!validateFn(vm, args[1], "Argument")) return false;
-
-  ObjClosure* closure = AS_CLOSURE(args[1]);
-  if (closure->fn->arity > 1)
-  {
-    RETURN_ERROR("Function cannot take more than one parameter.");
-  }
-  
-  RETURN_OBJ(wrenNewFiber(vm, closure));
-}
-
-DEF_PRIMITIVE(fiber_abort)
-{
-  vm->fiber->error = args[1];
-
-  // If the error is explicitly null, it's not really an abort.
-  return IS_NULL(args[1]);
-}
-
-// Transfer execution to [fiber] coming from the current fiber whose stack has
-// [args].
-//
-// [isCall] is true if [fiber] is being called and not transferred.
-//
-// [hasValue] is true if a value in [args] is being passed to the new fiber.
-// Otherwise, `null` is implicitly being passed.
-static bool runFiber(WrenVM* vm, ObjFiber* fiber, Value* args, bool isCall,
-                     bool hasValue, const char* verb)
-{
-
-  if (wrenHasError(fiber))
-  {
-    RETURN_ERROR_FMT("Cannot $ an aborted fiber.", verb);
-  }
-
-  if (isCall)
-  {
-    // You can't call a called fiber, but you can transfer directly to it,
-    // which is why this check is gated on `isCall`. This way, after resuming a
-    // suspended fiber, it will run and then return to the fiber that called it
-    // and so on.
-    if (fiber->caller != NULL) RETURN_ERROR("Fiber has already been called.");
-
-    if (fiber->state == FIBER_ROOT) RETURN_ERROR("Cannot call root fiber.");
-    
-    // Remember who ran it.
-    fiber->caller = vm->fiber;
-  }
-
-  if (fiber->numFrames == 0)
-  {
-    RETURN_ERROR_FMT("Cannot $ a finished fiber.", verb);
-  }
-
-  // When the calling fiber resumes, we'll store the result of the call in its
-  // stack. If the call has two arguments (the fiber and the value), we only
-  // need one slot for the result, so discard the other slot now.
-  if (hasValue) vm->fiber->stackTop--;
-
-  if (fiber->numFrames == 1 &&
-      fiber->frames[0].ip == fiber->frames[0].closure->fn->code.data)
-  {
-    // The fiber is being started for the first time. If its function takes a
-    // parameter, bind an argument to it.
-    if (fiber->frames[0].closure->fn->arity == 1)
-    {
-      fiber->stackTop[0] = hasValue ? args[1] : NULL_VAL;
-      fiber->stackTop++;
-    }
-  }
-  else
-  {
-    // The fiber is being resumed, make yield() or transfer() return the result.
-    fiber->stackTop[-1] = hasValue ? args[1] : NULL_VAL;
-  }
-
-  vm->fiber = fiber;
-  return false;
-}
-
-DEF_PRIMITIVE(fiber_call)
-{
-  return runFiber(vm, AS_FIBER(args[0]), args, true, false, "call");
-}
-
-DEF_PRIMITIVE(fiber_call1)
-{
-  return runFiber(vm, AS_FIBER(args[0]), args, true, true, "call");
-}
-
-DEF_PRIMITIVE(fiber_current)
-{
-  RETURN_OBJ(vm->fiber);
-}
-
-DEF_PRIMITIVE(fiber_error)
-{
-  RETURN_VAL(AS_FIBER(args[0])->error);
-}
-
-DEF_PRIMITIVE(fiber_isDone)
-{
-  ObjFiber* runFiber = AS_FIBER(args[0]);
-  RETURN_BOOL(runFiber->numFrames == 0 || wrenHasError(runFiber));
-}
-
-DEF_PRIMITIVE(fiber_suspend)
-{
-  // Switching to a null fiber tells the interpreter to stop and exit.
-  vm->fiber = NULL;
-  vm->apiStack = NULL;
-  return false;
-}
-
-DEF_PRIMITIVE(fiber_transfer)
-{
-  return runFiber(vm, AS_FIBER(args[0]), args, false, false, "transfer to");
-}
-
-DEF_PRIMITIVE(fiber_transfer1)
-{
-  return runFiber(vm, AS_FIBER(args[0]), args, false, true, "transfer to");
-}
-
-DEF_PRIMITIVE(fiber_transferError)
-{
-  runFiber(vm, AS_FIBER(args[0]), args, false, true, "transfer to");
-  vm->fiber->error = args[1];
-  return false;
-}
-
-DEF_PRIMITIVE(fiber_try)
-{
-  runFiber(vm, AS_FIBER(args[0]), args, true, false, "try");
-  
-  // If we're switching to a valid fiber to try, remember that we're trying it.
-  if (!wrenHasError(vm->fiber)) vm->fiber->state = FIBER_TRY;
-  return false;
-}
-
-DEF_PRIMITIVE(fiber_yield)
-{
-  ObjFiber* current = vm->fiber;
-  vm->fiber = current->caller;
-
-  // Unhook this fiber from the one that called it.
-  current->caller = NULL;
-  current->state = FIBER_OTHER;
-
-  if (vm->fiber != NULL)
-  {
-    // Make the caller's run method return null.
-    vm->fiber->stackTop[-1] = NULL_VAL;
-  }
-
-  return false;
-}
-
-DEF_PRIMITIVE(fiber_yield1)
-{
-  ObjFiber* current = vm->fiber;
-  vm->fiber = current->caller;
-
-  // Unhook this fiber from the one that called it.
-  current->caller = NULL;
-  current->state = FIBER_OTHER;
-
-  if (vm->fiber != NULL)
-  {
-    // Make the caller's run method return the argument passed to yield.
-    vm->fiber->stackTop[-1] = args[1];
-
-    // When the yielding fiber resumes, we'll store the result of the yield
-    // call in its stack. Since Fiber.yield(value) has two arguments (the Fiber
-    // class and the value) and we only need one slot for the result, discard
-    // the other slot now.
-    current->stackTop--;
-  }
-
-  return false;
-}
-
-DEF_PRIMITIVE(fn_new)
-{
-  if (!validateFn(vm, args[1], "Argument")) return false;
-
-  // The block argument is already a function, so just return it.
-  RETURN_VAL(args[1]);
-}
-
-DEF_PRIMITIVE(fn_arity)
-{
-  RETURN_NUM(AS_CLOSURE(args[0])->fn->arity);
-}
-
-static void call_fn(WrenVM* vm, Value* args, int numArgs)
-{
-  // We only care about missing arguments, not extras.
-  if (AS_CLOSURE(args[0])->fn->arity > numArgs)
-  {
-    vm->fiber->error = CONST_STRING(vm, "Function expects more arguments.");
-    return;
-  }
-
-  // +1 to include the function itself.
-  wrenCallFunction(vm, vm->fiber, AS_CLOSURE(args[0]), numArgs + 1);
-}
-
-#define DEF_FN_CALL(numArgs)                                                   \
-    DEF_PRIMITIVE(fn_call##numArgs)                                            \
-    {                                                                          \
-      call_fn(vm, args, numArgs);                                              \
-      return false;                                                            \
-    }
-
-DEF_FN_CALL(0)
-DEF_FN_CALL(1)
-DEF_FN_CALL(2)
-DEF_FN_CALL(3)
-DEF_FN_CALL(4)
-DEF_FN_CALL(5)
-DEF_FN_CALL(6)
-DEF_FN_CALL(7)
-DEF_FN_CALL(8)
-DEF_FN_CALL(9)
-DEF_FN_CALL(10)
-DEF_FN_CALL(11)
-DEF_FN_CALL(12)
-DEF_FN_CALL(13)
-DEF_FN_CALL(14)
-DEF_FN_CALL(15)
-DEF_FN_CALL(16)
-
-DEF_PRIMITIVE(fn_toString)
-{
-  RETURN_VAL(CONST_STRING(vm, "<fn>"));
-}
-
-// Creates a new list of size args[1], with all elements initialized to args[2].
-DEF_PRIMITIVE(list_filled)
-{
-  if (!validateInt(vm, args[1], "Size")) return false;  
-  if (AS_NUM(args[1]) < 0) RETURN_ERROR("Size cannot be negative.");
-  
-  uint32_t size = (uint32_t)AS_NUM(args[1]);
-  ObjList* list = wrenNewList(vm, size);
-  
-  for (uint32_t i = 0; i < size; i++)
-  {
-    list->elements.data[i] = args[2];
-  }
-  
-  RETURN_OBJ(list);
-}
-
-DEF_PRIMITIVE(list_new)
-{
-  RETURN_OBJ(wrenNewList(vm, 0));
-}
-
-DEF_PRIMITIVE(list_add)
-{
-  wrenValueBufferWrite(vm, &AS_LIST(args[0])->elements, args[1]);
-  RETURN_VAL(args[1]);
-}
-
-// Adds an element to the list and then returns the list itself. This is called
-// by the compiler when compiling list literals instead of using add() to
-// minimize stack churn.
-DEF_PRIMITIVE(list_addCore)
-{
-  wrenValueBufferWrite(vm, &AS_LIST(args[0])->elements, args[1]);
-  
-  // Return the list.
-  RETURN_VAL(args[0]);
-}
-
-DEF_PRIMITIVE(list_clear)
-{
-  wrenValueBufferClear(vm, &AS_LIST(args[0])->elements);
-  RETURN_NULL;
-}
-
-DEF_PRIMITIVE(list_count)
-{
-  RETURN_NUM(AS_LIST(args[0])->elements.count);
-}
-
-DEF_PRIMITIVE(list_insert)
-{
-  ObjList* list = AS_LIST(args[0]);
-
-  // count + 1 here so you can "insert" at the very end.
-  uint32_t index = validateIndex(vm, args[1], list->elements.count + 1,
-                                 "Index");
-  if (index == UINT32_MAX) return false;
-
-  wrenListInsert(vm, list, args[2], index);
-  RETURN_VAL(args[2]);
-}
-
-DEF_PRIMITIVE(list_iterate)
-{
-  ObjList* list = AS_LIST(args[0]);
-
-  // If we're starting the iteration, return the first index.
-  if (IS_NULL(args[1]))
-  {
-    if (list->elements.count == 0) RETURN_FALSE;
-    RETURN_NUM(0);
-  }
-
-  if (!validateInt(vm, args[1], "Iterator")) return false;
-
-  // Stop if we're out of bounds.
-  double index = AS_NUM(args[1]);
-  if (index < 0 || index >= list->elements.count - 1) RETURN_FALSE;
-
-  // Otherwise, move to the next index.
-  RETURN_NUM(index + 1);
-}
-
-DEF_PRIMITIVE(list_iteratorValue)
-{
-  ObjList* list = AS_LIST(args[0]);
-  uint32_t index = validateIndex(vm, args[1], list->elements.count, "Iterator");
-  if (index == UINT32_MAX) return false;
-
-  RETURN_VAL(list->elements.data[index]);
-}
-
-DEF_PRIMITIVE(list_removeAt)
-{
-  ObjList* list = AS_LIST(args[0]);
-  uint32_t index = validateIndex(vm, args[1], list->elements.count, "Index");
-  if (index == UINT32_MAX) return false;
-
-  RETURN_VAL(wrenListRemoveAt(vm, list, index));
-}
-
-DEF_PRIMITIVE(list_subscript)
-{
-  ObjList* list = AS_LIST(args[0]);
-
-  if (IS_NUM(args[1]))
-  {
-    uint32_t index = validateIndex(vm, args[1], list->elements.count,
-                                   "Subscript");
-    if (index == UINT32_MAX) return false;
-
-    RETURN_VAL(list->elements.data[index]);
-  }
-
-  if (!IS_RANGE(args[1]))
-  {
-    RETURN_ERROR("Subscript must be a number or a range.");
-  }
-
-  int step;
-  uint32_t count = list->elements.count;
-  uint32_t start = calculateRange(vm, AS_RANGE(args[1]), &count, &step);
-  if (start == UINT32_MAX) return false;
-
-  ObjList* result = wrenNewList(vm, count);
-  for (uint32_t i = 0; i < count; i++)
-  {
-    result->elements.data[i] = list->elements.data[start + i * step];
-  }
-
-  RETURN_OBJ(result);
-}
-
-DEF_PRIMITIVE(list_subscriptSetter)
-{
-  ObjList* list = AS_LIST(args[0]);
-  uint32_t index = validateIndex(vm, args[1], list->elements.count,
-                                 "Subscript");
-  if (index == UINT32_MAX) return false;
-
-  list->elements.data[index] = args[2];
-  RETURN_VAL(args[2]);
-}
-
-DEF_PRIMITIVE(map_new)
-{
-  RETURN_OBJ(wrenNewMap(vm));
-}
-
-DEF_PRIMITIVE(map_subscript)
-{
-  if (!validateKey(vm, args[1])) return false;
-
-  ObjMap* map = AS_MAP(args[0]);
-  Value value = wrenMapGet(map, args[1]);
-  if (IS_UNDEFINED(value)) RETURN_NULL;
-
-  RETURN_VAL(value);
-}
-
-DEF_PRIMITIVE(map_subscriptSetter)
-{
-  if (!validateKey(vm, args[1])) return false;
-
-  wrenMapSet(vm, AS_MAP(args[0]), args[1], args[2]);
-  RETURN_VAL(args[2]);
-}
-
-// Adds an entry to the map and then returns the map itself. This is called by
-// the compiler when compiling map literals instead of using [_]=(_) to
-// minimize stack churn.
-DEF_PRIMITIVE(map_addCore)
-{
-  if (!validateKey(vm, args[1])) return false;
-  
-  wrenMapSet(vm, AS_MAP(args[0]), args[1], args[2]);
-  
-  // Return the map itself.
-  RETURN_VAL(args[0]);
-}
-
-DEF_PRIMITIVE(map_clear)
-{
-  wrenMapClear(vm, AS_MAP(args[0]));
-  RETURN_NULL;
-}
-
-DEF_PRIMITIVE(map_containsKey)
-{
-  if (!validateKey(vm, args[1])) return false;
-
-  RETURN_BOOL(!IS_UNDEFINED(wrenMapGet(AS_MAP(args[0]), args[1])));
-}
-
-DEF_PRIMITIVE(map_count)
-{
-  RETURN_NUM(AS_MAP(args[0])->count);
-}
-
-DEF_PRIMITIVE(map_iterate)
-{
-  ObjMap* map = AS_MAP(args[0]);
-
-  if (map->count == 0) RETURN_FALSE;
-
-  // If we're starting the iteration, start at the first used entry.
-  uint32_t index = 0;
-
-  // Otherwise, start one past the last entry we stopped at.
-  if (!IS_NULL(args[1]))
-  {
-    if (!validateInt(vm, args[1], "Iterator")) return false;
-
-    if (AS_NUM(args[1]) < 0) RETURN_FALSE;
-    index = (uint32_t)AS_NUM(args[1]);
-
-    if (index >= map->capacity) RETURN_FALSE;
-
-    // Advance the iterator.
-    index++;
-  }
-
-  // Find a used entry, if any.
-  for (; index < map->capacity; index++)
-  {
-    if (!IS_UNDEFINED(map->entries[index].key)) RETURN_NUM(index);
-  }
-
-  // If we get here, walked all of the entries.
-  RETURN_FALSE;
-}
-
-DEF_PRIMITIVE(map_remove)
-{
-  if (!validateKey(vm, args[1])) return false;
-
-  RETURN_VAL(wrenMapRemoveKey(vm, AS_MAP(args[0]), args[1]));
-}
-
-DEF_PRIMITIVE(map_keyIteratorValue)
-{
-  ObjMap* map = AS_MAP(args[0]);
-  uint32_t index = validateIndex(vm, args[1], map->capacity, "Iterator");
-  if (index == UINT32_MAX) return false;
-
-  MapEntry* entry = &map->entries[index];
-  if (IS_UNDEFINED(entry->key))
-  {
-    RETURN_ERROR("Invalid map iterator.");
-  }
-
-  RETURN_VAL(entry->key);
-}
-
-DEF_PRIMITIVE(map_valueIteratorValue)
-{
-  ObjMap* map = AS_MAP(args[0]);
-  uint32_t index = validateIndex(vm, args[1], map->capacity, "Iterator");
-  if (index == UINT32_MAX) return false;
-
-  MapEntry* entry = &map->entries[index];
-  if (IS_UNDEFINED(entry->key))
-  {
-    RETURN_ERROR("Invalid map iterator.");
-  }
-
-  RETURN_VAL(entry->value);
-}
-
-DEF_PRIMITIVE(null_not)
-{
-  RETURN_VAL(TRUE_VAL);
-}
-
-DEF_PRIMITIVE(null_toString)
-{
-  RETURN_VAL(CONST_STRING(vm, "null"));
-}
-
-DEF_PRIMITIVE(num_fromString)
-{
-  if (!validateString(vm, args[1], "Argument")) return false;
-
-  ObjString* string = AS_STRING(args[1]);
-
-  // Corner case: Can't parse an empty string.
-  if (string->length == 0) RETURN_NULL;
-
-  errno = 0;
-  char* end;
-  double number = strtod(string->value, &end);
-
-  // Skip past any trailing whitespace.
-  while (*end != '\0' && isspace((unsigned char)*end)) end++;
-
-  if (errno == ERANGE) RETURN_ERROR("Number literal is too large.");
-
-  // We must have consumed the entire string. Otherwise, it contains non-number
-  // characters and we can't parse it.
-  if (end < string->value + string->length) RETURN_NULL;
-
-  RETURN_NUM(number);
-}
-
-DEF_PRIMITIVE(num_pi)
-{
-  RETURN_NUM(3.14159265358979323846);
-}
-
-// Defines a primitive on Num that calls infix [op] and returns [type].
-#define DEF_NUM_INFIX(name, op, type)                                          \
-    DEF_PRIMITIVE(num_##name)                                                  \
-    {                                                                          \
-      if (!validateNum(vm, args[1], "Right operand")) return false;            \
-      RETURN_##type(AS_NUM(args[0]) op AS_NUM(args[1]));                       \
-    }
-
-DEF_NUM_INFIX(minus,    -,  NUM)
-DEF_NUM_INFIX(plus,     +,  NUM)
-DEF_NUM_INFIX(multiply, *,  NUM)
-DEF_NUM_INFIX(divide,   /,  NUM)
-DEF_NUM_INFIX(lt,       <,  BOOL)
-DEF_NUM_INFIX(gt,       >,  BOOL)
-DEF_NUM_INFIX(lte,      <=, BOOL)
-DEF_NUM_INFIX(gte,      >=, BOOL)
-
-// Defines a primitive on Num that call infix bitwise [op].
-#define DEF_NUM_BITWISE(name, op)                                              \
-    DEF_PRIMITIVE(num_bitwise##name)                                           \
-    {                                                                          \
-      if (!validateNum(vm, args[1], "Right operand")) return false;            \
-      uint32_t left = (uint32_t)AS_NUM(args[0]);                               \
-      uint32_t right = (uint32_t)AS_NUM(args[1]);                              \
-      RETURN_NUM(left op right);                                               \
-    }
-
-DEF_NUM_BITWISE(And,        &)
-DEF_NUM_BITWISE(Or,         |)
-DEF_NUM_BITWISE(Xor,        ^)
-DEF_NUM_BITWISE(LeftShift,  <<)
-DEF_NUM_BITWISE(RightShift, >>)
-
-// Defines a primitive method on Num that returns the result of [fn].
-#define DEF_NUM_FN(name, fn)                                                   \
-    DEF_PRIMITIVE(num_##name)                                                  \
-    {                                                                          \
-      RETURN_NUM(fn(AS_NUM(args[0])));                                         \
-    }
-
-DEF_NUM_FN(abs,     fabs)
-DEF_NUM_FN(acos,    acos)
-DEF_NUM_FN(asin,    asin)
-DEF_NUM_FN(atan,    atan)
-DEF_NUM_FN(ceil,    ceil)
-DEF_NUM_FN(cos,     cos)
-DEF_NUM_FN(floor,   floor)
-DEF_NUM_FN(negate,  -)
-DEF_NUM_FN(round,   round)
-DEF_NUM_FN(sin,     sin)
-DEF_NUM_FN(sqrt,    sqrt)
-DEF_NUM_FN(tan,     tan)
-DEF_NUM_FN(log,     log)
-DEF_NUM_FN(log2,    log2)
-DEF_NUM_FN(exp,     exp)
-
-DEF_PRIMITIVE(num_mod)
-{
-  if (!validateNum(vm, args[1], "Right operand")) return false;
-  RETURN_NUM(fmod(AS_NUM(args[0]), AS_NUM(args[1])));
-}
-
-DEF_PRIMITIVE(num_eqeq)
-{
-  if (!IS_NUM(args[1])) RETURN_FALSE;
-  RETURN_BOOL(AS_NUM(args[0]) == AS_NUM(args[1]));
-}
-
-DEF_PRIMITIVE(num_bangeq)
-{
-  if (!IS_NUM(args[1])) RETURN_TRUE;
-  RETURN_BOOL(AS_NUM(args[0]) != AS_NUM(args[1]));
-}
-
-DEF_PRIMITIVE(num_bitwiseNot)
-{
-  // Bitwise operators always work on 32-bit unsigned ints.
-  RETURN_NUM(~(uint32_t)AS_NUM(args[0]));
-}
-
-DEF_PRIMITIVE(num_dotDot)
-{
-  if (!validateNum(vm, args[1], "Right hand side of range")) return false;
-
-  double from = AS_NUM(args[0]);
-  double to = AS_NUM(args[1]);
-  RETURN_VAL(wrenNewRange(vm, from, to, true));
-}
-
-DEF_PRIMITIVE(num_dotDotDot)
-{
-  if (!validateNum(vm, args[1], "Right hand side of range")) return false;
-
-  double from = AS_NUM(args[0]);
-  double to = AS_NUM(args[1]);
-  RETURN_VAL(wrenNewRange(vm, from, to, false));
-}
-
-DEF_PRIMITIVE(num_atan2)
-{
-  RETURN_NUM(atan2(AS_NUM(args[0]), AS_NUM(args[1])));
-}
-
-DEF_PRIMITIVE(num_pow)
-{
-  RETURN_NUM(pow(AS_NUM(args[0]), AS_NUM(args[1])));
-}
-
-DEF_PRIMITIVE(num_fraction)
-{
-  double dummy;
-  RETURN_NUM(modf(AS_NUM(args[0]) , &dummy));
-}
-
-DEF_PRIMITIVE(num_isInfinity)
-{
-  RETURN_BOOL(isinf(AS_NUM(args[0])));
-}
-
-DEF_PRIMITIVE(num_isInteger)
-{
-  double value = AS_NUM(args[0]);
-  if (isnan(value) || isinf(value)) RETURN_FALSE;
-  RETURN_BOOL(trunc(value) == value);
-}
-
-DEF_PRIMITIVE(num_isNan)
-{
-  RETURN_BOOL(isnan(AS_NUM(args[0])));
-}
-
-DEF_PRIMITIVE(num_sign)
-{
-  double value = AS_NUM(args[0]);
-  if (value > 0)
-  {
-    RETURN_NUM(1);
-  }
-  else if (value < 0)
-  {
-    RETURN_NUM(-1);
-  }
-  else
-  {
-    RETURN_NUM(0);
-  }
-}
-
-DEF_PRIMITIVE(num_largest)
-{
-  RETURN_NUM(DBL_MAX);
-}
-
-DEF_PRIMITIVE(num_smallest)
-{
-  RETURN_NUM(DBL_MIN);
-}
-
-DEF_PRIMITIVE(num_toString)
-{
-  RETURN_VAL(wrenNumToString(vm, AS_NUM(args[0])));
-}
-
-DEF_PRIMITIVE(num_truncate)
-{
-  double integer;
-  modf(AS_NUM(args[0]) , &integer);
-  RETURN_NUM(integer);
-}
-
-DEF_PRIMITIVE(object_same)
-{
-  RETURN_BOOL(wrenValuesEqual(args[1], args[2]));
-}
-
-DEF_PRIMITIVE(object_not)
-{
-  RETURN_VAL(FALSE_VAL);
-}
-
-DEF_PRIMITIVE(object_eqeq)
-{
-  RETURN_BOOL(wrenValuesEqual(args[0], args[1]));
-}
-
-DEF_PRIMITIVE(object_bangeq)
-{
-  RETURN_BOOL(!wrenValuesEqual(args[0], args[1]));
-}
-
-DEF_PRIMITIVE(object_is)
-{
-  if (!IS_CLASS(args[1]))
-  {
-    RETURN_ERROR("Right operand must be a class.");
-  }
-
-  ObjClass *classObj = wrenGetClass(vm, args[0]);
-  ObjClass *baseClassObj = AS_CLASS(args[1]);
-
-  // Walk the superclass chain looking for the class.
-  do
-  {
-    if (baseClassObj == classObj) RETURN_BOOL(true);
-
-    classObj = classObj->superclass;
-  }
-  while (classObj != NULL);
-
-  RETURN_BOOL(false);
-}
-
-DEF_PRIMITIVE(object_toString)
-{
-  Obj* obj = AS_OBJ(args[0]);
-  Value name = OBJ_VAL(obj->classObj->name);
-  RETURN_VAL(wrenStringFormat(vm, "instance of @", name));
-}
-
-DEF_PRIMITIVE(object_type)
-{
-  RETURN_OBJ(wrenGetClass(vm, args[0]));
-}
-
-DEF_PRIMITIVE(range_from)
-{
-  RETURN_NUM(AS_RANGE(args[0])->from);
-}
-
-DEF_PRIMITIVE(range_to)
-{
-  RETURN_NUM(AS_RANGE(args[0])->to);
-}
-
-DEF_PRIMITIVE(range_min)
-{
-  ObjRange* range = AS_RANGE(args[0]);
-  RETURN_NUM(fmin(range->from, range->to));
-}
-
-DEF_PRIMITIVE(range_max)
-{
-  ObjRange* range = AS_RANGE(args[0]);
-  RETURN_NUM(fmax(range->from, range->to));
-}
-
-DEF_PRIMITIVE(range_isInclusive)
-{
-  RETURN_BOOL(AS_RANGE(args[0])->isInclusive);
-}
-
-DEF_PRIMITIVE(range_iterate)
-{
-  ObjRange* range = AS_RANGE(args[0]);
-
-  // Special case: empty range.
-  if (range->from == range->to && !range->isInclusive) RETURN_FALSE;
-
-  // Start the iteration.
-  if (IS_NULL(args[1])) RETURN_NUM(range->from);
-
-  if (!validateNum(vm, args[1], "Iterator")) return false;
-
-  double iterator = AS_NUM(args[1]);
-
-  // Iterate towards [to] from [from].
-  if (range->from < range->to)
-  {
-    iterator++;
-    if (iterator > range->to) RETURN_FALSE;
-  }
-  else
-  {
-    iterator--;
-    if (iterator < range->to) RETURN_FALSE;
-  }
-
-  if (!range->isInclusive && iterator == range->to) RETURN_FALSE;
-
-  RETURN_NUM(iterator);
-}
-
-DEF_PRIMITIVE(range_iteratorValue)
-{
-  // Assume the iterator is a number so that is the value of the range.
-  RETURN_VAL(args[1]);
-}
-
-DEF_PRIMITIVE(range_toString)
-{
-  ObjRange* range = AS_RANGE(args[0]);
-
-  Value from = wrenNumToString(vm, range->from);
-  wrenPushRoot(vm, AS_OBJ(from));
-
-  Value to = wrenNumToString(vm, range->to);
-  wrenPushRoot(vm, AS_OBJ(to));
-
-  Value result = wrenStringFormat(vm, "@$@", from,
-                                  range->isInclusive ? ".." : "...", to);
-
-  wrenPopRoot(vm);
-  wrenPopRoot(vm);
-  RETURN_VAL(result);
-}
-
-DEF_PRIMITIVE(string_fromCodePoint)
-{
-  if (!validateInt(vm, args[1], "Code point")) return false;
-
-  int codePoint = (int)AS_NUM(args[1]);
-  if (codePoint < 0)
-  {
-    RETURN_ERROR("Code point cannot be negative.");
-  }
-  else if (codePoint > 0x10ffff)
-  {
-    RETURN_ERROR("Code point cannot be greater than 0x10ffff.");
-  }
-
-  RETURN_VAL(wrenStringFromCodePoint(vm, codePoint));
-}
-
-DEF_PRIMITIVE(string_fromByte)
-{
-  if (!validateInt(vm, args[1], "Byte")) return false;
-  int byte = (int) AS_NUM(args[1]);
-  if (byte < 0)
-  {
-    RETURN_ERROR("Byte cannot be negative.");
-  }
-  else if (byte > 0xff)
-  {
-    RETURN_ERROR("Byte cannot be greater than 0xff.");
-  }
-  RETURN_VAL(wrenStringFromByte(vm, (uint8_t) byte));
-}
-
-DEF_PRIMITIVE(string_byteAt)
-{
-  ObjString* string = AS_STRING(args[0]);
-
-  uint32_t index = validateIndex(vm, args[1], string->length, "Index");
-  if (index == UINT32_MAX) return false;
-
-  RETURN_NUM((uint8_t)string->value[index]);
-}
-
-DEF_PRIMITIVE(string_byteCount)
-{
-  RETURN_NUM(AS_STRING(args[0])->length);
-}
-
-DEF_PRIMITIVE(string_codePointAt)
-{
-  ObjString* string = AS_STRING(args[0]);
-
-  uint32_t index = validateIndex(vm, args[1], string->length, "Index");
-  if (index == UINT32_MAX) return false;
-
-  // If we are in the middle of a UTF-8 sequence, indicate that.
-  const uint8_t* bytes = (uint8_t*)string->value;
-  if ((bytes[index] & 0xc0) == 0x80) RETURN_NUM(-1);
-
-  // Decode the UTF-8 sequence.
-  RETURN_NUM(wrenUtf8Decode((uint8_t*)string->value + index,
-                            string->length - index));
-}
-
-DEF_PRIMITIVE(string_contains)
-{
-  if (!validateString(vm, args[1], "Argument")) return false;
-
-  ObjString* string = AS_STRING(args[0]);
-  ObjString* search = AS_STRING(args[1]);
-
-  RETURN_BOOL(wrenStringFind(string, search, 0) != UINT32_MAX);
-}
-
-DEF_PRIMITIVE(string_endsWith)
-{
-  if (!validateString(vm, args[1], "Argument")) return false;
-
-  ObjString* string = AS_STRING(args[0]);
-  ObjString* search = AS_STRING(args[1]);
-
-  // Edge case: If the search string is longer then return false right away.
-  if (search->length > string->length) RETURN_FALSE;
-
-  RETURN_BOOL(memcmp(string->value + string->length - search->length,
-                     search->value, search->length) == 0);
-}
-
-DEF_PRIMITIVE(string_indexOf1)
-{
-  if (!validateString(vm, args[1], "Argument")) return false;
-
-  ObjString* string = AS_STRING(args[0]);
-  ObjString* search = AS_STRING(args[1]);
-
-  uint32_t index = wrenStringFind(string, search, 0);
-  RETURN_NUM(index == UINT32_MAX ? -1 : (int)index);
-}
-
-DEF_PRIMITIVE(string_indexOf2)
-{
-  if (!validateString(vm, args[1], "Argument")) return false;
-
-  ObjString* string = AS_STRING(args[0]);
-  ObjString* search = AS_STRING(args[1]);
-  uint32_t start = validateIndex(vm, args[2], string->length, "Start");
-  if (start == UINT32_MAX) return false;
-  
-  uint32_t index = wrenStringFind(string, search, start);
-  RETURN_NUM(index == UINT32_MAX ? -1 : (int)index);
-}
-
-DEF_PRIMITIVE(string_iterate)
-{
-  ObjString* string = AS_STRING(args[0]);
-
-  // If we're starting the iteration, return the first index.
-  if (IS_NULL(args[1]))
-  {
-    if (string->length == 0) RETURN_FALSE;
-    RETURN_NUM(0);
-  }
-
-  if (!validateInt(vm, args[1], "Iterator")) return false;
-
-  if (AS_NUM(args[1]) < 0) RETURN_FALSE;
-  uint32_t index = (uint32_t)AS_NUM(args[1]);
-
-  // Advance to the beginning of the next UTF-8 sequence.
-  do
-  {
-    index++;
-    if (index >= string->length) RETURN_FALSE;
-  } while ((string->value[index] & 0xc0) == 0x80);
-
-  RETURN_NUM(index);
-}
-
-DEF_PRIMITIVE(string_iterateByte)
-{
-  ObjString* string = AS_STRING(args[0]);
-
-  // If we're starting the iteration, return the first index.
-  if (IS_NULL(args[1]))
-  {
-    if (string->length == 0) RETURN_FALSE;
-    RETURN_NUM(0);
-  }
-
-  if (!validateInt(vm, args[1], "Iterator")) return false;
-
-  if (AS_NUM(args[1]) < 0) RETURN_FALSE;
-  uint32_t index = (uint32_t)AS_NUM(args[1]);
-
-  // Advance to the next byte.
-  index++;
-  if (index >= string->length) RETURN_FALSE;
-
-  RETURN_NUM(index);
-}
-
-DEF_PRIMITIVE(string_iteratorValue)
-{
-  ObjString* string = AS_STRING(args[0]);
-  uint32_t index = validateIndex(vm, args[1], string->length, "Iterator");
-  if (index == UINT32_MAX) return false;
-
-  RETURN_VAL(wrenStringCodePointAt(vm, string, index));
-}
-
-DEF_PRIMITIVE(string_startsWith)
-{
-  if (!validateString(vm, args[1], "Argument")) return false;
-
-  ObjString* string = AS_STRING(args[0]);
-  ObjString* search = AS_STRING(args[1]);
-
-  // Edge case: If the search string is longer then return false right away.
-  if (search->length > string->length) RETURN_FALSE;
-
-  RETURN_BOOL(memcmp(string->value, search->value, search->length) == 0);
-}
-
-DEF_PRIMITIVE(string_plus)
-{
-  if (!validateString(vm, args[1], "Right operand")) return false;
-  RETURN_VAL(wrenStringFormat(vm, "@@", args[0], args[1]));
-}
-
-DEF_PRIMITIVE(string_subscript)
-{
-  ObjString* string = AS_STRING(args[0]);
-
-  if (IS_NUM(args[1]))
-  {
-    int index = validateIndex(vm, args[1], string->length, "Subscript");
-    if (index == -1) return false;
-
-    RETURN_VAL(wrenStringCodePointAt(vm, string, index));
-  }
-
-  if (!IS_RANGE(args[1]))
-  {
-    RETURN_ERROR("Subscript must be a number or a range.");
-  }
-
-  int step;
-  uint32_t count = string->length;
-  int start = calculateRange(vm, AS_RANGE(args[1]), &count, &step);
-  if (start == -1) return false;
-
-  RETURN_VAL(wrenNewStringFromRange(vm, string, start, count, step));
-}
-
-DEF_PRIMITIVE(string_toString)
-{
-  RETURN_VAL(args[0]);
-}
-
-DEF_PRIMITIVE(system_clock)
-{
-  RETURN_NUM((double)clock() / CLOCKS_PER_SEC);
-}
-
-DEF_PRIMITIVE(system_gc)
-{
-  wrenCollectGarbage(vm);
-  RETURN_NULL;
-}
-
-DEF_PRIMITIVE(system_writeString)
-{
-  if (vm->config.writeFn != NULL)
-  {
-    vm->config.writeFn(vm, AS_CSTRING(args[1]));
-  }
-
-  RETURN_VAL(args[1]);
-}
-
-// Creates either the Object or Class class in the core module with [name].
-static ObjClass* defineClass(WrenVM* vm, ObjModule* module, const char* name)
-{
-  ObjString* nameString = AS_STRING(wrenNewString(vm, name));
-  wrenPushRoot(vm, (Obj*)nameString);
-
-  ObjClass* classObj = wrenNewSingleClass(vm, 0, nameString);
-
-  wrenDefineVariable(vm, module, name, nameString->length, OBJ_VAL(classObj), NULL);
-
-  wrenPopRoot(vm);
-  return classObj;
-}
-
-void wrenInitializeCore(WrenVM* vm)
-{
-  ObjModule* coreModule = wrenNewModule(vm, NULL);
-  wrenPushRoot(vm, (Obj*)coreModule);
-  
-  // The core module's key is null in the module map.
-  wrenMapSet(vm, vm->modules, NULL_VAL, OBJ_VAL(coreModule));
-  wrenPopRoot(vm); // coreModule.
-
-  // Define the root Object class. This has to be done a little specially
-  // because it has no superclass.
-  vm->objectClass = defineClass(vm, coreModule, "Object");
-  PRIMITIVE(vm->objectClass, "!", object_not);
-  PRIMITIVE(vm->objectClass, "==(_)", object_eqeq);
-  PRIMITIVE(vm->objectClass, "!=(_)", object_bangeq);
-  PRIMITIVE(vm->objectClass, "is(_)", object_is);
-  PRIMITIVE(vm->objectClass, "toString", object_toString);
-  PRIMITIVE(vm->objectClass, "type", object_type);
-
-  // Now we can define Class, which is a subclass of Object.
-  vm->classClass = defineClass(vm, coreModule, "Class");
-  wrenBindSuperclass(vm, vm->classClass, vm->objectClass);
-  PRIMITIVE(vm->classClass, "name", class_name);
-  PRIMITIVE(vm->classClass, "supertype", class_supertype);
-  PRIMITIVE(vm->classClass, "toString", class_toString);
-
-  // Finally, we can define Object's metaclass which is a subclass of Class.
-  ObjClass* objectMetaclass = defineClass(vm, coreModule, "Object metaclass");
-
-  // Wire up the metaclass relationships now that all three classes are built.
-  vm->objectClass->obj.classObj = objectMetaclass;
-  objectMetaclass->obj.classObj = vm->classClass;
-  vm->classClass->obj.classObj = vm->classClass;
-
-  // Do this after wiring up the metaclasses so objectMetaclass doesn't get
-  // collected.
-  wrenBindSuperclass(vm, objectMetaclass, vm->classClass);
-
-  PRIMITIVE(objectMetaclass, "same(_,_)", object_same);
-
-  // The core class diagram ends up looking like this, where single lines point
-  // to a class's superclass, and double lines point to its metaclass:
-  //
-  //        .------------------------------------. .====.
-  //        |                  .---------------. | #    #
-  //        v                  |               v | v    #
-  //   .---------.   .-------------------.   .-------.  #
-  //   | Object  |==>| Object metaclass  |==>| Class |=="
-  //   '---------'   '-------------------'   '-------'
-  //        ^                                 ^ ^ ^ ^
-  //        |                  .--------------' # | #
-  //        |                  |                # | #
-  //   .---------.   .-------------------.      # | # -.
-  //   |  Base   |==>|  Base metaclass   |======" | #  |
-  //   '---------'   '-------------------'        | #  |
-  //        ^                                     | #  |
-  //        |                  .------------------' #  | Example classes
-  //        |                  |                    #  |
-  //   .---------.   .-------------------.          #  |
-  //   | Derived |==>| Derived metaclass |=========="  |
-  //   '---------'   '-------------------'            -'
-
-  // The rest of the classes can now be defined normally.
-  wrenInterpret(vm, NULL, coreModuleSource);
-
-  vm->boolClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Bool"));
-  PRIMITIVE(vm->boolClass, "toString", bool_toString);
-  PRIMITIVE(vm->boolClass, "!", bool_not);
-
-  vm->fiberClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Fiber"));
-  PRIMITIVE(vm->fiberClass->obj.classObj, "new(_)", fiber_new);
-  PRIMITIVE(vm->fiberClass->obj.classObj, "abort(_)", fiber_abort);
-  PRIMITIVE(vm->fiberClass->obj.classObj, "current", fiber_current);
-  PRIMITIVE(vm->fiberClass->obj.classObj, "suspend()", fiber_suspend);
-  PRIMITIVE(vm->fiberClass->obj.classObj, "yield()", fiber_yield);
-  PRIMITIVE(vm->fiberClass->obj.classObj, "yield(_)", fiber_yield1);
-  PRIMITIVE(vm->fiberClass, "call()", fiber_call);
-  PRIMITIVE(vm->fiberClass, "call(_)", fiber_call1);
-  PRIMITIVE(vm->fiberClass, "error", fiber_error);
-  PRIMITIVE(vm->fiberClass, "isDone", fiber_isDone);
-  PRIMITIVE(vm->fiberClass, "transfer()", fiber_transfer);
-  PRIMITIVE(vm->fiberClass, "transfer(_)", fiber_transfer1);
-  PRIMITIVE(vm->fiberClass, "transferError(_)", fiber_transferError);
-  PRIMITIVE(vm->fiberClass, "try()", fiber_try);
-
-  vm->fnClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Fn"));
-  PRIMITIVE(vm->fnClass->obj.classObj, "new(_)", fn_new);
-
-  PRIMITIVE(vm->fnClass, "arity", fn_arity);
-  PRIMITIVE(vm->fnClass, "call()", fn_call0);
-  PRIMITIVE(vm->fnClass, "call(_)", fn_call1);
-  PRIMITIVE(vm->fnClass, "call(_,_)", fn_call2);
-  PRIMITIVE(vm->fnClass, "call(_,_,_)", fn_call3);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_)", fn_call4);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_)", fn_call5);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_)", fn_call6);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_)", fn_call7);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_)", fn_call8);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_)", fn_call9);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_)", fn_call10);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_)", fn_call11);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_)", fn_call12);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call13);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call14);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call15);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call16);
-  PRIMITIVE(vm->fnClass, "toString", fn_toString);
-
-  vm->nullClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Null"));
-  PRIMITIVE(vm->nullClass, "!", null_not);
-  PRIMITIVE(vm->nullClass, "toString", null_toString);
-
-  vm->numClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Num"));
-  PRIMITIVE(vm->numClass->obj.classObj, "fromString(_)", num_fromString);
-  PRIMITIVE(vm->numClass->obj.classObj, "pi", num_pi);
-  PRIMITIVE(vm->numClass->obj.classObj, "largest", num_largest);
-  PRIMITIVE(vm->numClass->obj.classObj, "smallest", num_smallest);
-  PRIMITIVE(vm->numClass, "-(_)", num_minus);
-  PRIMITIVE(vm->numClass, "+(_)", num_plus);
-  PRIMITIVE(vm->numClass, "*(_)", num_multiply);
-  PRIMITIVE(vm->numClass, "/(_)", num_divide);
-  PRIMITIVE(vm->numClass, "<(_)", num_lt);
-  PRIMITIVE(vm->numClass, ">(_)", num_gt);
-  PRIMITIVE(vm->numClass, "<=(_)", num_lte);
-  PRIMITIVE(vm->numClass, ">=(_)", num_gte);
-  PRIMITIVE(vm->numClass, "&(_)", num_bitwiseAnd);
-  PRIMITIVE(vm->numClass, "|(_)", num_bitwiseOr);
-  PRIMITIVE(vm->numClass, "^(_)", num_bitwiseXor);
-  PRIMITIVE(vm->numClass, "<<(_)", num_bitwiseLeftShift);
-  PRIMITIVE(vm->numClass, ">>(_)", num_bitwiseRightShift);
-  PRIMITIVE(vm->numClass, "abs", num_abs);
-  PRIMITIVE(vm->numClass, "acos", num_acos);
-  PRIMITIVE(vm->numClass, "asin", num_asin);
-  PRIMITIVE(vm->numClass, "atan", num_atan);
-  PRIMITIVE(vm->numClass, "ceil", num_ceil);
-  PRIMITIVE(vm->numClass, "cos", num_cos);
-  PRIMITIVE(vm->numClass, "floor", num_floor);
-  PRIMITIVE(vm->numClass, "-", num_negate);
-  PRIMITIVE(vm->numClass, "round", num_round);
-  PRIMITIVE(vm->numClass, "sin", num_sin);
-  PRIMITIVE(vm->numClass, "sqrt", num_sqrt);
-  PRIMITIVE(vm->numClass, "tan", num_tan);
-  PRIMITIVE(vm->numClass, "log", num_log);
-  PRIMITIVE(vm->numClass, "log2", num_log2);
-  PRIMITIVE(vm->numClass, "exp", num_exp);
-  PRIMITIVE(vm->numClass, "%(_)", num_mod);
-  PRIMITIVE(vm->numClass, "~", num_bitwiseNot);
-  PRIMITIVE(vm->numClass, "..(_)", num_dotDot);
-  PRIMITIVE(vm->numClass, "...(_)", num_dotDotDot);
-  PRIMITIVE(vm->numClass, "atan(_)", num_atan2);
-  PRIMITIVE(vm->numClass, "pow(_)", num_pow);
-  PRIMITIVE(vm->numClass, "fraction", num_fraction);
-  PRIMITIVE(vm->numClass, "isInfinity", num_isInfinity);
-  PRIMITIVE(vm->numClass, "isInteger", num_isInteger);
-  PRIMITIVE(vm->numClass, "isNan", num_isNan);
-  PRIMITIVE(vm->numClass, "sign", num_sign);
-  PRIMITIVE(vm->numClass, "toString", num_toString);
-  PRIMITIVE(vm->numClass, "truncate", num_truncate);
-
-  // These are defined just so that 0 and -0 are equal, which is specified by
-  // IEEE 754 even though they have different bit representations.
-  PRIMITIVE(vm->numClass, "==(_)", num_eqeq);
-  PRIMITIVE(vm->numClass, "!=(_)", num_bangeq);
-
-  vm->stringClass = AS_CLASS(wrenFindVariable(vm, coreModule, "String"));
-  PRIMITIVE(vm->stringClass->obj.classObj, "fromCodePoint(_)", string_fromCodePoint);
-  PRIMITIVE(vm->stringClass->obj.classObj, "fromByte(_)", string_fromByte);
-  PRIMITIVE(vm->stringClass, "+(_)", string_plus);
-  PRIMITIVE(vm->stringClass, "[_]", string_subscript);
-  PRIMITIVE(vm->stringClass, "byteAt_(_)", string_byteAt);
-  PRIMITIVE(vm->stringClass, "byteCount_", string_byteCount);
-  PRIMITIVE(vm->stringClass, "codePointAt_(_)", string_codePointAt);
-  PRIMITIVE(vm->stringClass, "contains(_)", string_contains);
-  PRIMITIVE(vm->stringClass, "endsWith(_)", string_endsWith);
-  PRIMITIVE(vm->stringClass, "indexOf(_)", string_indexOf1);
-  PRIMITIVE(vm->stringClass, "indexOf(_,_)", string_indexOf2);
-  PRIMITIVE(vm->stringClass, "iterate(_)", string_iterate);
-  PRIMITIVE(vm->stringClass, "iterateByte_(_)", string_iterateByte);
-  PRIMITIVE(vm->stringClass, "iteratorValue(_)", string_iteratorValue);
-  PRIMITIVE(vm->stringClass, "startsWith(_)", string_startsWith);
-  PRIMITIVE(vm->stringClass, "toString", string_toString);
-
-  vm->listClass = AS_CLASS(wrenFindVariable(vm, coreModule, "List"));
-  PRIMITIVE(vm->listClass->obj.classObj, "filled(_,_)", list_filled);
-  PRIMITIVE(vm->listClass->obj.classObj, "new()", list_new);
-  PRIMITIVE(vm->listClass, "[_]", list_subscript);
-  PRIMITIVE(vm->listClass, "[_]=(_)", list_subscriptSetter);
-  PRIMITIVE(vm->listClass, "add(_)", list_add);
-  PRIMITIVE(vm->listClass, "addCore_(_)", list_addCore);
-  PRIMITIVE(vm->listClass, "clear()", list_clear);
-  PRIMITIVE(vm->listClass, "count", list_count);
-  PRIMITIVE(vm->listClass, "insert(_,_)", list_insert);
-  PRIMITIVE(vm->listClass, "iterate(_)", list_iterate);
-  PRIMITIVE(vm->listClass, "iteratorValue(_)", list_iteratorValue);
-  PRIMITIVE(vm->listClass, "removeAt(_)", list_removeAt);
-
-  vm->mapClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Map"));
-  PRIMITIVE(vm->mapClass->obj.classObj, "new()", map_new);
-  PRIMITIVE(vm->mapClass, "[_]", map_subscript);
-  PRIMITIVE(vm->mapClass, "[_]=(_)", map_subscriptSetter);
-  PRIMITIVE(vm->mapClass, "addCore_(_,_)", map_addCore);
-  PRIMITIVE(vm->mapClass, "clear()", map_clear);
-  PRIMITIVE(vm->mapClass, "containsKey(_)", map_containsKey);
-  PRIMITIVE(vm->mapClass, "count", map_count);
-  PRIMITIVE(vm->mapClass, "remove(_)", map_remove);
-  PRIMITIVE(vm->mapClass, "iterate(_)", map_iterate);
-  PRIMITIVE(vm->mapClass, "keyIteratorValue_(_)", map_keyIteratorValue);
-  PRIMITIVE(vm->mapClass, "valueIteratorValue_(_)", map_valueIteratorValue);
-
-  vm->rangeClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Range"));
-  PRIMITIVE(vm->rangeClass, "from", range_from);
-  PRIMITIVE(vm->rangeClass, "to", range_to);
-  PRIMITIVE(vm->rangeClass, "min", range_min);
-  PRIMITIVE(vm->rangeClass, "max", range_max);
-  PRIMITIVE(vm->rangeClass, "isInclusive", range_isInclusive);
-  PRIMITIVE(vm->rangeClass, "iterate(_)", range_iterate);
-  PRIMITIVE(vm->rangeClass, "iteratorValue(_)", range_iteratorValue);
-  PRIMITIVE(vm->rangeClass, "toString", range_toString);
-
-  ObjClass* systemClass = AS_CLASS(wrenFindVariable(vm, coreModule, "System"));
-  PRIMITIVE(systemClass->obj.classObj, "clock", system_clock);
-  PRIMITIVE(systemClass->obj.classObj, "gc()", system_gc);
-  PRIMITIVE(systemClass->obj.classObj, "writeString_(_)", system_writeString);
-
-  // While bootstrapping the core types and running the core module, a number
-  // of string objects have been created, many of which were instantiated
-  // before stringClass was stored in the VM. Some of them *must* be created
-  // first -- the ObjClass for string itself has a reference to the ObjString
-  // for its name.
-  //
-  // These all currently have a NULL classObj pointer, so go back and assign
-  // them now that the string class is known.
-  for (Obj* obj = vm->first; obj != NULL; obj = obj->next)
-  {
-    if (obj->type == OBJ_STRING) obj->classObj = vm->stringClass;
-  }
-}
-// End file "wren_core.c"
-// Begin file "wren_value.c"
-#include <math.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-
-
-#if WREN_DEBUG_TRACE_MEMORY
-#endif
-
-// TODO: Tune these.
-// The initial (and minimum) capacity of a non-empty list or map object.
-#define MIN_CAPACITY 16
-
-// The rate at which a collection's capacity grows when the size exceeds the
-// current capacity. The new capacity will be determined by *multiplying* the
-// old capacity by this. Growing geometrically is necessary to ensure that
-// adding to a collection has O(1) amortized complexity.
-#define GROW_FACTOR 2
-
-// The maximum percentage of map entries that can be filled before the map is
-// grown. A lower load takes more memory but reduces collisions which makes
-// lookup faster.
-#define MAP_LOAD_PERCENT 75
-
-// The number of call frames initially allocated when a fiber is created. Making
-// this smaller makes fibers use less memory (at first) but spends more time
-// reallocating when the call stack grows.
-#define INITIAL_CALL_FRAMES 4
-
-DEFINE_BUFFER(Value, Value);
-DEFINE_BUFFER(Method, Method);
-
-static void initObj(WrenVM* vm, Obj* obj, ObjType type, ObjClass* classObj)
-{
-  obj->type = type;
-  obj->isDark = false;
-  obj->classObj = classObj;
-  obj->next = vm->first;
-  vm->first = obj;
-}
-
-ObjClass* wrenNewSingleClass(WrenVM* vm, int numFields, ObjString* name)
-{
-  ObjClass* classObj = ALLOCATE(vm, ObjClass);
-  initObj(vm, &classObj->obj, OBJ_CLASS, NULL);
-  classObj->superclass = NULL;
-  classObj->numFields = numFields;
-  classObj->name = name;
-
-  wrenPushRoot(vm, (Obj*)classObj);
-  wrenMethodBufferInit(&classObj->methods);
-  wrenPopRoot(vm);
-
-  return classObj;
-}
-
-void wrenBindSuperclass(WrenVM* vm, ObjClass* subclass, ObjClass* superclass)
-{
-  ASSERT(superclass != NULL, "Must have superclass.");
-
-  subclass->superclass = superclass;
-
-  // Include the superclass in the total number of fields.
-  if (subclass->numFields != -1)
-  {
-    subclass->numFields += superclass->numFields;
-  }
-  else
-  {
-    ASSERT(superclass->numFields == 0,
-           "A foreign class cannot inherit from a class with fields.");
-  }
-
-  // Inherit methods from its superclass.
-  for (int i = 0; i < superclass->methods.count; i++)
-  {
-    wrenBindMethod(vm, subclass, i, superclass->methods.data[i]);
-  }
-}
-
-ObjClass* wrenNewClass(WrenVM* vm, ObjClass* superclass, int numFields,
-                       ObjString* name)
-{
-  // Create the metaclass.
-  Value metaclassName = wrenStringFormat(vm, "@ metaclass", OBJ_VAL(name));
-  wrenPushRoot(vm, AS_OBJ(metaclassName));
-
-  ObjClass* metaclass = wrenNewSingleClass(vm, 0, AS_STRING(metaclassName));
-  metaclass->obj.classObj = vm->classClass;
-
-  wrenPopRoot(vm);
-
-  // Make sure the metaclass isn't collected when we allocate the class.
-  wrenPushRoot(vm, (Obj*)metaclass);
-
-  // Metaclasses always inherit Class and do not parallel the non-metaclass
-  // hierarchy.
-  wrenBindSuperclass(vm, metaclass, vm->classClass);
-
-  ObjClass* classObj = wrenNewSingleClass(vm, numFields, name);
-
-  // Make sure the class isn't collected while the inherited methods are being
-  // bound.
-  wrenPushRoot(vm, (Obj*)classObj);
-
-  classObj->obj.classObj = metaclass;
-  wrenBindSuperclass(vm, classObj, superclass);
-
-  wrenPopRoot(vm);
-  wrenPopRoot(vm);
-
-  return classObj;
-}
-
-void wrenBindMethod(WrenVM* vm, ObjClass* classObj, int symbol, Method method)
-{
-  // Make sure the buffer is big enough to contain the symbol's index.
-  if (symbol >= classObj->methods.count)
-  {
-    Method noMethod;
-    noMethod.type = METHOD_NONE;
-    wrenMethodBufferFill(vm, &classObj->methods, noMethod,
-                         symbol - classObj->methods.count + 1);
-  }
-
-  classObj->methods.data[symbol] = method;
-}
-
-ObjClosure* wrenNewClosure(WrenVM* vm, ObjFn* fn)
-{
-  ObjClosure* closure = ALLOCATE_FLEX(vm, ObjClosure,
-                                      ObjUpvalue*, fn->numUpvalues);
-  initObj(vm, &closure->obj, OBJ_CLOSURE, vm->fnClass);
-
-  closure->fn = fn;
-
-  // Clear the upvalue array. We need to do this in case a GC is triggered
-  // after the closure is created but before the upvalue array is populated.
-  for (int i = 0; i < fn->numUpvalues; i++) closure->upvalues[i] = NULL;
-
-  return closure;
-}
-
-ObjFiber* wrenNewFiber(WrenVM* vm, ObjClosure* closure)
-{
-  // Allocate the arrays before the fiber in case it triggers a GC.
-  CallFrame* frames = ALLOCATE_ARRAY(vm, CallFrame, INITIAL_CALL_FRAMES);
-  
-  // Add one slot for the unused implicit receiver slot that the compiler
-  // assumes all functions have.
-  int stackCapacity = closure == NULL
-      ? 1
-      : wrenPowerOf2Ceil(closure->fn->maxSlots + 1);
-  Value* stack = ALLOCATE_ARRAY(vm, Value, stackCapacity);
-  
-  ObjFiber* fiber = ALLOCATE(vm, ObjFiber);
-  initObj(vm, &fiber->obj, OBJ_FIBER, vm->fiberClass);
-
-  fiber->stack = stack;
-  fiber->stackTop = fiber->stack;
-  fiber->stackCapacity = stackCapacity;
-
-  fiber->frames = frames;
-  fiber->frameCapacity = INITIAL_CALL_FRAMES;
-  fiber->numFrames = 0;
-
-  fiber->openUpvalues = NULL;
-  fiber->caller = NULL;
-  fiber->error = NULL_VAL;
-  fiber->state = FIBER_OTHER;
-  
-  if (closure != NULL)
-  {
-    // Initialize the first call frame.
-    wrenAppendCallFrame(vm, fiber, closure, fiber->stack);
-
-    // The first slot always holds the closure.
-    fiber->stackTop[0] = OBJ_VAL(closure);
-    fiber->stackTop++;
-  }
-  
-  return fiber;
-}
-
-void wrenEnsureStack(WrenVM* vm, ObjFiber* fiber, int needed)
-{
-  if (fiber->stackCapacity >= needed) return;
-  
-  int capacity = wrenPowerOf2Ceil(needed);
-  
-  Value* oldStack = fiber->stack;
-  fiber->stack = (Value*)wrenReallocate(vm, fiber->stack,
-                                        sizeof(Value) * fiber->stackCapacity,
-                                        sizeof(Value) * capacity);
-  fiber->stackCapacity = capacity;
-  
-  // If the reallocation moves the stack, then we need to recalculate every
-  // pointer that points into the old stack to into the same relative distance
-  // in the new stack. We have to be a little careful about how these are
-  // calculated because pointer subtraction is only well-defined within a
-  // single array, hence the slightly redundant-looking arithmetic below.
-  if (fiber->stack != oldStack)
-  {
-    // Top of the stack.
-    if (vm->apiStack >= oldStack && vm->apiStack <= fiber->stackTop)
-    {
-      vm->apiStack = fiber->stack + (vm->apiStack - oldStack);
-    }
-    
-    // Stack pointer for each call frame.
-    for (int i = 0; i < fiber->numFrames; i++)
-    {
-      CallFrame* frame = &fiber->frames[i];
-      frame->stackStart = fiber->stack + (frame->stackStart - oldStack);
-    }
-    
-    // Open upvalues.
-    for (ObjUpvalue* upvalue = fiber->openUpvalues;
-         upvalue != NULL;
-         upvalue = upvalue->next)
-    {
-      upvalue->value = fiber->stack + (upvalue->value - oldStack);
-    }
-    
-    fiber->stackTop = fiber->stack + (fiber->stackTop - oldStack);
-  }
-}
-
-ObjForeign* wrenNewForeign(WrenVM* vm, ObjClass* classObj, size_t size)
-{
-  ObjForeign* object = ALLOCATE_FLEX(vm, ObjForeign, uint8_t, size);
-  initObj(vm, &object->obj, OBJ_FOREIGN, classObj);
-
-  // Zero out the bytes.
-  memset(object->data, 0, size);
-  return object;
-}
-
-ObjFn* wrenNewFunction(WrenVM* vm, ObjModule* module, int maxSlots)
-{
-  FnDebug* debug = ALLOCATE(vm, FnDebug);
-  debug->name = NULL;
-  wrenIntBufferInit(&debug->sourceLines);
-
-  ObjFn* fn = ALLOCATE(vm, ObjFn);
-  initObj(vm, &fn->obj, OBJ_FN, vm->fnClass);
-  
-  wrenValueBufferInit(&fn->constants);
-  wrenByteBufferInit(&fn->code);
-  fn->module = module;
-  fn->maxSlots = maxSlots;
-  fn->numUpvalues = 0;
-  fn->arity = 0;
-  fn->debug = debug;
-  
-  return fn;
-}
-
-void wrenFunctionBindName(WrenVM* vm, ObjFn* fn, const char* name, int length)
-{
-  fn->debug->name = ALLOCATE_ARRAY(vm, char, length + 1);
-  memcpy(fn->debug->name, name, length);
-  fn->debug->name[length] = '\0';
-}
-
-Value wrenNewInstance(WrenVM* vm, ObjClass* classObj)
-{
-  ObjInstance* instance = ALLOCATE_FLEX(vm, ObjInstance,
-                                        Value, classObj->numFields);
-  initObj(vm, &instance->obj, OBJ_INSTANCE, classObj);
-
-  // Initialize fields to null.
-  for (int i = 0; i < classObj->numFields; i++)
-  {
-    instance->fields[i] = NULL_VAL;
-  }
-
-  return OBJ_VAL(instance);
-}
-
-ObjList* wrenNewList(WrenVM* vm, uint32_t numElements)
-{
-  // Allocate this before the list object in case it triggers a GC which would
-  // free the list.
-  Value* elements = NULL;
-  if (numElements > 0)
-  {
-    elements = ALLOCATE_ARRAY(vm, Value, numElements);
-  }
-
-  ObjList* list = ALLOCATE(vm, ObjList);
-  initObj(vm, &list->obj, OBJ_LIST, vm->listClass);
-  list->elements.capacity = numElements;
-  list->elements.count = numElements;
-  list->elements.data = elements;
-  return list;
-}
-
-void wrenListInsert(WrenVM* vm, ObjList* list, Value value, uint32_t index)
-{
-  if (IS_OBJ(value)) wrenPushRoot(vm, AS_OBJ(value));
-
-  // Add a slot at the end of the list.
-  wrenValueBufferWrite(vm, &list->elements, NULL_VAL);
-
-  if (IS_OBJ(value)) wrenPopRoot(vm);
-
-  // Shift the existing elements down.
-  for (uint32_t i = list->elements.count - 1; i > index; i--)
-  {
-    list->elements.data[i] = list->elements.data[i - 1];
-  }
-
-  // Store the new element.
-  list->elements.data[index] = value;
-}
-
-Value wrenListRemoveAt(WrenVM* vm, ObjList* list, uint32_t index)
-{
-  Value removed = list->elements.data[index];
-
-  if (IS_OBJ(removed)) wrenPushRoot(vm, AS_OBJ(removed));
-
-  // Shift items up.
-  for (int i = index; i < list->elements.count - 1; i++)
-  {
-    list->elements.data[i] = list->elements.data[i + 1];
-  }
-
-  // If we have too much excess capacity, shrink it.
-  if (list->elements.capacity / GROW_FACTOR >= list->elements.count)
-  {
-    list->elements.data = (Value*)wrenReallocate(vm, list->elements.data,
-        sizeof(Value) * list->elements.capacity,
-        sizeof(Value) * (list->elements.capacity / GROW_FACTOR));
-    list->elements.capacity /= GROW_FACTOR;
-  }
-
-  if (IS_OBJ(removed)) wrenPopRoot(vm);
-
-  list->elements.count--;
-  return removed;
-}
-
-ObjMap* wrenNewMap(WrenVM* vm)
-{
-  ObjMap* map = ALLOCATE(vm, ObjMap);
-  initObj(vm, &map->obj, OBJ_MAP, vm->mapClass);
-  map->capacity = 0;
-  map->count = 0;
-  map->entries = NULL;
-  return map;
-}
-
-static inline uint32_t hashBits(uint64_t hash)
-{
-  // From v8's ComputeLongHash() which in turn cites:
-  // Thomas Wang, Integer Hash Functions.
-  // http://www.concentric.net/~Ttwang/tech/inthash.htm
-  hash = ~hash + (hash << 18);  // hash = (hash << 18) - hash - 1;
-  hash = hash ^ (hash >> 31);
-  hash = hash * 21;  // hash = (hash + (hash << 2)) + (hash << 4);
-  hash = hash ^ (hash >> 11);
-  hash = hash + (hash << 6);
-  hash = hash ^ (hash >> 22);
-  return (uint32_t)(hash & 0x3fffffff);
-}
-
-// Generates a hash code for [num].
-static inline uint32_t hashNumber(double num)
-{
-  // Hash the raw bits of the value.
-  DoubleBits bits;
-  bits.num = num;
-  return hashBits(bits.bits64);
-}
-
-// Generates a hash code for [object].
-static uint32_t hashObject(Obj* object)
-{
-  switch (object->type)
-  {
-    case OBJ_CLASS:
-      // Classes just use their name.
-      return hashObject((Obj*)((ObjClass*)object)->name);
-      
-      // Allow bare (non-closure) functions so that we can use a map to find
-      // existing constants in a function's constant table. This is only used
-      // internally. Since user code never sees a non-closure function, they
-      // cannot use them as map keys.
-    case OBJ_FN:
-    {
-      ObjFn* fn = (ObjFn*)object;
-      return hashNumber(fn->arity) ^ hashNumber(fn->code.count);
-    }
-
-    case OBJ_RANGE:
-    {
-      ObjRange* range = (ObjRange*)object;
-      return hashNumber(range->from) ^ hashNumber(range->to);
-    }
-
-    case OBJ_STRING:
-      return ((ObjString*)object)->hash;
-
-    default:
-      ASSERT(false, "Only immutable objects can be hashed.");
-      return 0;
-  }
-}
-
-// Generates a hash code for [value], which must be one of the built-in
-// immutable types: null, bool, class, num, range, or string.
-static uint32_t hashValue(Value value)
-{
-  // TODO: We'll probably want to randomize this at some point.
-
-#if WREN_NAN_TAGGING
-  if (IS_OBJ(value)) return hashObject(AS_OBJ(value));
-
-  // Hash the raw bits of the unboxed value.
-  return hashBits(value);
-#else
-  switch (value.type)
-  {
-    case VAL_FALSE: return 0;
-    case VAL_NULL:  return 1;
-    case VAL_NUM:   return hashNumber(AS_NUM(value));
-    case VAL_TRUE:  return 2;
-    case VAL_OBJ:   return hashObject(AS_OBJ(value));
-    default:        UNREACHABLE();
-  }
-  
-  return 0;
-#endif
-}
-
-// Looks for an entry with [key] in an array of [capacity] [entries].
-//
-// If found, sets [result] to point to it and returns `true`. Otherwise,
-// returns `false` and points [result] to the entry where the key/value pair
-// should be inserted.
-static bool findEntry(MapEntry* entries, uint32_t capacity, Value key,
-                      MapEntry** result)
-{
-  // If there is no entry array (an empty map), we definitely won't find it.
-  if (capacity == 0) return false;
-  
-  // Figure out where to insert it in the table. Use open addressing and
-  // basic linear probing.
-  uint32_t startIndex = hashValue(key) % capacity;
-  uint32_t index = startIndex;
-  
-  // If we pass a tombstone and don't end up finding the key, its entry will
-  // be re-used for the insert.
-  MapEntry* tombstone = NULL;
-  
-  // Walk the probe sequence until we've tried every slot.
-  do
-  {
-    MapEntry* entry = &entries[index];
-    
-    if (IS_UNDEFINED(entry->key))
-    {
-      // If we found an empty slot, the key is not in the table. If we found a
-      // slot that contains a deleted key, we have to keep looking.
-      if (IS_FALSE(entry->value))
-      {
-        // We found an empty slot, so we've reached the end of the probe
-        // sequence without finding the key. If we passed a tombstone, then
-        // that's where we should insert the item, otherwise, put it here at
-        // the end of the sequence.
-        *result = tombstone != NULL ? tombstone : entry;
-        return false;
-      }
-      else
-      {
-        // We found a tombstone. We need to keep looking in case the key is
-        // after it, but we'll use this entry as the insertion point if the
-        // key ends up not being found.
-        if (tombstone == NULL) tombstone = entry;
-      }
-    }
-    else if (wrenValuesEqual(entry->key, key))
-    {
-      // We found the key.
-      *result = entry;
-      return true;
-    }
-    
-    // Try the next slot.
-    index = (index + 1) % capacity;
-  }
-  while (index != startIndex);
-  
-  // If we get here, the table is full of tombstones. Return the first one we
-  // found.
-  ASSERT(tombstone != NULL, "Map should have tombstones or empty entries.");
-  *result = tombstone;
-  return false;
-}
-
-// Inserts [key] and [value] in the array of [entries] with the given
-// [capacity].
-//
-// Returns `true` if this is the first time [key] was added to the map.
-static bool insertEntry(MapEntry* entries, uint32_t capacity,
-                        Value key, Value value)
-{
-  ASSERT(entries != NULL, "Should ensure capacity before inserting.");
-  
-  MapEntry* entry;
-  if (findEntry(entries, capacity, key, &entry))
-  {
-    // Already present, so just replace the value.
-    entry->value = value;
-    return false;
-  }
-  else
-  {
-    entry->key = key;
-    entry->value = value;
-    return true;
-  }
-}
-
-// Updates [map]'s entry array to [capacity].
-static void resizeMap(WrenVM* vm, ObjMap* map, uint32_t capacity)
-{
-  // Create the new empty hash table.
-  MapEntry* entries = ALLOCATE_ARRAY(vm, MapEntry, capacity);
-  for (uint32_t i = 0; i < capacity; i++)
-  {
-    entries[i].key = UNDEFINED_VAL;
-    entries[i].value = FALSE_VAL;
-  }
-
-  // Re-add the existing entries.
-  if (map->capacity > 0)
-  {
-    for (uint32_t i = 0; i < map->capacity; i++)
-    {
-      MapEntry* entry = &map->entries[i];
-      
-      // Don't copy empty entries or tombstones.
-      if (IS_UNDEFINED(entry->key)) continue;
-
-      insertEntry(entries, capacity, entry->key, entry->value);
-    }
-  }
-
-  // Replace the array.
-  DEALLOCATE(vm, map->entries);
-  map->entries = entries;
-  map->capacity = capacity;
-}
-
-Value wrenMapGet(ObjMap* map, Value key)
-{
-  MapEntry* entry;
-  if (findEntry(map->entries, map->capacity, key, &entry)) return entry->value;
-
-  return UNDEFINED_VAL;
-}
-
-void wrenMapSet(WrenVM* vm, ObjMap* map, Value key, Value value)
-{
-  // If the map is getting too full, make room first.
-  if (map->count + 1 > map->capacity * MAP_LOAD_PERCENT / 100)
-  {
-    // Figure out the new hash table size.
-    uint32_t capacity = map->capacity * GROW_FACTOR;
-    if (capacity < MIN_CAPACITY) capacity = MIN_CAPACITY;
-
-    resizeMap(vm, map, capacity);
-  }
-
-  if (insertEntry(map->entries, map->capacity, key, value))
-  {
-    // A new key was added.
-    map->count++;
-  }
-}
-
-void wrenMapClear(WrenVM* vm, ObjMap* map)
-{
-  DEALLOCATE(vm, map->entries);
-  map->entries = NULL;
-  map->capacity = 0;
-  map->count = 0;
-}
-
-Value wrenMapRemoveKey(WrenVM* vm, ObjMap* map, Value key)
-{
-  MapEntry* entry;
-  if (!findEntry(map->entries, map->capacity, key, &entry)) return NULL_VAL;
-
-  // Remove the entry from the map. Set this value to true, which marks it as a
-  // deleted slot. When searching for a key, we will stop on empty slots, but
-  // continue past deleted slots.
-  Value value = entry->value;
-  entry->key = UNDEFINED_VAL;
-  entry->value = TRUE_VAL;
-
-  if (IS_OBJ(value)) wrenPushRoot(vm, AS_OBJ(value));
-
-  map->count--;
-
-  if (map->count == 0)
-  {
-    // Removed the last item, so free the array.
-    wrenMapClear(vm, map);
-  }
-  else if (map->capacity > MIN_CAPACITY &&
-           map->count < map->capacity / GROW_FACTOR * MAP_LOAD_PERCENT / 100)
-  {
-    uint32_t capacity = map->capacity / GROW_FACTOR;
-    if (capacity < MIN_CAPACITY) capacity = MIN_CAPACITY;
-
-    // The map is getting empty, so shrink the entry array back down.
-    // TODO: Should we do this less aggressively than we grow?
-    resizeMap(vm, map, capacity);
-  }
-
-  if (IS_OBJ(value)) wrenPopRoot(vm);
-  return value;
-}
-
-ObjModule* wrenNewModule(WrenVM* vm, ObjString* name)
-{
-  ObjModule* module = ALLOCATE(vm, ObjModule);
-
-  // Modules are never used as first-class objects, so don't need a class.
-  initObj(vm, (Obj*)module, OBJ_MODULE, NULL);
-
-  wrenPushRoot(vm, (Obj*)module);
-
-  wrenSymbolTableInit(&module->variableNames);
-  wrenValueBufferInit(&module->variables);
-
-  module->name = name;
-
-  wrenPopRoot(vm);
-  return module;
-}
-
-Value wrenNewRange(WrenVM* vm, double from, double to, bool isInclusive)
-{
-  ObjRange* range = ALLOCATE(vm, ObjRange);
-  initObj(vm, &range->obj, OBJ_RANGE, vm->rangeClass);
-  range->from = from;
-  range->to = to;
-  range->isInclusive = isInclusive;
-
-  return OBJ_VAL(range);
-}
-
-// Creates a new string object with a null-terminated buffer large enough to
-// hold a string of [length] but does not fill in the bytes.
-//
-// The caller is expected to fill in the buffer and then calculate the string's
-// hash.
-static ObjString* allocateString(WrenVM* vm, size_t length)
-{
-  ObjString* string = ALLOCATE_FLEX(vm, ObjString, char, length + 1);
-  initObj(vm, &string->obj, OBJ_STRING, vm->stringClass);
-  string->length = (int)length;
-  string->value[length] = '\0';
-
-  return string;
-}
-
-// Calculates and stores the hash code for [string].
-static void hashString(ObjString* string)
-{
-  // FNV-1a hash. See: http://www.isthe.com/chongo/tech/comp/fnv/
-  uint32_t hash = 2166136261u;
-
-  // This is O(n) on the length of the string, but we only call this when a new
-  // string is created. Since the creation is also O(n) (to copy/initialize all
-  // the bytes), we allow this here.
-  for (uint32_t i = 0; i < string->length; i++)
-  {
-    hash ^= string->value[i];
-    hash *= 16777619;
-  }
-
-  string->hash = hash;
-}
-
-Value wrenNewString(WrenVM* vm, const char* text)
-{
-  return wrenNewStringLength(vm, text, strlen(text));
-}
-
-Value wrenNewStringLength(WrenVM* vm, const char* text, size_t length)
-{
-  // Allow NULL if the string is empty since byte buffers don't allocate any
-  // characters for a zero-length string.
-  ASSERT(length == 0 || text != NULL, "Unexpected NULL string.");
-  
-  ObjString* string = allocateString(vm, length);
-  
-  // Copy the string (if given one).
-  if (length > 0 && text != NULL) memcpy(string->value, text, length);
-  
-  hashString(string);
-  return OBJ_VAL(string);
-}
-
-
-Value wrenNewStringFromRange(WrenVM* vm, ObjString* source, int start,
-                             uint32_t count, int step)
-{
-  uint8_t* from = (uint8_t*)source->value;
-  int length = 0;
-  for (uint32_t i = 0; i < count; i++)
-  {
-    length += wrenUtf8DecodeNumBytes(from[start + i * step]);
-  }
-
-  ObjString* result = allocateString(vm, length);
-  result->value[length] = '\0';
-
-  uint8_t* to = (uint8_t*)result->value;
-  for (uint32_t i = 0; i < count; i++)
-  {
-    int index = start + i * step;
-    int codePoint = wrenUtf8Decode(from + index, source->length - index);
-
-    if (codePoint != -1)
-    {
-      to += wrenUtf8Encode(codePoint, to);
-    }
-  }
-
-  hashString(result);
-  return OBJ_VAL(result);
-}
-
-Value wrenNumToString(WrenVM* vm, double value)
-{
-  // Edge case: If the value is NaN or infinity, different versions of libc
-  // produce different outputs (some will format it signed and some won't). To
-  // get reliable output, handle it ourselves.
-  if (isnan(value)) return CONST_STRING(vm, "nan");
-  if (isinf(value))
-  {
-    if (value > 0.0)
-    {
-      return CONST_STRING(vm, "infinity");
-    }
-    else
-    {
-      return CONST_STRING(vm, "-infinity");
-    }
-  }
-
-  // This is large enough to hold any double converted to a string using
-  // "%.14g". Example:
-  //
-  //     -1.12345678901234e-1022
-  //
-  // So we have:
-  //
-  // + 1 char for sign
-  // + 1 char for digit
-  // + 1 char for "."
-  // + 14 chars for decimal digits
-  // + 1 char for "e"
-  // + 1 char for "-" or "+"
-  // + 4 chars for exponent
-  // + 1 char for "\0"
-  // = 24
-  char buffer[24];
-  int length = sprintf(buffer, "%.14g", value);
-  return wrenNewStringLength(vm, buffer, length);
-}
-
-Value wrenStringFromCodePoint(WrenVM* vm, int value)
-{
-  int length = wrenUtf8EncodeNumBytes(value);
-  ASSERT(length != 0, "Value out of range.");
-
-  ObjString* string = allocateString(vm, length);
-
-  wrenUtf8Encode(value, (uint8_t*)string->value);
-  hashString(string);
-
-  return OBJ_VAL(string);
-}
-
-Value wrenStringFromByte(WrenVM *vm, uint8_t value)
-{
-  int length = 1;
-  ObjString* string = allocateString(vm, length);
-  string->value[0] = value;
-  hashString(string);
-  return OBJ_VAL(string);
-}
-
-Value wrenStringFormat(WrenVM* vm, const char* format, ...)
-{
-  va_list argList;
-
-  // Calculate the length of the result string. Do this up front so we can
-  // create the final string with a single allocation.
-  va_start(argList, format);
-  size_t totalLength = 0;
-  for (const char* c = format; *c != '\0'; c++)
-  {
-    switch (*c)
-    {
-      case '$':
-        totalLength += strlen(va_arg(argList, const char*));
-        break;
-
-      case '@':
-        totalLength += AS_STRING(va_arg(argList, Value))->length;
-        break;
-
-      default:
-        // Any other character is interpreted literally.
-        totalLength++;
-    }
-  }
-  va_end(argList);
-
-  // Concatenate the string.
-  ObjString* result = allocateString(vm, totalLength);
-
-  va_start(argList, format);
-  char* start = result->value;
-  for (const char* c = format; *c != '\0'; c++)
-  {
-    switch (*c)
-    {
-      case '$':
-      {
-        const char* string = va_arg(argList, const char*);
-        size_t length = strlen(string);
-        memcpy(start, string, length);
-        start += length;
-        break;
-      }
-
-      case '@':
-      {
-        ObjString* string = AS_STRING(va_arg(argList, Value));
-        memcpy(start, string->value, string->length);
-        start += string->length;
-        break;
-      }
-
-      default:
-        // Any other character is interpreted literally.
-        *start++ = *c;
-    }
-  }
-  va_end(argList);
-
-  hashString(result);
-
-  return OBJ_VAL(result);
-}
-
-Value wrenStringCodePointAt(WrenVM* vm, ObjString* string, uint32_t index)
-{
-  ASSERT(index < string->length, "Index out of bounds.");
-
-  int codePoint = wrenUtf8Decode((uint8_t*)string->value + index,
-                                 string->length - index);
-  if (codePoint == -1)
-  {
-    // If it isn't a valid UTF-8 sequence, treat it as a single raw byte.
-    char bytes[2];
-    bytes[0] = string->value[index];
-    bytes[1] = '\0';
-    return wrenNewStringLength(vm, bytes, 1);
-  }
-
-  return wrenStringFromCodePoint(vm, codePoint);
-}
-
-// Uses the Boyer-Moore-Horspool string matching algorithm.
-uint32_t wrenStringFind(ObjString* haystack, ObjString* needle, uint32_t start)
-{
-  // Edge case: An empty needle is always found.
-  if (needle->length == 0) return start;
-
-  // If the needle goes past the haystack it won't be found.
-  if (start + needle->length > haystack->length) return UINT32_MAX;
-
-  // If the startIndex is too far it also won't be found.
-  if (start >= haystack->length) return UINT32_MAX;
-
-  // Pre-calculate the shift table. For each character (8-bit value), we
-  // determine how far the search window can be advanced if that character is
-  // the last character in the haystack where we are searching for the needle
-  // and the needle doesn't match there.
-  uint32_t shift[UINT8_MAX];
-  uint32_t needleEnd = needle->length - 1;
-
-  // By default, we assume the character is not the needle at all. In that case
-  // case, if a match fails on that character, we can advance one whole needle
-  // width since.
-  for (uint32_t index = 0; index < UINT8_MAX; index++)
-  {
-    shift[index] = needle->length;
-  }
-
-  // Then, for every character in the needle, determine how far it is from the
-  // end. If a match fails on that character, we can advance the window such
-  // that it the last character in it lines up with the last place we could
-  // find it in the needle.
-  for (uint32_t index = 0; index < needleEnd; index++)
-  {
-    char c = needle->value[index];
-    shift[(uint8_t)c] = needleEnd - index;
-  }
-
-  // Slide the needle across the haystack, looking for the first match or
-  // stopping if the needle goes off the end.
-  char lastChar = needle->value[needleEnd];
-  uint32_t range = haystack->length - needle->length;
-
-  for (uint32_t index = start; index <= range; )
-  {
-    // Compare the last character in the haystack's window to the last character
-    // in the needle. If it matches, see if the whole needle matches.
-    char c = haystack->value[index + needleEnd];
-    if (lastChar == c &&
-        memcmp(haystack->value + index, needle->value, needleEnd) == 0)
-    {
-      // Found a match.
-      return index;
-    }
-
-    // Otherwise, slide the needle forward.
-    index += shift[(uint8_t)c];
-  }
-
-  // Not found.
-  return UINT32_MAX;
-}
-
-ObjUpvalue* wrenNewUpvalue(WrenVM* vm, Value* value)
-{
-  ObjUpvalue* upvalue = ALLOCATE(vm, ObjUpvalue);
-
-  // Upvalues are never used as first-class objects, so don't need a class.
-  initObj(vm, &upvalue->obj, OBJ_UPVALUE, NULL);
-
-  upvalue->value = value;
-  upvalue->closed = NULL_VAL;
-  upvalue->next = NULL;
-  return upvalue;
-}
-
-void wrenGrayObj(WrenVM* vm, Obj* obj)
-{
-  if (obj == NULL) return;
-
-  // Stop if the object is already darkened so we don't get stuck in a cycle.
-  if (obj->isDark) return;
-
-  // It's been reached.
-  obj->isDark = true;
-
-  // Add it to the gray list so it can be recursively explored for
-  // more marks later.
-  if (vm->grayCount >= vm->grayCapacity)
-  {
-    vm->grayCapacity = vm->grayCount * 2;
-    vm->gray = (Obj**)vm->config.reallocateFn(vm->gray,
-                                              vm->grayCapacity * sizeof(Obj*));
-  }
-
-  vm->gray[vm->grayCount++] = obj;
-}
-
-void wrenGrayValue(WrenVM* vm, Value value)
-{
-  if (!IS_OBJ(value)) return;
-  wrenGrayObj(vm, AS_OBJ(value));
-}
-
-void wrenGrayBuffer(WrenVM* vm, ValueBuffer* buffer)
-{
-  for (int i = 0; i < buffer->count; i++)
-  {
-    wrenGrayValue(vm, buffer->data[i]);
-  }
-}
-
-static void blackenClass(WrenVM* vm, ObjClass* classObj)
-{
-  // The metaclass.
-  wrenGrayObj(vm, (Obj*)classObj->obj.classObj);
-
-  // The superclass.
-  wrenGrayObj(vm, (Obj*)classObj->superclass);
-
-  // Method function objects.
-  for (int i = 0; i < classObj->methods.count; i++)
-  {
-    if (classObj->methods.data[i].type == METHOD_BLOCK)
-    {
-      wrenGrayObj(vm, (Obj*)classObj->methods.data[i].as.closure);
-    }
-  }
-
-  wrenGrayObj(vm, (Obj*)classObj->name);
-
-  // Keep track of how much memory is still in use.
-  vm->bytesAllocated += sizeof(ObjClass);
-  vm->bytesAllocated += classObj->methods.capacity * sizeof(Method);
-}
-
-static void blackenClosure(WrenVM* vm, ObjClosure* closure)
-{
-  // Mark the function.
-  wrenGrayObj(vm, (Obj*)closure->fn);
-
-  // Mark the upvalues.
-  for (int i = 0; i < closure->fn->numUpvalues; i++)
-  {
-    wrenGrayObj(vm, (Obj*)closure->upvalues[i]);
-  }
-
-  // Keep track of how much memory is still in use.
-  vm->bytesAllocated += sizeof(ObjClosure);
-  vm->bytesAllocated += sizeof(ObjUpvalue*) * closure->fn->numUpvalues;
-}
-
-static void blackenFiber(WrenVM* vm, ObjFiber* fiber)
-{
-  // Stack functions.
-  for (int i = 0; i < fiber->numFrames; i++)
-  {
-    wrenGrayObj(vm, (Obj*)fiber->frames[i].closure);
-  }
-
-  // Stack variables.
-  for (Value* slot = fiber->stack; slot < fiber->stackTop; slot++)
-  {
-    wrenGrayValue(vm, *slot);
-  }
-
-  // Open upvalues.
-  ObjUpvalue* upvalue = fiber->openUpvalues;
-  while (upvalue != NULL)
-  {
-    wrenGrayObj(vm, (Obj*)upvalue);
-    upvalue = upvalue->next;
-  }
-
-  // The caller.
-  wrenGrayObj(vm, (Obj*)fiber->caller);
-  wrenGrayValue(vm, fiber->error);
-
-  // Keep track of how much memory is still in use.
-  vm->bytesAllocated += sizeof(ObjFiber);
-  vm->bytesAllocated += fiber->frameCapacity * sizeof(CallFrame);
-  vm->bytesAllocated += fiber->stackCapacity * sizeof(Value);
-}
-
-static void blackenFn(WrenVM* vm, ObjFn* fn)
-{
-  // Mark the constants.
-  wrenGrayBuffer(vm, &fn->constants);
-
-  // Keep track of how much memory is still in use.
-  vm->bytesAllocated += sizeof(ObjFn);
-  vm->bytesAllocated += sizeof(uint8_t) * fn->code.capacity;
-  vm->bytesAllocated += sizeof(Value) * fn->constants.capacity;
-  
-  // The debug line number buffer.
-  vm->bytesAllocated += sizeof(int) * fn->code.capacity;
-  // TODO: What about the function name?
-}
-
-static void blackenForeign(WrenVM* vm, ObjForeign* foreign)
-{
-  // TODO: Keep track of how much memory the foreign object uses. We can store
-  // this in each foreign object, but it will balloon the size. We may not want
-  // that much overhead. One option would be to let the foreign class register
-  // a C function that returns a size for the object. That way the VM doesn't
-  // always have to explicitly store it.
-}
-
-static void blackenInstance(WrenVM* vm, ObjInstance* instance)
-{
-  wrenGrayObj(vm, (Obj*)instance->obj.classObj);
-
-  // Mark the fields.
-  for (int i = 0; i < instance->obj.classObj->numFields; i++)
-  {
-    wrenGrayValue(vm, instance->fields[i]);
-  }
-
-  // Keep track of how much memory is still in use.
-  vm->bytesAllocated += sizeof(ObjInstance);
-  vm->bytesAllocated += sizeof(Value) * instance->obj.classObj->numFields;
-}
-
-static void blackenList(WrenVM* vm, ObjList* list)
-{
-  // Mark the elements.
-  wrenGrayBuffer(vm, &list->elements);
-
-  // Keep track of how much memory is still in use.
-  vm->bytesAllocated += sizeof(ObjList);
-  vm->bytesAllocated += sizeof(Value) * list->elements.capacity;
-}
-
-static void blackenMap(WrenVM* vm, ObjMap* map)
-{
-  // Mark the entries.
-  for (uint32_t i = 0; i < map->capacity; i++)
-  {
-    MapEntry* entry = &map->entries[i];
-    if (IS_UNDEFINED(entry->key)) continue;
-
-    wrenGrayValue(vm, entry->key);
-    wrenGrayValue(vm, entry->value);
-  }
-
-  // Keep track of how much memory is still in use.
-  vm->bytesAllocated += sizeof(ObjMap);
-  vm->bytesAllocated += sizeof(MapEntry) * map->capacity;
-}
-
-static void blackenModule(WrenVM* vm, ObjModule* module)
-{
-  // Top-level variables.
-  for (int i = 0; i < module->variables.count; i++)
-  {
-    wrenGrayValue(vm, module->variables.data[i]);
-  }
-
-  wrenBlackenSymbolTable(vm, &module->variableNames);
-
-  wrenGrayObj(vm, (Obj*)module->name);
-
-  // Keep track of how much memory is still in use.
-  vm->bytesAllocated += sizeof(ObjModule);
-}
-
-static void blackenRange(WrenVM* vm, ObjRange* range)
-{
-  // Keep track of how much memory is still in use.
-  vm->bytesAllocated += sizeof(ObjRange);
-}
-
-static void blackenString(WrenVM* vm, ObjString* string)
-{
-  // Keep track of how much memory is still in use.
-  vm->bytesAllocated += sizeof(ObjString) + string->length + 1;
-}
-
-static void blackenUpvalue(WrenVM* vm, ObjUpvalue* upvalue)
-{
-  // Mark the closed-over object (in case it is closed).
-  wrenGrayValue(vm, upvalue->closed);
-
-  // Keep track of how much memory is still in use.
-  vm->bytesAllocated += sizeof(ObjUpvalue);
-}
-
-static void blackenObject(WrenVM* vm, Obj* obj)
-{
-#if WREN_DEBUG_TRACE_MEMORY
-  printf("mark ");
-  wrenDumpValue(OBJ_VAL(obj));
-  printf(" @ %p\n", obj);
-#endif
-
-  // Traverse the object's fields.
-  switch (obj->type)
-  {
-    case OBJ_CLASS:    blackenClass(   vm, (ObjClass*)   obj); break;
-    case OBJ_CLOSURE:  blackenClosure( vm, (ObjClosure*) obj); break;
-    case OBJ_FIBER:    blackenFiber(   vm, (ObjFiber*)   obj); break;
-    case OBJ_FN:       blackenFn(      vm, (ObjFn*)      obj); break;
-    case OBJ_FOREIGN:  blackenForeign( vm, (ObjForeign*) obj); break;
-    case OBJ_INSTANCE: blackenInstance(vm, (ObjInstance*)obj); break;
-    case OBJ_LIST:     blackenList(    vm, (ObjList*)    obj); break;
-    case OBJ_MAP:      blackenMap(     vm, (ObjMap*)     obj); break;
-    case OBJ_MODULE:   blackenModule(  vm, (ObjModule*)  obj); break;
-    case OBJ_RANGE:    blackenRange(   vm, (ObjRange*)   obj); break;
-    case OBJ_STRING:   blackenString(  vm, (ObjString*)  obj); break;
-    case OBJ_UPVALUE:  blackenUpvalue( vm, (ObjUpvalue*) obj); break;
-  }
-}
-
-void wrenBlackenObjects(WrenVM* vm)
-{
-  while (vm->grayCount > 0)
-  {
-    // Pop an item from the gray stack.
-    Obj* obj = vm->gray[--vm->grayCount];
-    blackenObject(vm, obj);
-  }
-}
-
-void wrenFreeObj(WrenVM* vm, Obj* obj)
-{
-#if WREN_DEBUG_TRACE_MEMORY
-  printf("free ");
-  wrenDumpValue(OBJ_VAL(obj));
-  printf(" @ %p\n", obj);
-#endif
-
-  switch (obj->type)
-  {
-    case OBJ_CLASS:
-      wrenMethodBufferClear(vm, &((ObjClass*)obj)->methods);
-      break;
-
-    case OBJ_FIBER:
-    {
-      ObjFiber* fiber = (ObjFiber*)obj;
-      DEALLOCATE(vm, fiber->frames);
-      DEALLOCATE(vm, fiber->stack);
-      break;
-    }
-      
-    case OBJ_FN:
-    {
-      ObjFn* fn = (ObjFn*)obj;
-      wrenValueBufferClear(vm, &fn->constants);
-      wrenByteBufferClear(vm, &fn->code);
-      wrenIntBufferClear(vm, &fn->debug->sourceLines);
-      DEALLOCATE(vm, fn->debug->name);
-      DEALLOCATE(vm, fn->debug);
-      break;
-    }
-
-    case OBJ_FOREIGN:
-      wrenFinalizeForeign(vm, (ObjForeign*)obj);
-      break;
-
-    case OBJ_LIST:
-      wrenValueBufferClear(vm, &((ObjList*)obj)->elements);
-      break;
-
-    case OBJ_MAP:
-      DEALLOCATE(vm, ((ObjMap*)obj)->entries);
-      break;
-
-    case OBJ_MODULE:
-      wrenSymbolTableClear(vm, &((ObjModule*)obj)->variableNames);
-      wrenValueBufferClear(vm, &((ObjModule*)obj)->variables);
-      break;
-
-    case OBJ_CLOSURE:
-    case OBJ_INSTANCE:
-    case OBJ_RANGE:
-    case OBJ_STRING:
-    case OBJ_UPVALUE:
-      break;
-  }
-
-  DEALLOCATE(vm, obj);
-}
-
-ObjClass* wrenGetClass(WrenVM* vm, Value value)
-{
-  return wrenGetClassInline(vm, value);
-}
-
-bool wrenValuesEqual(Value a, Value b)
-{
-  if (wrenValuesSame(a, b)) return true;
-
-  // If we get here, it's only possible for two heap-allocated immutable objects
-  // to be equal.
-  if (!IS_OBJ(a) || !IS_OBJ(b)) return false;
-
-  Obj* aObj = AS_OBJ(a);
-  Obj* bObj = AS_OBJ(b);
-
-  // Must be the same type.
-  if (aObj->type != bObj->type) return false;
-
-  switch (aObj->type)
-  {
-    case OBJ_RANGE:
-    {
-      ObjRange* aRange = (ObjRange*)aObj;
-      ObjRange* bRange = (ObjRange*)bObj;
-      return aRange->from == bRange->from &&
-             aRange->to == bRange->to &&
-             aRange->isInclusive == bRange->isInclusive;
-    }
-
-    case OBJ_STRING:
-    {
-      ObjString* aString = (ObjString*)aObj;
-      ObjString* bString = (ObjString*)bObj;
-      return aString->hash == bString->hash &&
-      wrenStringEqualsCString(aString, bString->value, bString->length);
-    }
-
-    default:
-      // All other types are only equal if they are same, which they aren't if
-      // we get here.
-      return false;
-  }
-}
-// End file "wren_value.c"
 // Begin file "wren_opt_meta.c"
 
 #if WREN_OPT_META
