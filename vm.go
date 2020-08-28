@@ -4,6 +4,7 @@ package wren
 #cgo CFLAGS:
 #cgo LDFLAGS: -lm
 #include "wren.h"
+#include <math.h>
 
 extern void writeFn(WrenVM*, char*);
 extern void errorFn(WrenVM*, WrenErrorType, char*, int, char*);
@@ -142,8 +143,8 @@ func (vm *VM) InterpretString(module, source string) error {
 	if vm.vm == nil {
 		return &NilVMError{}
 	}
-	cModule := C.CString(module)
-	cSource := C.CString(source)
+	cModule := cstring(module)
+	cSource := cstring(source)
 	defer func() {
 		C.free(unsafe.Pointer(cModule))
 		C.free(unsafe.Pointer(cSource))
@@ -203,7 +204,7 @@ func (h *Handle) Func(signature string) (*CallHandle, error) {
 	if handle.handle == nil {
 		return nil, &NilHandleError{}
 	}
-	cSignature := C.CString(signature)
+	cSignature := cstring(signature)
 	defer C.free(unsafe.Pointer(cSignature))
 	vm := h.VM()
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
@@ -379,7 +380,7 @@ func (h *MapHandle) Func(signature string) (*CallHandle, error) {
 	if handle.handle == nil {
 		return nil, &NilHandleError{}
 	}
-	cSignature := C.CString(signature)
+	cSignature := cstring(signature)
 	defer C.free(unsafe.Pointer(cSignature))
 	vm := h.VM()
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
@@ -490,7 +491,7 @@ func (h *ListHandle) Func(signature string) (*CallHandle, error) {
 	if handle.handle == nil {
 		return nil, &NilHandleError{}
 	}
-	cSignature := C.CString(signature)
+	cSignature := cstring(signature)
 	defer C.free(unsafe.Pointer(cSignature))
 	vm := h.VM()
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
@@ -534,7 +535,7 @@ func (h *ForeignHandle) Func(signature string) (*CallHandle, error) {
 	if handle.handle == nil {
 		return nil, &NilHandleError{}
 	}
-	cSignature := C.CString(signature)
+	cSignature := cstring(signature)
 	defer C.free(unsafe.Pointer(cSignature))
 	vm := h.VM()
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
@@ -659,7 +660,7 @@ func (vm *VM) getSlotValue(slot int) (value interface{}) {
 	case C.WREN_TYPE_STRING:
 		var length C.int
 		str := C.wrenGetSlotBytes(vm.vm, cSlot, &length)
-		return string(C.GoBytes(unsafe.Pointer(str), length))
+		return string(gobytes(unsafe.Pointer(str), length))
 	case C.WREN_TYPE_UNKNOWN:
 		return vm.createHandle(C.wrenGetSlotHandle(vm.vm, cSlot))
 	default:
@@ -716,14 +717,14 @@ func (vm *VM) setSlotValue(value interface{}, slot int) error {
 		C.wrenSetSlotHandle(vm.vm, cSlot, cValue)
 	case []byte:
 		data := value.([]byte)
-		cValue := C.CBytes(data)
+		cValue := cbytes(data)
 		C.wrenSetSlotBytes(vm.vm, cSlot, (*C.char)(cValue), C.size_t(len(data)))
 	case bool:
 		cValue := C.bool(value.(bool))
 		C.wrenSetSlotBool(vm.vm, cSlot, cValue)
 	case string:
 		data := []byte(value.(string))
-		cValue := C.CBytes(data)
+		cValue := cbytes(data)
 		defer C.free(unsafe.Pointer(cValue))
 		C.wrenSetSlotBytes(vm.vm, cSlot, (*C.char)(cValue), C.size_t(len(data)))
 	default:
@@ -752,8 +753,8 @@ func (vm *VM) GetVariable(module, name string) (interface{}, error) {
 	if vm.vm == nil {
 		return nil, &NilVMError{}
 	}
-	cModule := C.CString(module)
-	cName := C.CString(name)
+	cModule := cstring(module)
+	cName := cstring(name)
 	defer func() {
 		C.free(unsafe.Pointer(cModule))
 		C.free(unsafe.Pointer(cName))
@@ -791,7 +792,7 @@ func writeFn(v *C.WrenVM, text *C.char) {
 		unlocked = true
 		if vm.Config != nil {
 			if vm.Config.WriteFn != nil {
-				vm.Config.WriteFn(vm, C.GoString(text))
+				vm.Config.WriteFn(vm, gostring(text))
 				return
 			}
 			if vm.Config.DefaultOutput != nil {
@@ -802,7 +803,7 @@ func writeFn(v *C.WrenVM, text *C.char) {
 			output = DefaultOutput
 		}
 		if output != nil {
-			io.WriteString(output, C.GoString(text))
+			io.WriteString(output, gostring(text))
 		}
 	}
 }
@@ -813,11 +814,11 @@ func errorFn(v *C.WrenVM, errorType C.WrenErrorType, module *C.char, line C.int,
 	var err error
 	switch errorType {
 	case C.WREN_ERROR_COMPILE:
-		err = &CompileError{module: C.GoString(module), line: int(line), message: C.GoString(message)}
+		err = &CompileError{module: gostring(module), line: int(line), message: gostring(message)}
 	case C.WREN_ERROR_RUNTIME:
-		err = &RuntimeError{message: C.GoString(message)}
+		err = &RuntimeError{message: gostring(message)}
 	case C.WREN_ERROR_STACK_TRACE:
-		err = &StackTrace{module: C.GoString(module), line: int(line), message: C.GoString(message)}
+		err = &StackTrace{module: gostring(module), line: int(line), message: gostring(message)}
 	}
 	unlocked := false
 	vmMapMux.RLock()
@@ -861,13 +862,13 @@ func moduleLoaderFn(v *C.WrenVM, name *C.char) *C.char {
 		unlocked = true
 		var source string
 		if vm.Config != nil && vm.Config.LoadModuleFn != nil {
-			source, ok = vm.Config.LoadModuleFn(vm, C.GoString(name))
+			source, ok = vm.Config.LoadModuleFn(vm, gostring(name))
 		} else if DefaultModuleLoader != nil {
-			source, ok = DefaultModuleLoader(vm, C.GoString(name))
+			source, ok = DefaultModuleLoader(vm, gostring(name))
 		}
 		if ok {
 			// Wren should automatically frees this CString ...I think
-			return C.CString(source)
+			return cstring(source)
 		}
 	}
 	return nil
@@ -885,13 +886,13 @@ func bindForeignMethodFn(v *C.WrenVM, cModule *C.char, cClassName *C.char, cIsSt
 	if vm, ok := vmMap[v]; ok {
 		vmMapMux.RUnlock()
 		unlocked = true
-		if module, ok := vm.moduleMap[C.GoString(cModule)]; ok {
-			if class, ok := module.ClassMap[C.GoString(cClassName)]; ok {
+		if module, ok := vm.moduleMap[gostring(cModule)]; ok {
+			if class, ok := module.ClassMap[gostring(cClassName)]; ok {
 				var name string
 				if bool(cIsStatic) {
-					name = "static " + C.GoString(cSignature)
+					name = "static " + gostring(cSignature)
 				} else {
-					name = C.GoString(cSignature)
+					name = gostring(cSignature)
 				}
 				if fn, ok := class.MethodMap[name]; ok {
 					foreignMethod, err := vm.registerFunc(fn)
@@ -915,7 +916,7 @@ type foreignInstance struct {
 //export invalidConstructor
 func invalidConstructor(v *C.WrenVM) {
 	C.wrenEnsureSlots(v, 1)
-	err := C.CString("Foreign class does implement a constructor.")
+	err := cstring("Foreign class does implement a constructor.")
 	defer C.free(unsafe.Pointer(err))
 	C.wrenSetSlotString(v, 0, err)
 	C.wrenAbortFiber(v, 0)
@@ -933,8 +934,8 @@ func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.Wren
 	if vm, ok := vmMap[v]; ok {
 		vmMapMux.RUnlock()
 		unlocked = true
-		if module, ok := vm.moduleMap[C.GoString(cModule)]; ok {
-			if class, ok := module.ClassMap[C.GoString(cClassName)]; ok {
+		if module, ok := vm.moduleMap[gostring(cModule)]; ok {
+			if class, ok := module.ClassMap[gostring(cClassName)]; ok {
 				initializer, err := vm.registerFunc(
 					func(vm *VM, parameters []interface{}) (interface{}, error) {
 						var (
@@ -968,7 +969,7 @@ func bindForeignClassFn(v *C.WrenVM, cModule *C.char, cClassName *C.char) C.Wren
 			}
 		}
 	}
-	if C.GoString(cModule) == "random" {
+	if gostring(cModule) == "random" {
 		return C.WrenForeignClassMethods{
 			allocate: nil,
 			finalize: nil,
