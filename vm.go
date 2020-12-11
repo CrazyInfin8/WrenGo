@@ -7,11 +7,12 @@ package wren
 
 extern void writeFn(WrenVM*, char*);
 extern void errorFn(WrenVM*, WrenErrorType, char*, int, char*);
-extern char* moduleLoaderFn(WrenVM*, char*);
+extern WrenLoadModuleResult moduleLoaderFn(WrenVM*, char*);
 extern WrenForeignMethodFn bindForeignMethodFn(WrenVM*, char*, char*, bool, char*);
 extern WrenForeignClassMethods bindForeignClassFn(WrenVM*, char*, char*);
 extern void foreignFinalizerFn(void*);
 extern void invalidConstructor(WrenVM*);
+extern void loadModuleCompleteFn(WrenVM*, char*, WrenLoadModuleResult);
 */
 import "C"
 import (
@@ -458,8 +459,22 @@ func (h *ListHandle) Get(index int) (interface{}, error) {
 	return vm.getSlotValue(1), nil
 }
 
-// Set tries to set the value in the Wren list at the index `index`
-func (h *ListHandle) Set(index int, value interface{}) error {
+// Insert tries to insert an element into the wren list at the end
+func (h *ListHandle) Insert(value interface{}) error {
+	handle := h.Handle()
+	if handle.handle == nil {
+		return &NilHandleError{}
+	}
+	vm := h.VM()
+	C.wrenEnsureSlots(vm.vm, 2)
+	vm.setSlotValue(handle, 0)
+	vm.setSlotValue(value, 1)
+	C.wrenInsertInList(vm.vm, 0, -1, 1)
+	return nil
+}
+
+// InsertAt tries to insert an element into the wren list at index `index`
+func (h *ListHandle) InsertAt(index int, value interface{}) error {
 	handle := h.Handle()
 	if handle.handle == nil {
 		return &NilHandleError{}
@@ -482,6 +497,21 @@ func (h *ListHandle) Count() (int, error) {
 	C.wrenEnsureSlots(vm.vm, 1)
 	vm.setSlotValue(handle, 0)
 	return int(C.wrenGetListCount(vm.vm, 0)), nil
+}
+
+// Set tries to set the value in the Wren list at the index `index`
+func (h *ListHandle) Set(index int, value interface{}) error {
+	handle := h.Handle()
+	if handle.handle == nil {
+		return &NilHandleError{}
+	}
+	vm := h.VM()
+	C.wrenEnsureSlots(vm.vm, 2)
+	vm.setSlotValue(handle, 0)
+	vm.setSlotValue(value, 1)
+	C.wrenSetListElement(vm.vm, 0, C.int(index), 1)
+	return nil
+
 }
 
 // Func creates a callable handle from the Wren object tied to the current handle. There isn't currently a way to check if the function referenced from `signature` exists before calling it
@@ -747,7 +777,24 @@ func (vm *VM) setSlotValue(value interface{}, slot int) error {
 	return nil
 }
 
-// GetVariable tries to get a variable from the Wren vm with the given module name and variable name. There isn't currently a way to check if the variable does not exist yet.
+// NoSuchVariable is returned when `GetVariable` cannot get a variable from a module
+type NoSuchVariable struct {
+	Module, Name string
+}
+
+// NoSuchModule is returned when `GetVariable` cannot find a module
+type NoSuchModule struct {
+	Module string
+}
+
+func (err *NoSuchVariable) Error() string {
+	return fmt.Sprintf("Module \"%s\" does not contain variable \"%s\"", err.Module, err.Name)
+}
+func (err *NoSuchModule) Error() string {
+	return fmt.Sprintf("Module \"%s\" has not been resolved by this VM yet", err.Module)
+}
+
+// GetVariable tries to get a variable from the Wren vm with the given module name and variable name. This function checks that `HasVariable` is true to prevent segfaults
 func (vm *VM) GetVariable(module, name string) (interface{}, error) {
 	if vm.vm == nil {
 		return nil, &NilVMError{}
@@ -758,11 +805,54 @@ func (vm *VM) GetVariable(module, name string) (interface{}, error) {
 		C.free(unsafe.Pointer(cModule))
 		C.free(unsafe.Pointer(cName))
 	}()
+	if !C.wrenHasModule(vm.vm, cModule) {
+		return nil, &NoSuchModule{Module: module}
+	}
+	if !C.wrenHasVariable(vm.vm, cModule, cName) {
+		return nil, &NoSuchVariable{Module: module, Name: name}
+	}
 	C.wrenEnsureSlots(vm.vm, 1)
-	// There isn't currently a way to check if
-	// variable exists
 	C.wrenGetVariable(vm.vm, cModule, cName, 0)
 	return vm.getSlotValue(0), nil
+}
+
+// GetVariableUnsafe is like `GetVariable` but does not perform any checks to ensure that things aren't null (This function will segfault if things don't exist)
+func (vm *VM) GetVariableUnsafe(module, name string) interface{} {
+	// TODO: May add more of these "Unsafe" functions for simplicity and performance?
+	cModule := C.CString(module)
+	cName := C.CString(name)
+	defer func() {
+		C.free(unsafe.Pointer(cModule))
+		C.free(unsafe.Pointer(cName))
+	}()
+	C.wrenEnsureSlots(vm.vm, 1)
+	C.wrenGetVariable(vm.vm, cModule, cName, 0)
+	return vm.getSlotValue(0)
+
+}
+
+// HasVariable tries to check that a variable from the Wren vm with the given module name and variable name exists. This function checks that `HasModule` is true to prevent segfaults
+func (vm *VM) HasVariable(module, name string) bool {
+	cModule := C.CString(module)
+	cName := C.CString(name)
+	if vm.vm == nil || !C.wrenHasModule(vm.vm, cModule) {
+		return false
+	}
+	defer func() {
+		C.free(unsafe.Pointer(cModule))
+		C.free(unsafe.Pointer(cName))
+	}()
+	return bool(vm.vm != nil && C.wrenHasModule(vm.vm, cModule) && C.wrenHasVariable(vm.vm, cModule, cName))
+}
+
+// HasModule tries to check that a module has been imported or resolved before
+func (vm *VM) HasModule(module string) bool {
+	if vm.vm == nil {
+		return false
+	}
+	cModule := C.CString(module)
+	defer C.free(unsafe.Pointer(cModule))
+	return bool(vm.vm != nil && C.wrenHasModule(vm.vm, cModule))
 }
 
 // Abort stops the running Wren fiber and throws the error passed to it
@@ -848,7 +938,7 @@ func errorFn(v *C.WrenVM, errorType C.WrenErrorType, module *C.char, line C.int,
 }
 
 //export moduleLoaderFn
-func moduleLoaderFn(v *C.WrenVM, name *C.char) *C.char {
+func moduleLoaderFn(v *C.WrenVM, name *C.char) C.WrenLoadModuleResult {
 	unlocked := false
 	vmMapMux.RLock()
 	defer func() {
@@ -866,11 +956,26 @@ func moduleLoaderFn(v *C.WrenVM, name *C.char) *C.char {
 			source, ok = DefaultModuleLoader(vm, C.GoString(name))
 		}
 		if ok {
-			// Wren should automatically frees this CString ...I think
-			return C.CString(source)
+			return C.WrenLoadModuleResult{
+				source:     C.CString(source),
+				onComplete: C.WrenLoadModuleCompleteFn(C.loadModuleCompleteFn),
+				// could potentially do something here but don't know what
+				// also potentially would have breaking changes
+				userData: nil,
+			}
 		}
 	}
-	return nil
+	return C.WrenLoadModuleResult{
+		source:     nil,
+		onComplete: nil,
+		userData:   nil,
+	}
+}
+
+//export loadModuleCompleteFn
+func loadModuleCompleteFn(vm *C.WrenVM, name *C.char, res C.WrenLoadModuleResult) {
+	C.free(unsafe.Pointer(res.source))
+	// res.userData should already be nil
 }
 
 //export bindForeignMethodFn

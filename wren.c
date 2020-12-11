@@ -30,11 +30,11 @@
 
 // The Wren semantic version number components.
 #define WREN_VERSION_MAJOR 0
-#define WREN_VERSION_MINOR 3
+#define WREN_VERSION_MINOR 4
 #define WREN_VERSION_PATCH 0
 
 // A human-friendly string representation of the version.
-#define WREN_VERSION_STRING "0.3.0"
+#define WREN_VERSION_STRING "0.4.0"
 
 // A monotonically increasing numeric representation of the version number. Use
 // this if you want to do range checks over versions.
@@ -70,7 +70,7 @@ typedef struct WrenHandle WrenHandle;
 //
 // - To free memory, [memory] will be the memory to free and [newSize] will be
 //   zero. It should return NULL.
-typedef void* (*WrenReallocateFn)(void* memory, size_t newSize);
+typedef void* (*WrenReallocateFn)(void* memory, size_t newSize, void* userData);
 
 // A function callable from Wren code, but implemented in C.
 typedef void (*WrenForeignMethodFn)(WrenVM* vm);
@@ -88,8 +88,25 @@ typedef void (*WrenFinalizerFn)(void* data);
 typedef const char* (*WrenResolveModuleFn)(WrenVM* vm,
     const char* importer, const char* name);
 
+// Forward declare
+struct WrenLoadModuleResult;
+
+// Called after loadModuleFn is called for module [name]. The original returned result
+// is handed back to you in this callback, so that you can free memory if appropriate.
+typedef void (*WrenLoadModuleCompleteFn)(WrenVM* vm, const char* name, struct WrenLoadModuleResult result);
+
+// The result of a loadModuleFn call. 
+// [source] is the source code for the module, or NULL if the module is not found.
+// [onComplete] an optional callback that will be called once Wren is done with the result.
+typedef struct WrenLoadModuleResult
+{
+  const char* source;
+  WrenLoadModuleCompleteFn onComplete;
+  void* userData;
+} WrenLoadModuleResult;
+
 // Loads and returns the source code for the module [name].
-typedef char* (*WrenLoadModuleFn)(WrenVM* vm, const char* name);
+typedef WrenLoadModuleResult (*WrenLoadModuleFn)(WrenVM* vm, const char* name);
 
 // Returns a pointer to a foreign method on [className] in [module] with
 // [signature].
@@ -490,6 +507,10 @@ int wrenGetListCount(WrenVM* vm, int slot);
 // [elementSlot].
 void wrenGetListElement(WrenVM* vm, int listSlot, int index, int elementSlot);
 
+// Sets the value stored at [index] in the list at [listSlot], 
+// to the value from [elementSlot]. 
+void wrenSetListElement(WrenVM* vm, int listSlot, int index, int elementSlot);
+
 // Takes the value stored at [elementSlot] and inserts it into the list stored
 // at [listSlot] at [index].
 //
@@ -521,6 +542,14 @@ void wrenRemoveMapValue(WrenVM* vm, int mapSlot, int keySlot,
 // it in [slot].
 void wrenGetVariable(WrenVM* vm, const char* module, const char* name,
                      int slot);
+
+// Looks up the top level variable with [name] in resolved [module], 
+// returns false if not found. The module must be imported at the time, 
+// use wrenHasModule to ensure that before calling.
+bool wrenHasVariable(WrenVM* vm, const char* module, const char* name);
+
+// Returns true if [module] has been imported/resolved before, false if not.
+bool wrenHasModule(WrenVM* vm, const char* module);
 
 // Sets the current fiber to be aborted, and uses the value in [slot] as the
 // runtime error object.
@@ -747,6 +776,42 @@ void wrenSetUserData(WrenVM* vm, void* userData);
 
 #endif
 // End file "wren_common.h"
+// Begin file "wren_math.h"
+#ifndef wren_math_h
+#define wren_math_h
+
+#include <math.h>
+#include <stdint.h>
+
+// A union to let us reinterpret a double as raw bits and back.
+typedef union
+{
+  uint64_t bits64;
+  uint32_t bits32[2];
+  double num;
+} WrenDoubleBits;
+
+#define WREN_DOUBLE_QNAN_POS_MIN_BITS (UINT64_C(0x7FF8000000000000))
+#define WREN_DOUBLE_QNAN_POS_MAX_BITS (UINT64_C(0x7FFFFFFFFFFFFFFF))
+
+#define WREN_DOUBLE_NAN (wrenDoubleFromBits(WREN_DOUBLE_QNAN_POS_MIN_BITS))
+
+static inline double wrenDoubleFromBits(uint64_t bits)
+{
+  WrenDoubleBits data;
+  data.bits64 = bits;
+  return data.num;
+}
+
+static inline uint64_t wrenDoubleToBits(double num)
+{
+  WrenDoubleBits data;
+  data.num = num;
+  return data.bits64;
+}
+
+#endif
+// End file "wren_math.h"
 // Begin file "wren_utils.h"
 #ifndef wren_utils_h
 #define wren_utils_h
@@ -865,6 +930,11 @@ int wrenUtf8DecodeNumBytes(uint8_t byte);
 
 // Returns the smallest power of two that is equal to or greater than [n].
 int wrenPowerOf2Ceil(int n);
+
+// Validates that [value] is within `[0, count)`. Also allows
+// negative indices which map backwards from the end. Returns the valid positive
+// index value. If invalid, returns `UINT32_MAX`.
+uint32_t wrenValidateIndex(uint32_t count, int64_t value);
 
 #endif
 // End file "wren_utils.h"
@@ -1057,7 +1127,7 @@ typedef struct sObjUpvalue
 
 // The type of a primitive function.
 //
-// Primitives are similiar to foreign functions, but have more direct access to
+// Primitives are similar to foreign functions, but have more direct access to
 // VM internals. It is passed the arguments in [args]. If it returns a value,
 // it places it in `args[0]` and returns `true`. If it causes a runtime error
 // or modifies the running fiber, it returns `false`.
@@ -1220,6 +1290,9 @@ typedef enum
   // A primitive method implemented in C in the VM. Unlike foreign methods,
   // this can directly manipulate the fiber's stack.
   METHOD_PRIMITIVE,
+
+  // A primitive that handles .call on Fn.
+  METHOD_FUNCTION_CALL,
 
   // A externally-defined C method.
   METHOD_FOREIGN,
@@ -1472,14 +1545,6 @@ typedef struct
 
 #endif
 
-// A union to let us reinterpret a double as raw bits and back.
-typedef union
-{
-  uint64_t bits64;
-  uint32_t bits32[2];
-  double num;
-} DoubleBits;
-
 // Creates a new "raw" class. It has no metaclass or superclass whatsoever.
 // This is only used for bootstrapping the initial Object and Class classes,
 // which are a little special.
@@ -1545,6 +1610,9 @@ void wrenListInsert(WrenVM* vm, ObjList* list, Value value, uint32_t index);
 
 // Removes and returns the item at [index] from [list].
 Value wrenListRemoveAt(WrenVM* vm, ObjList* list, uint32_t index);
+
+// Searches for [value] in [list], returns the index or -1 if not found.
+int wrenListIndexOf(WrenVM* vm, ObjList* list, Value value);
 
 // Creates a new empty map.
 ObjMap* wrenNewMap(WrenVM* vm);
@@ -1713,9 +1781,7 @@ static inline Value wrenObjectToValue(Obj* obj)
 static inline double wrenValueToNum(Value value)
 {
 #if WREN_NAN_TAGGING
-  DoubleBits data;
-  data.bits64 = value;
-  return data.num;
+  return wrenDoubleFromBits(value);
 #else
   return value.as.num;
 #endif
@@ -1725,9 +1791,7 @@ static inline double wrenValueToNum(Value value)
 static inline Value wrenNumToValue(double num)
 {
 #if WREN_NAN_TAGGING
-  DoubleBits data;
-  data.num = num;
-  return data.bits64;
+  return wrenDoubleToBits(num);
 #else
   Value value;
   value.type = VAL_NUM;
@@ -2362,6 +2426,7 @@ typedef enum
   TOKEN_BANGEQ,
 
   TOKEN_BREAK,
+  TOKEN_CONTINUE,
   TOKEN_CLASS,
   TOKEN_CONSTRUCT,
   TOKEN_ELSE,
@@ -2370,6 +2435,7 @@ typedef enum
   TOKEN_FOREIGN,
   TOKEN_IF,
   TOKEN_IMPORT,
+  TOKEN_AS,
   TOKEN_IN,
   TOKEN_IS,
   TOKEN_NULL,
@@ -2446,6 +2512,9 @@ typedef struct
   // The 1-based line number of [currentChar].
   int currentLine;
 
+  // The upcoming token.
+  Token next;
+
   // The most recently lexed token.
   Token current;
 
@@ -2467,9 +2536,6 @@ typedef struct
   // unmatched "(" that are waiting to be closed.
   int parens[MAX_INTERPOLATION_NESTING];
   int numParens;
-  
-  // If subsequent newline tokens should be discarded.
-  bool skipNewlines;
 
   // Whether compile errors should be printed to stderr or discarded.
   bool printErrors;
@@ -3056,6 +3122,7 @@ typedef struct
 static Keyword keywords[] =
 {
   {"break",     5, TOKEN_BREAK},
+  {"continue",  8, TOKEN_CONTINUE},
   {"class",     5, TOKEN_CLASS},
   {"construct", 9, TOKEN_CONSTRUCT},
   {"else",      4, TOKEN_ELSE},
@@ -3064,6 +3131,7 @@ static Keyword keywords[] =
   {"foreign",   7, TOKEN_FOREIGN},
   {"if",        2, TOKEN_IF},
   {"import",    6, TOKEN_IMPORT},
+  {"as",        2, TOKEN_AS},
   {"in",        2, TOKEN_IN},
   {"is",        2, TOKEN_IS},
   {"null",      4, TOKEN_NULL},
@@ -3124,13 +3192,13 @@ static bool matchChar(Parser* parser, char c)
 // range.
 static void makeToken(Parser* parser, TokenType type)
 {
-  parser->current.type = type;
-  parser->current.start = parser->tokenStart;
-  parser->current.length = (int)(parser->currentChar - parser->tokenStart);
-  parser->current.line = parser->currentLine;
+  parser->next.type = type;
+  parser->next.start = parser->tokenStart;
+  parser->next.length = (int)(parser->currentChar - parser->tokenStart);
+  parser->next.line = parser->currentLine;
   
   // Make line tokens appear on the line containing the "\n".
-  if (type == TOKEN_LINE) parser->current.line--;
+  if (type == TOKEN_LINE) parser->next.line--;
 }
 
 // If the current character is [c], then consumes it and makes a token of type
@@ -3204,17 +3272,17 @@ static void makeNumber(Parser* parser, bool isHex)
 
   if (isHex)
   {
-    parser->current.value = NUM_VAL((double)strtoll(parser->tokenStart, NULL, 16));
+    parser->next.value = NUM_VAL((double)strtoll(parser->tokenStart, NULL, 16));
   }
   else
   {
-    parser->current.value = NUM_VAL(strtod(parser->tokenStart, NULL));
+    parser->next.value = NUM_VAL(strtod(parser->tokenStart, NULL));
   }
   
   if (errno == ERANGE)
   {
     lexError(parser, "Number literal was too large (%d).", sizeof(long int));
-    parser->current.value = NUM_VAL(0);
+    parser->next.value = NUM_VAL(0);
   }
   
   // We don't check that the entire token is consumed after calling strtoll()
@@ -3406,21 +3474,23 @@ static void readString(Parser* parser)
     }
   }
 
-  parser->current.value = wrenNewStringLength(parser->vm,
+  parser->next.value = wrenNewStringLength(parser->vm,
                                               (char*)string.data, string.count);
   
   wrenByteBufferClear(parser->vm, &string);
   makeToken(parser, type);
 }
 
-// Lex the next token and store it in [parser.current].
+// Lex the next token and store it in [parser.next].
 static void nextToken(Parser* parser)
 {
   parser->previous = parser->current;
+  parser->current = parser->next;
 
   // If we are out of tokens, don't try to tokenize any more. We *do* still
   // copy the TOKEN_EOF to previous so that code that expects it to be consumed
   // will still work.
+  if (parser->next.type == TOKEN_EOF) return;
   if (parser->current.type == TOKEN_EOF) return;
   
   while (peekChar(parser) != '\0')
@@ -3579,8 +3649,8 @@ static void nextToken(Parser* parser)
             // even though the source code and console output are UTF-8.
             lexError(parser, "Invalid byte 0x%x.", (uint8_t)c);
           }
-          parser->current.type = TOKEN_ERROR;
-          parser->current.length = 0;
+          parser->next.type = TOKEN_ERROR;
+          parser->next.length = 0;
         }
         return;
     }
@@ -3597,6 +3667,12 @@ static void nextToken(Parser* parser)
 static TokenType peek(Compiler* compiler)
 {
   return compiler->parser->current.type;
+}
+
+// Returns the type of the current token.
+static TokenType peekNext(Compiler* compiler)
+{
+  return compiler->parser->next.type;
 }
 
 // Consumes the current token if its type is [expected]. Returns true if a
@@ -3645,6 +3721,12 @@ static void consumeLine(Compiler* compiler, const char* errorMessage)
 {
   consume(compiler, TOKEN_LINE, errorMessage);
   ignoreNewlines(compiler);
+}
+
+static void allowLineBeforeDot(Compiler* compiler) {
+  if (peek(compiler) == TOKEN_LINE && peekNext(compiler) == TOKEN_DOT) {
+    nextToken(compiler->parser);
+  }
 }
 
 // Variables and scopes --------------------------------------------------------
@@ -4434,6 +4516,7 @@ static void namedCall(Compiler* compiler, bool canAssign, Code instruction)
   else
   {
     methodCall(compiler, instruction, &signature);
+    allowLineBeforeDot(compiler);
   }
 }
 
@@ -4630,6 +4713,8 @@ static void field(Compiler* compiler, bool canAssign)
     loadThis(compiler);
     emitByteArg(compiler, isLoad ? CODE_LOAD_FIELD : CODE_STORE_FIELD, field);
   }
+
+  allowLineBeforeDot(compiler);
 }
 
 // Compiles a read or assignment to [variable].
@@ -4661,6 +4746,8 @@ static void bareName(Compiler* compiler, bool canAssign, Variable variable)
 
   // Emit the load instruction.
   loadVariable(compiler, variable);
+
+  allowLineBeforeDot(compiler);
 }
 
 static void staticField(Compiler* compiler, bool canAssign)
@@ -4844,6 +4931,8 @@ static void subscript(Compiler* compiler, bool canAssign)
   // Parse the argument list.
   finishArgumentList(compiler, &signature);
   consume(compiler, TOKEN_RIGHT_BRACKET, "Expect ']' after arguments.");
+
+  allowLineBeforeDot(compiler);
 
   if (canAssign && match(compiler, TOKEN_EQ))
   {
@@ -5110,6 +5199,7 @@ GrammarRule rules[] =
   /* TOKEN_EQEQ          */ INFIX_OPERATOR(PREC_EQUALITY, "=="),
   /* TOKEN_BANGEQ        */ INFIX_OPERATOR(PREC_EQUALITY, "!="),
   /* TOKEN_BREAK         */ UNUSED,
+  /* TOKEN_CONTINUE      */ UNUSED,
   /* TOKEN_CLASS         */ UNUSED,
   /* TOKEN_CONSTRUCT     */ { NULL, NULL, constructorSignature, PREC_NONE, NULL },
   /* TOKEN_ELSE          */ UNUSED,
@@ -5118,6 +5208,7 @@ GrammarRule rules[] =
   /* TOKEN_FOREIGN       */ UNUSED,
   /* TOKEN_IF            */ UNUSED,
   /* TOKEN_IMPORT        */ UNUSED,
+  /* TOKEN_AS            */ UNUSED,
   /* TOKEN_IN            */ UNUSED,
   /* TOKEN_IS            */ INFIX_OPERATOR(PREC_IS, "is"),
   /* TOKEN_NULL          */ PREFIX(null),
@@ -5517,6 +5608,22 @@ void statement(Compiler* compiler)
     // bytecode.
     emitJump(compiler, CODE_END);
   }
+  else if (match(compiler, TOKEN_CONTINUE))
+  {
+    if (compiler->loop == NULL)
+    {
+        error(compiler, "Cannot use 'continue' outside of a loop.");
+        return;
+    }
+
+    // Since we will be jumping out of the scope, make sure any locals in it
+    // are discarded first.
+    discardLocals(compiler, compiler->loop->scopeDepth + 1);
+
+    // emit a jump back to the top of the loop
+    int loopOffset = compiler->fn->code.count - compiler->loop->start + 2;
+    emitShortArg(compiler, CODE_LOOP, loopOffset);
+  }
   else if (match(compiler, TOKEN_FOR))
   {
     forStatement(compiler);
@@ -5848,17 +5955,38 @@ static void import(Compiler* compiler)
   do
   {
     ignoreNewlines(compiler);
-    int slot = declareNamedVariable(compiler);
     
-    // Define a string constant for the variable name.
-    int variableConstant = addConstant(compiler,
-        wrenNewStringLength(compiler->parser->vm,
-                            compiler->parser->previous.start,
-                            compiler->parser->previous.length));
+    consume(compiler, TOKEN_NAME, "Expect variable name.");
     
+    // We need to hold onto the source variable, 
+    // in order to reference it in the import later
+    Token sourceVariableToken = compiler->parser->previous;
+
+    // Define a string constant for the original variable name.
+    int sourceVariableConstant = addConstant(compiler,
+          wrenNewStringLength(compiler->parser->vm,
+                        sourceVariableToken.start,
+                        sourceVariableToken.length));
+
+    // Store the symbol we care about for the variable
+    int slot = -1;
+    if(match(compiler, TOKEN_AS))
+    {
+      //import "module" for Source as Dest
+      //Use 'Dest' as the name by declaring a new variable for it.
+      //This parses a name after the 'as' and defines it.
+      slot = declareNamedVariable(compiler);
+    }
+    else
+    {
+      //import "module" for Source
+      //Uses 'Source' as the name directly
+      slot = declareVariable(compiler, &sourceVariableToken);
+    }
+
     // Load the variable from the other module.
-    emitShortArg(compiler, CODE_IMPORT_VARIABLE, variableConstant);
-    
+    emitShortArg(compiler, CODE_IMPORT_VARIABLE, sourceVariableConstant);
+
     // Store the result in the variable here.
     defineVariable(compiler, slot);
   } while (match(compiler, TOKEN_COMMA));
@@ -5934,19 +6062,19 @@ ObjFn* wrenCompile(WrenVM* vm, ObjModule* module, const char* source,
   parser.numParens = 0;
 
   // Zero-init the current token. This will get copied to previous when
-  // advance() is called below.
-  parser.current.type = TOKEN_ERROR;
-  parser.current.start = source;
-  parser.current.length = 0;
-  parser.current.line = 0;
-  parser.current.value = UNDEFINED_VAL;
+  // nextToken() is called below.
+  parser.next.type = TOKEN_ERROR;
+  parser.next.start = source;
+  parser.next.length = 0;
+  parser.next.line = 0;
+  parser.next.value = UNDEFINED_VAL;
 
-  // Ignore leading newlines.
-  parser.skipNewlines = true;
   parser.printErrors = printErrors;
   parser.hasError = false;
 
-  // Read the first token.
+  // Read the first token into next
+  nextToken(&parser);
+  // Copy next -> current
   nextToken(&parser);
 
   int numExistingVariables = module->variables.count;
@@ -6063,6 +6191,7 @@ void wrenMarkCompiler(WrenVM* vm, Compiler* compiler)
 {
   wrenGrayValue(vm, compiler->parser->current.value);
   wrenGrayValue(vm, compiler->parser->previous.value);
+  wrenGrayValue(vm, compiler->parser->next.value);
 
   // Walk up the parent chain to mark the outer compilers too. The VM only
   // tracks the innermost one.
@@ -6127,6 +6256,19 @@ void wrenInitializeCore(WrenVM* vm);
           &vm->methodNames, name, strlen(name));                               \
       Method method;                                                           \
       method.type = METHOD_PRIMITIVE;                                          \
+      method.as.primitive = prim_##function;                                   \
+      wrenBindMethod(vm, cls, symbol, method);                                 \
+    } while (false)
+
+// Binds a primitive method named [name] (in Wren) implemented using C function
+// [fn] to `ObjClass` [cls], but as a FN call.
+#define FUNCTION_CALL(cls, name, function)                                     \
+    do                                                                         \
+    {                                                                          \
+      int symbol = wrenSymbolTableEnsure(vm,                                   \
+          &vm->methodNames, name, strlen(name));                               \
+      Method method;                                                           \
+      method.type = METHOD_FUNCTION_CALL;                                      \
       method.as.primitive = prim_##function;                                   \
       wrenBindMethod(vm, cls, symbol, method);                                 \
     } while (false)
@@ -6539,6 +6681,41 @@ static const char* coreModuleSource =
 "    return other\n"
 "  }\n"
 "\n"
+"  sort() { sort {|low, high| low < high } }\n"
+"\n"
+"  sort(comparer) {\n"
+"    if (!(comparer is Fn)) {\n"
+"      Fiber.abort(\"Comparer must be a function.\")\n"
+"    }\n"
+"    quicksort_(0, count - 1, comparer)\n"
+"    return this\n"
+"  }\n"
+"\n"
+"  quicksort_(low, high, comparer) {\n"
+"    if (low < high) {\n"
+"      var p = partition_(low, high, comparer)\n"
+"      quicksort_(low, p - 1, comparer)\n"
+"      quicksort_(p + 1, high, comparer)\n"
+"    }\n"
+"  }\n"
+"\n"
+"  partition_(low, high, comparer) {\n"
+"    var p = this[high]\n"
+"    var i = low - 1\n"
+"    for (j in low..(high-1)) {\n"
+"      if (comparer.call(this[j], p)) {  \n"
+"        i = i + 1\n"
+"        var t = this[i]\n"
+"        this[i] = this[j]\n"
+"        this[j] = t\n"
+"      }\n"
+"    }\n"
+"    var t = this[i+1]\n"
+"    this[i+1] = this[high]\n"
+"    this[high] = t\n"
+"    return i+1\n"
+"  }\n"
+"\n"
 "  toString { \"[%(join(\", \"))]\" }\n"
 "\n"
 "  +(other) {\n"
@@ -6833,6 +7010,15 @@ DEF_PRIMITIVE(fiber_try)
   return false;
 }
 
+DEF_PRIMITIVE(fiber_try1)
+{
+  runFiber(vm, AS_FIBER(args[0]), args, true, true, "try");
+  
+  // If we're switching to a valid fiber to try, remember that we're trying it.
+  if (!wrenHasError(vm->fiber)) vm->fiber->state = FIBER_TRY;
+  return false;
+}
+
 DEF_PRIMITIVE(fiber_yield)
 {
   ObjFiber* current = vm->fiber;
@@ -6890,13 +7076,6 @@ DEF_PRIMITIVE(fn_arity)
 
 static void call_fn(WrenVM* vm, Value* args, int numArgs)
 {
-  // We only care about missing arguments, not extras.
-  if (AS_CLOSURE(args[0])->fn->arity > numArgs)
-  {
-    vm->fiber->error = CONST_STRING(vm, "Function expects more arguments.");
-    return;
-  }
-
   // +1 to include the function itself.
   wrenCallFunction(vm, vm->fiber, AS_CLOSURE(args[0]), numArgs + 1);
 }
@@ -7031,6 +7210,27 @@ DEF_PRIMITIVE(list_removeAt)
   if (index == UINT32_MAX) return false;
 
   RETURN_VAL(wrenListRemoveAt(vm, list, index));
+}
+
+DEF_PRIMITIVE(list_indexOf)
+{
+  ObjList* list = AS_LIST(args[0]);
+  RETURN_NUM(wrenListIndexOf(vm, list, args[1]));
+}
+
+DEF_PRIMITIVE(list_swap)
+{
+  ObjList* list = AS_LIST(args[0]);
+  uint32_t indexA = validateIndex(vm, args[1], list->elements.count, "Index 0");
+  if (indexA == UINT32_MAX) return false;
+  uint32_t indexB = validateIndex(vm, args[2], list->elements.count, "Index 1");
+  if (indexB == UINT32_MAX) return false;
+
+  Value a = list->elements.data[indexA];
+  list->elements.data[indexA] = list->elements.data[indexB];
+  list->elements.data[indexB] = a;
+
+  RETURN_NULL;
 }
 
 DEF_PRIMITIVE(list_subscript)
@@ -7236,10 +7436,20 @@ DEF_PRIMITIVE(num_fromString)
   RETURN_NUM(number);
 }
 
-DEF_PRIMITIVE(num_pi)
-{
-  RETURN_NUM(3.14159265358979323846);
-}
+// Defines a primitive on Num that calls infix [op] and returns [type].
+#define DEF_NUM_CONSTANT(name, value)                                          \
+    DEF_PRIMITIVE(num_##name)                                                  \
+    {                                                                          \
+      RETURN_NUM(value);                                                       \
+    }
+
+DEF_NUM_CONSTANT(infinity, INFINITY)
+DEF_NUM_CONSTANT(nan,      WREN_DOUBLE_NAN)
+DEF_NUM_CONSTANT(pi,       3.14159265358979323846264338327950288)
+DEF_NUM_CONSTANT(tau,      6.28318530717958647692528676655900577)
+
+DEF_NUM_CONSTANT(largest,  DBL_MAX)
+DEF_NUM_CONSTANT(smallest, DBL_MIN)
 
 // Defines a primitive on Num that calls infix [op] and returns [type].
 #define DEF_NUM_INFIX(name, op, type)                                          \
@@ -7344,6 +7554,29 @@ DEF_PRIMITIVE(num_atan2)
   RETURN_NUM(atan2(AS_NUM(args[0]), AS_NUM(args[1])));
 }
 
+DEF_PRIMITIVE(num_min)
+{
+  double value = AS_NUM(args[0]);
+  double other = AS_NUM(args[1]);
+  RETURN_NUM(value <= other ? value : other);
+}
+
+DEF_PRIMITIVE(num_max)
+{
+  double value = AS_NUM(args[0]);
+  double other = AS_NUM(args[1]);
+  RETURN_NUM(value > other ? value : other);
+}
+
+DEF_PRIMITIVE(num_clamp)
+{
+  double value = AS_NUM(args[0]);
+  double min = AS_NUM(args[1]);
+  double max = AS_NUM(args[2]);
+  double result = (value < min) ? min : ((value > max) ? max : value);
+  RETURN_NUM(result);
+}
+
 DEF_PRIMITIVE(num_pow)
 {
   RETURN_NUM(pow(AS_NUM(args[0]), AS_NUM(args[1])));
@@ -7387,16 +7620,6 @@ DEF_PRIMITIVE(num_sign)
   {
     RETURN_NUM(0);
   }
-}
-
-DEF_PRIMITIVE(num_largest)
-{
-  RETURN_NUM(DBL_MAX);
-}
-
-DEF_PRIMITIVE(num_smallest)
-{
-  RETURN_NUM(DBL_MIN);
 }
 
 DEF_PRIMITIVE(num_toString)
@@ -7884,28 +8107,31 @@ void wrenInitializeCore(WrenVM* vm)
   PRIMITIVE(vm->fiberClass, "transfer(_)", fiber_transfer1);
   PRIMITIVE(vm->fiberClass, "transferError(_)", fiber_transferError);
   PRIMITIVE(vm->fiberClass, "try()", fiber_try);
+  PRIMITIVE(vm->fiberClass, "try(_)", fiber_try1);
 
   vm->fnClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Fn"));
   PRIMITIVE(vm->fnClass->obj.classObj, "new(_)", fn_new);
 
   PRIMITIVE(vm->fnClass, "arity", fn_arity);
-  PRIMITIVE(vm->fnClass, "call()", fn_call0);
-  PRIMITIVE(vm->fnClass, "call(_)", fn_call1);
-  PRIMITIVE(vm->fnClass, "call(_,_)", fn_call2);
-  PRIMITIVE(vm->fnClass, "call(_,_,_)", fn_call3);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_)", fn_call4);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_)", fn_call5);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_)", fn_call6);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_)", fn_call7);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_)", fn_call8);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_)", fn_call9);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_)", fn_call10);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_)", fn_call11);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_)", fn_call12);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call13);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call14);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call15);
-  PRIMITIVE(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call16);
+
+  FUNCTION_CALL(vm->fnClass, "call()", fn_call0);
+  FUNCTION_CALL(vm->fnClass, "call(_)", fn_call1);
+  FUNCTION_CALL(vm->fnClass, "call(_,_)", fn_call2);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_)", fn_call3);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_)", fn_call4);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_,_)", fn_call5);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_,_,_)", fn_call6);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_,_,_,_)", fn_call7);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_,_,_,_,_)", fn_call8);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_,_,_,_,_,_)", fn_call9);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_)", fn_call10);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_)", fn_call11);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_)", fn_call12);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call13);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call14);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call15);
+  FUNCTION_CALL(vm->fnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)", fn_call16);
+  
   PRIMITIVE(vm->fnClass, "toString", fn_toString);
 
   vm->nullClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Null"));
@@ -7914,7 +8140,10 @@ void wrenInitializeCore(WrenVM* vm)
 
   vm->numClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Num"));
   PRIMITIVE(vm->numClass->obj.classObj, "fromString(_)", num_fromString);
+  PRIMITIVE(vm->numClass->obj.classObj, "infinity", num_infinity);
+  PRIMITIVE(vm->numClass->obj.classObj, "nan", num_nan);
   PRIMITIVE(vm->numClass->obj.classObj, "pi", num_pi);
+  PRIMITIVE(vm->numClass->obj.classObj, "tau", num_tau);
   PRIMITIVE(vm->numClass->obj.classObj, "largest", num_largest);
   PRIMITIVE(vm->numClass->obj.classObj, "smallest", num_smallest);
   PRIMITIVE(vm->numClass, "-(_)", num_minus);
@@ -7939,6 +8168,9 @@ void wrenInitializeCore(WrenVM* vm)
   PRIMITIVE(vm->numClass, "floor", num_floor);
   PRIMITIVE(vm->numClass, "-", num_negate);
   PRIMITIVE(vm->numClass, "round", num_round);
+  PRIMITIVE(vm->numClass, "min(_)", num_min);
+  PRIMITIVE(vm->numClass, "max(_)", num_max);
+  PRIMITIVE(vm->numClass, "clamp(_,_)", num_clamp);
   PRIMITIVE(vm->numClass, "sin", num_sin);
   PRIMITIVE(vm->numClass, "sqrt", num_sqrt);
   PRIMITIVE(vm->numClass, "tan", num_tan);
@@ -7995,6 +8227,8 @@ void wrenInitializeCore(WrenVM* vm)
   PRIMITIVE(vm->listClass, "iterate(_)", list_iterate);
   PRIMITIVE(vm->listClass, "iteratorValue(_)", list_iteratorValue);
   PRIMITIVE(vm->listClass, "removeAt(_)", list_removeAt);
+  PRIMITIVE(vm->listClass, "indexOf(_)", list_indexOf);
+  PRIMITIVE(vm->listClass, "swap(_,_)", list_swap);
 
   vm->mapClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Map"));
   PRIMITIVE(vm->mapClass->obj.classObj, "new()", map_new);
@@ -8745,6 +8979,17 @@ int wrenPowerOf2Ceil(int n)
   
   return n;
 }
+
+uint32_t wrenValidateIndex(uint32_t count, int64_t value)
+{
+  // Negative indices count from the end.
+  if (value < 0) value = count + value;
+
+  // Check bounds.
+  if (value >= 0 && value < count) return (uint32_t)value;
+
+  return UINT32_MAX;
+}
 // End file "wren_utils.c"
 // Begin file "wren_value.c"
 #include <math.h>
@@ -9064,6 +9309,19 @@ void wrenListInsert(WrenVM* vm, ObjList* list, Value value, uint32_t index)
   list->elements.data[index] = value;
 }
 
+int wrenListIndexOf(WrenVM* vm, ObjList* list, Value value)
+{
+  int count = list->elements.count;
+  for (int i = 0; i < count; i++)
+  {
+    Value item = list->elements.data[i];
+    if(wrenValuesEqual(item, value)) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 Value wrenListRemoveAt(WrenVM* vm, ObjList* list, uint32_t index)
 {
   Value removed = list->elements.data[index];
@@ -9119,9 +9377,7 @@ static inline uint32_t hashBits(uint64_t hash)
 static inline uint32_t hashNumber(double num)
 {
   // Hash the raw bits of the value.
-  DoubleBits bits;
-  bits.num = num;
-  return hashBits(bits.bits64);
+  return hashBits(wrenDoubleToBits(num));
 }
 
 // Generates a hash code for [object].
@@ -9722,7 +9978,8 @@ void wrenGrayObj(WrenVM* vm, Obj* obj)
   {
     vm->grayCapacity = vm->grayCount * 2;
     vm->gray = (Obj**)vm->config.reallocateFn(vm->gray,
-                                              vm->grayCapacity * sizeof(Obj*));
+                                              vm->grayCapacity * sizeof(Obj*),
+                                              vm->config.userData);
   }
 
   vm->gray[vm->grayCount++] = obj;
@@ -10116,7 +10373,7 @@ WrenForeignMethodFn wrenRandomBindForeignMethod(WrenVM* vm,
 // may return a non-NULL pointer which must not be dereferenced but nevertheless
 // should be freed. To prevent that, we avoid calling realloc() with a zero
 // size.
-static void* defaultReallocate(void* ptr, size_t newSize)
+static void* defaultReallocate(void* ptr, size_t newSize, void* _)
 {
   if (newSize == 0)
   {
@@ -10145,9 +10402,13 @@ void wrenInitConfiguration(WrenConfiguration* config)
 WrenVM* wrenNewVM(WrenConfiguration* config)
 {
   WrenReallocateFn reallocate = defaultReallocate;
-  if (config != NULL) reallocate = config->reallocateFn;
+  void* userData = NULL;
+  if (config != NULL) {
+    reallocate = config->reallocateFn;
+    userData = config->userData;
+  }
   
-  WrenVM* vm = (WrenVM*)reallocate(NULL, sizeof(*vm));
+  WrenVM* vm = (WrenVM*)reallocate(NULL, sizeof(*vm), userData);
   memset(vm, 0, sizeof(WrenVM));
 
   // Copy the configuration if given one.
@@ -10164,7 +10425,7 @@ WrenVM* wrenNewVM(WrenConfiguration* config)
   vm->grayCount = 0;
   // TODO: Tune this.
   vm->grayCapacity = 4;
-  vm->gray = (Obj**)reallocate(NULL, vm->grayCapacity * sizeof(Obj*));
+  vm->gray = (Obj**)reallocate(NULL, vm->grayCapacity * sizeof(Obj*), userData);
   vm->nextGC = vm->config.initialHeapSize;
 
   wrenSymbolTableInit(&vm->methodNames);
@@ -10188,7 +10449,7 @@ void wrenFreeVM(WrenVM* vm)
   }
 
   // Free up the GC gray set.
-  vm->gray = (Obj**)vm->config.reallocateFn(vm->gray, 0);
+  vm->gray = (Obj**)vm->config.reallocateFn(vm->gray, 0, vm->config.userData);
 
   // Tell the user if they didn't free any handles. We don't want to just free
   // them here because the host app may still have pointers to them that they
@@ -10311,7 +10572,7 @@ void* wrenReallocate(WrenVM* vm, void* memory, size_t oldSize, size_t newSize)
   if (newSize > 0 && vm->bytesAllocated > vm->nextGC) wrenCollectGarbage(vm);
 #endif
 
-  return vm->config.reallocateFn(memory, newSize);
+  return vm->config.reallocateFn(memory, newSize, vm->config.userData);
 }
 
 // Captures the local variable [local] into an [Upvalue]. If that local is
@@ -10603,7 +10864,10 @@ static Value validateSuperclass(WrenVM* vm, Value name, Value superclassValue,
       superclass == vm->listClass ||
       superclass == vm->mapClass ||
       superclass == vm->rangeClass ||
-      superclass == vm->stringClass)
+      superclass == vm->stringClass ||
+      superclass == vm->boolClass ||
+      superclass == vm->nullClass ||
+      superclass == vm->numClass)
   {
     return wrenStringFormat(vm,
         "Class '@' cannot inherit from built-in class '@'.",
@@ -10792,44 +11056,39 @@ static Value importModule(WrenVM* vm, Value name)
 
   wrenPushRoot(vm, AS_OBJ(name));
 
+  WrenLoadModuleResult result = {0};
   const char* source = NULL;
-  bool allocatedSource = true;
   
   // Let the host try to provide the module.
   if (vm->config.loadModuleFn != NULL)
   {
-    source = vm->config.loadModuleFn(vm, AS_CSTRING(name));
+    result = vm->config.loadModuleFn(vm, AS_CSTRING(name));
   }
   
   // If the host didn't provide it, see if it's a built in optional module.
-  if (source == NULL)
+  if (result.source == NULL)
   {
+    result.onComplete = NULL;
     ObjString* nameString = AS_STRING(name);
 #if WREN_OPT_META
-    if (strcmp(nameString->value, "meta") == 0) source = wrenMetaSource();
+    if (strcmp(nameString->value, "meta") == 0) result.source = wrenMetaSource();
 #endif
 #if WREN_OPT_RANDOM
-    if (strcmp(nameString->value, "random") == 0) source = wrenRandomSource();
+    if (strcmp(nameString->value, "random") == 0) result.source = wrenRandomSource();
 #endif
-    
-    // TODO: Should we give the host the ability to provide strings that don't
-    // need to be freed?
-    allocatedSource = false;
   }
   
-  if (source == NULL)
+  if (result.source == NULL)
   {
     vm->fiber->error = wrenStringFormat(vm, "Could not load module '@'.", name);
     wrenPopRoot(vm); // name.
     return NULL_VAL;
   }
   
-  ObjClosure* moduleClosure = compileInModule(vm, name, source, false, true);
+  ObjClosure* moduleClosure = compileInModule(vm, name, result.source, false, true);
   
-  // Modules loaded by the host are expected to be dynamically allocated with
-  // ownership given to the VM, which will free it. The built in optional
-  // modules are constant strings which don't need to be freed.
-  if (allocatedSource) DEALLOCATE(vm, (char*)source);
+  // Now that we're done, give the result back in case there's cleanup to do.
+  if(result.onComplete) result.onComplete(vm, AS_CSTRING(name), result);
   
   if (moduleClosure == NULL)
   {
@@ -10864,6 +11123,21 @@ static Value getModuleVariable(WrenVM* vm, ObjModule* module,
       variableName, OBJ_VAL(module->name));
   return NULL_VAL;
 }
+
+inline static bool checkArity(WrenVM* vm, Value value, int numArgs)
+{
+  ASSERT(IS_CLOSURE(value), "Receiver must be a closure.");
+  ObjFn* fn = AS_CLOSURE(value)->fn;
+
+  // We only care about missing arguments, not extras. The "- 1" is because
+  // numArgs includes the receiver, the function itself, which we don't want to
+  // count.
+  if (numArgs - 1 >= fn->arity) return true;
+
+  vm->fiber->error = CONST_STRING(vm, "Function expects more arguments.");
+  return false;
+}
+
 
 // The main bytecode interpreter loop. This is where the magic happens. It is
 // also, as you can imagine, highly performance critical.
@@ -11318,6 +11592,17 @@ OPCODE(END, 0)
             if (wrenHasError(fiber)) RUNTIME_ERROR();
             LOAD_FRAME();
           }
+          break;
+
+        case METHOD_FUNCTION_CALL: 
+          if (!checkArity(vm, args[0], numArgs)) {
+            RUNTIME_ERROR();
+            break;
+          }
+
+          STORE_FRAME();
+          method->as.primitive(vm, args);
+          LOAD_FRAME();
           break;
 
         case METHOD_FOREIGN:
@@ -12043,9 +12328,27 @@ void wrenGetListElement(WrenVM* vm, int listSlot, int index, int elementSlot)
   validateApiSlot(vm, listSlot);
   validateApiSlot(vm, elementSlot);
   ASSERT(IS_LIST(vm->apiStack[listSlot]), "Slot must hold a list.");
-  
+
   ValueBuffer elements = AS_LIST(vm->apiStack[listSlot])->elements;
-  vm->apiStack[elementSlot] = elements.data[index];
+
+  uint32_t usedIndex = wrenValidateIndex(elements.count, index);
+  ASSERT(usedIndex != UINT32_MAX, "Index out of bounds.");
+
+  vm->apiStack[elementSlot] = elements.data[usedIndex];
+}
+
+void wrenSetListElement(WrenVM* vm, int listSlot, int index, int elementSlot)
+{
+  validateApiSlot(vm, listSlot);
+  validateApiSlot(vm, elementSlot);
+  ASSERT(IS_LIST(vm->apiStack[listSlot]), "Slot must hold a list.");
+
+  ObjList* list = AS_LIST(vm->apiStack[listSlot]);
+
+  uint32_t usedIndex = wrenValidateIndex(list->elements.count, index);
+  ASSERT(usedIndex != UINT32_MAX, "Index out of bounds.");
+  
+  list->elements.data[usedIndex] = vm->apiStack[elementSlot];
 }
 
 void wrenInsertInList(WrenVM* vm, int listSlot, int index, int elementSlot)
@@ -12056,7 +12359,8 @@ void wrenInsertInList(WrenVM* vm, int listSlot, int index, int elementSlot)
   
   ObjList* list = AS_LIST(vm->apiStack[listSlot]);
   
-  // Negative indices count from the end.
+  // Negative indices count from the end. 
+  // We don't use wrenValidateIndex here because insert allows 1 past the end.
   if (index < 0) index = list->elements.count + 1 + index;
   
   ASSERT(index <= list->elements.count, "Index out of bounds.");
@@ -12158,6 +12462,40 @@ void wrenGetVariable(WrenVM* vm, const char* module, const char* name,
   ASSERT(variableSlot != -1, "Could not find variable.");
   
   setSlot(vm, slot, moduleObj->variables.data[variableSlot]);
+}
+
+bool wrenHasVariable(WrenVM* vm, const char* module, const char* name)
+{
+  ASSERT(module != NULL, "Module cannot be NULL.");
+  ASSERT(name != NULL, "Variable name cannot be NULL.");
+
+  Value moduleName = wrenStringFormat(vm, "$", module);
+  wrenPushRoot(vm, AS_OBJ(moduleName));
+
+  //We don't use wrenHasModule since we want to use the module object.
+  ObjModule* moduleObj = getModule(vm, moduleName);
+  ASSERT(moduleObj != NULL, "Could not find module.");
+
+  wrenPopRoot(vm); // moduleName.
+
+  int variableSlot = wrenSymbolTableFind(&moduleObj->variableNames,
+    name, strlen(name));
+
+  return variableSlot != -1;
+}
+
+bool wrenHasModule(WrenVM* vm, const char* module)
+{
+  ASSERT(module != NULL, "Module cannot be NULL.");
+  
+  Value moduleName = wrenStringFormat(vm, "$", module);
+  wrenPushRoot(vm, AS_OBJ(moduleName));
+
+  ObjModule* moduleObj = getModule(vm, moduleName);
+  
+  wrenPopRoot(vm); // moduleName.
+
+  return moduleObj != NULL;
 }
 
 void wrenAbortFiber(WrenVM* vm, int slot)

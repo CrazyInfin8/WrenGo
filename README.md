@@ -1,6 +1,6 @@
 # WrenGo
 
-[![GoDoc](https://godoc.org/github.com/CrazyInfin8/WrenGo?status.svg)](https://pkg.go.dev/github.com/CrazyInfin8/WrenGo?tab=doc)
+[![GoDoc](https://godoc.org/github.com/CrazyInfin8/WrenGo?status.svg)](https://pkg.go.dev/github.com/CrazyInfin8/WrenGo?tab=doc) [![GoReportCard](https://goreportcard.com/badge/github.com/crazyinfin8/WrenGo)](https://goreportcard.com/report/github.com/crazyinfin8/WrenGo) [![Wren](https://img.shields.io/badge/github-wren-hsl(200%2C%2060%25%2C%2050%25))](https://github.com/wren-lang/wren)
 
 WrenGo provides bindings for go to interact with the [wren](https://wren.io/) scripting language. Currently Mutex is not used so be careful with Goroutines. There probably should be a lot more tests as well, however there are some tests to ensure that basic functionality works.
 ## Installation

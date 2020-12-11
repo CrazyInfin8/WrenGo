@@ -320,8 +320,8 @@ func TestParallelVM(t *testing.T) {
 		var foo = Foo.new()
 		var rand = Random.new()
 		var total = 0
-		for (i in 0...100) {
-			var j = rand.int(100)
+		for (i in 0...20) {
+			var j = rand.int(20)
 			System.write("incrementing " + total.toString + " by " + j.toString + " to get " + foo.increment(j).toString)
 			total = total + j
 		}
@@ -334,13 +334,13 @@ func TestParallelVM(t *testing.T) {
 	}
 	fail := make(chan bool)
 	success := make(chan bool)
-	var numOfVMs int = 100
+	var numOfVMs int = 5
 	for i := 0; i < numOfVMs; i++ {
 		go RunNewVM(i, success, fail)
 	}
 	var numOfSuccess int = 0
 	var numOfFails int = 0
-	for numOfSuccess + numOfFails < numOfVMs {
+	for numOfSuccess+numOfFails < numOfVMs {
 		select {
 		case <-fail:
 			numOfFails++
@@ -349,5 +349,20 @@ func TestParallelVM(t *testing.T) {
 			numOfSuccess++
 			t.Logf("VM was successful")
 		}
+	}
+}
+
+func Test040(t *testing.T) {
+	vm := createConfig(t).NewVM()
+	defer vm.Free()
+	vm.InterpretString("main", `
+	var value = "A value"
+	`)
+	if val, err := vm.GetVariable("main", "value"); err != nil {
+		t.Error(err.Error())
+	} else if val != "A value" {
+		t.Error("Variable does not match expected")
+	} else {
+		t.Logf("Val is \"%v\"", val)
 	}
 }

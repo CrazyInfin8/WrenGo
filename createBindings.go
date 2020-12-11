@@ -64,7 +64,7 @@ type MaxBindingsReached struct {
 	VM *VM
 }
 
-func (err *MaxBindingsReached)Error() string {
+func (err *MaxBindingsReached) Error() string {
 	return fmt.Sprintf("Cannot bind more that %v functions or classes", MAX_REGISTRATIONS)
 }
 

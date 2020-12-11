@@ -45,9 +45,9 @@ type ForeignClass struct {
 //
 // - The name of the function is required to match how it will look in Wren
 //
-// - Next will be an open paranthesis("(")
+// - Next will be an open parenthesis("(")
 //
-// - for the amount of expected parameters, add underscores seperated by comma. do not add a trailing comma after the last underscore
+// - for the amount of expected parameters, add underscores separated by comma. do not add a trailing comma after the last underscore
 //
 // - close everything up with a closing parenthesis (")")
 //
