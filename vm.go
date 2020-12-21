@@ -966,7 +966,6 @@ func resolveModuleFn(v *C.WrenVM, importer *C.char, name *C.char) *C.char {
 		return nil
 	}
 	return name
-	// TODO: add ability to resolve the module name
 }
 
 //export moduleLoaderFn
