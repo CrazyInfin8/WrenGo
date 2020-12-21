@@ -677,7 +677,7 @@ func (vm *VM) getSlotValue(slot int) (value interface{}) {
 	case C.WREN_TYPE_BOOL:
 		return bool(C.wrenGetSlotBool(vm.vm, cSlot))
 	case C.WREN_TYPE_NUM:
-		return float32(C.wrenGetSlotDouble(vm.vm, cSlot))
+		return float64(C.wrenGetSlotDouble(vm.vm, cSlot))
 	case C.WREN_TYPE_FOREIGN:
 		return &ForeignHandle{handle: vm.createHandle(C.wrenGetSlotHandle(vm.vm, cSlot))}
 	case C.WREN_TYPE_LIST:
