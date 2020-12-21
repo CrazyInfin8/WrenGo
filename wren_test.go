@@ -269,7 +269,7 @@ func TestParallelVM(t *testing.T) {
 		vm := cfg.NewVM()
 		defer vm.Free()
 		type Foo struct {
-			i float32
+			i float64
 		}
 		vm.SetModule("main", NewModule(ClassMap{
 			"Foo": NewClass(
@@ -301,7 +301,7 @@ func TestParallelVM(t *testing.T) {
 						if foo, ok = inter.(*Foo); !ok {
 							return nil, errors.New("foreign malformed")
 						}
-						if i, ok := parameters[1].(float32); ok {
+						if i, ok := parameters[1].(float64); ok {
 							foo.i += i
 							return foo.i, nil
 						}
