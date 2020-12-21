@@ -7,7 +7,8 @@ package wren
 */
 import "C"
 
-// ForeignMethodFn is a function that wren can import or call. The value of parameters[0] will be the foreign object itself while anything after that are the parameters from the wren function. if it returns an error, then it will call `vm.Abort`
+// ForeignMethodFn is a function that wren can import or call. The value of parameters[0] will be the foreign object itself while anything after that are the parameters from the wren function. if it returns an error, then it will call `vm.Abort`.
+// Handles that originated from `parameters` are automatically freed by WrenGo. If you want to keep the handle, you need to call copy on it.
 type ForeignMethodFn func(vm *VM, parameters []interface{}) (interface{}, error)
 
 // ForeignInitializer is a function used to initialize a foreign class instance. The value of parameter[0] will be the foreign class while anything after that are the parameters from the wren constructor. Whatever it returns for `interface{}` will be the the foreign instance of the foreign class
@@ -47,7 +48,7 @@ type ForeignClass struct {
 //
 // - Next will be an open parenthesis("(")
 //
-// - for the amount of expected parameters, add underscores separated by comma. do not add a trailing comma after the last underscore
+// - for the amount of expected parameters, add underscores separated by comma. do not add a trailing comma after the last underscore or any spaces.
 //
 // - close everything up with a closing parenthesis (")")
 //
