@@ -366,3 +366,57 @@ func Test040(t *testing.T) {
 		t.Logf("Val is \"%v\"", val)
 	}
 }
+
+func TestResolveModName(t *testing.T) {
+	cfg := createConfig(t)
+	cfg.ResolveModuleFn = func(vm *VM, importer, name string) (newName string, ok bool) {
+		switch importer {
+		case "main":
+			newName = name
+		case "A":
+			if name == "B" {
+				newName = "AB"
+			} else {
+				newName = name
+			}
+		case "B":
+			if name == "A" {
+				newName = "BA"
+			} else {
+				newName = name
+			}
+		}
+		t.Logf("%v imported %v and was resolved to %v", importer, name, newName)
+		ok = newName != ""
+		return
+	}
+
+	cfg.LoadModuleFn = func(vm *VM, name string) (source string, ok bool) {
+		t.Logf("Importing: %v", name)
+		switch name {
+		case "A":
+			source = `
+			System.print("Hello from A")
+			import "A"
+			import "B"`
+		case "B":
+			source = `
+			System.print("Hello from B")
+			import "A"
+			import "B"`
+		case "AB":
+			source = `System.print("Hello from B imported by A")`
+		case "BA":
+			source = `System.print("Hello from A imported by B")`
+		}
+		ok = source != ""
+		return
+	}
+	vm := cfg.NewVM()
+	defer vm.Free()
+
+	vm.InterpretString("main", `
+	import "A"
+	import "B"
+	`)
+}

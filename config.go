@@ -12,6 +12,8 @@ type Config struct {
 	WriteFn WriteFn
 	// Wren calls this function to print errors
 	ErrorFn ErrorFn
+	// Wren calls this function before loading modules to resolve module names.
+	ResolveModuleFn ResolveModuleFn
 	// Wren calls this function to import modules (if you want to disable importing, this should be set to nil and the global value `DefaultModuleLoader` should also be set to nil)
 	LoadModuleFn LoadModuleFn
 	// If `WriteFn` is not set, wren will print text to here instead (if you want to disable all output, this should be set to nil and the global value `DefaultOutput` should also be set to nil)
@@ -28,7 +30,10 @@ type WriteFn func(vm *VM, text string)
 // ErrorFn is called by Wren whenever there is a runtime error, compile error, or stack trace. It should be of type `CompileError`, `RuntimeError`, or `StackTrace`
 type ErrorFn func(vm *VM, err error)
 
-// LoadModuleFn is called by Wren to whenever `import` is called. it can either return a string with wren source code or it can return nil to send an error to the VM
+// ResolveModuleFn is called by wren whenever `import` is called but runs before LoadModuleFn. It takes the file that called the import as well as the name of the mofule to import and returns a string that will then be put into ResolveModule. If modules name cannot be resolved, setting `ok` to false will send an error to the VM
+type ResolveModuleFn func(vm *VM, importer, name string) (newName string, ok bool)
+
+// LoadModuleFn is called by Wren whenever `import` is called. It takes the name of a module and returns the modules source code. If the module cannot be loaded, setting `ok` to false will send an error to the VM
 type LoadModuleFn func(vm *VM, name string) (source string, ok bool)
 
 // CompileError is sent by Wren to `ErrorFn` if Wren source code couldn't compile

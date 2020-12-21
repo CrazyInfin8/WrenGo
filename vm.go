@@ -7,6 +7,7 @@ package wren
 
 extern void writeFn(WrenVM*, char*);
 extern void errorFn(WrenVM*, WrenErrorType, char*, int, char*);
+extern char* resolveModuleFn(WrenVM*, char*, char*);
 extern WrenLoadModuleResult moduleLoaderFn(WrenVM*, char*);
 extern WrenForeignMethodFn bindForeignMethodFn(WrenVM*, char*, char*, bool, char*);
 extern WrenForeignClassMethods bindForeignClassFn(WrenVM*, char*, char*);
@@ -58,6 +59,7 @@ func NewVM() *VM {
 	C.wrenInitConfiguration(&config)
 	config.writeFn = C.WrenWriteFn(C.writeFn)
 	config.errorFn = C.WrenErrorFn(C.errorFn)
+	config.resolveModuleFn = C.WrenResolveModuleFn(C.resolveModuleFn)
 	config.loadModuleFn = C.WrenLoadModuleFn(C.moduleLoaderFn)
 	config.bindForeignMethodFn = C.WrenBindForeignMethodFn(C.bindForeignMethodFn)
 	config.bindForeignClassFn = C.WrenBindForeignClassFn(C.bindForeignClassFn)
@@ -935,6 +937,37 @@ func errorFn(v *C.WrenVM, errorType C.WrenErrorType, module *C.char, line C.int,
 			io.WriteString(output, err.Error()+"\n")
 		}
 	}
+}
+
+//export resolveModuleFn
+func resolveModuleFn(v *C.WrenVM, importer *C.char, name *C.char) *C.char {
+	unlocked := false
+	vmMapMux.RLock()
+	defer func() {
+		if !unlocked {
+			vmMapMux.RUnlock()
+		}
+	}()
+	if vm, ok := vmMap[v]; ok {
+		vmMapMux.RUnlock()
+		unlocked = true
+		var (
+			newName string
+			ok      bool
+		)
+		if vm.Config != nil && vm.Config.ResolveModuleFn != nil {
+			newName, ok = vm.Config.ResolveModuleFn(vm, C.GoString(importer), C.GoString(name))
+		} else {
+			return name
+		}
+		if ok {
+			return C.CString(newName)
+		} else {
+			return nil
+		}
+	}
+	return name
+	// TODO: add ability to resolve the module name
 }
 
 //export moduleLoaderFn
