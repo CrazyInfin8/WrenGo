@@ -962,9 +962,8 @@ func resolveModuleFn(v *C.WrenVM, importer *C.char, name *C.char) *C.char {
 		}
 		if ok {
 			return C.CString(newName)
-		} else {
-			return nil
 		}
+		return nil
 	}
 	return name
 	// TODO: add ability to resolve the module name
