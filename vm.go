@@ -33,6 +33,7 @@ type VM struct {
 	handles   map[*C.WrenHandle]*Handle
 	bindMap   []ForeignMethodFn
 	moduleMap ModuleMap
+	running   bool
 }
 
 var (
@@ -145,13 +146,18 @@ func (vm *VM) InterpretString(module, source string) error {
 	if vm.vm == nil {
 		return &NilVMError{}
 	}
+	if vm.running {
+		return &RunningVMError{}
+	}
 	cModule := C.CString(module)
 	cSource := C.CString(source)
 	defer func() {
 		C.free(unsafe.Pointer(cModule))
 		C.free(unsafe.Pointer(cSource))
 	}()
+	vm.running = true
 	results := C.wrenInterpret(vm.vm, cModule, cSource)
+	vm.running = false
 	return resultsToError(results)
 }
 
@@ -167,6 +173,16 @@ func (vm *VM) InterpretFile(fileName string) error {
 	return vm.InterpretString(fileName, string(data))
 }
 
+// IsRunning returns true if the current VM is running (Whether `InterpretString`, `InterpretFile`, and any `CallHandle`s have been called on this VM)
+func (vm *VM) IsRunning() bool {
+	return vm.running
+}
+
+type RunningVMError struct {}
+
+func (err *RunningVMError)Error() string {
+	return "VM is already running"
+}
 // Handle is a generic handle from wren
 type Handle struct {
 	handle *C.WrenHandle
@@ -629,6 +645,9 @@ func (h *CallHandle) Call(parameters ...interface{}) (interface{}, error) {
 		return nil, &NilHandleError{}
 	}
 	vm := h.handle.vm
+	if vm.running {
+		return nil, &RunningVMError{}
+	}
 	slots := C.int(len(parameters) + 1)
 	C.wrenEnsureSlots(vm.vm, slots)
 	vm.setSlotValue(h.receiver, 0)
@@ -638,7 +657,9 @@ func (h *CallHandle) Call(parameters ...interface{}) (interface{}, error) {
 			return nil, err
 		}
 	}
+	vm.running = true
 	err := resultsToError(C.wrenCall(vm.vm, handle.handle))
+	vm.running = false
 	if err != nil {
 		return nil, err
 	}

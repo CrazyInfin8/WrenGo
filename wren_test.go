@@ -420,3 +420,52 @@ func TestResolveModName(t *testing.T) {
 	import "B"
 	`)
 }
+
+func TestNoReentry(t *testing.T) {
+	vm := createConfig(t).NewVM()
+	defer vm.Free()
+
+	vm.SetModule("main", NewModule(ClassMap{
+		"GoFoo": NewClass(
+			nil,
+			nil,
+			MethodMap{
+				"static reEntryByInterp()": func(vm *VM, parameters []interface{}) (interface{}, error) {
+					err := vm.InterpretString("reEntry", "System.print(\"Things seemed to have failed already\")")
+
+					if _, ok := err.(*RunningVMError); ok {
+						t.Log("Re-entry detected in `static reEntry()`")
+					} else {
+						t.Error("Could not get an expected re-entry error")
+					}
+					return nil, nil
+				},
+				"static reEntryByMethod()": func(vm *VM, parameters []interface{}) (interface{}, error) {
+					if h, ok := parameters[0].(*Handle); ok {
+						fn, err := h.Func("static reEntryByInterp()")
+						if err != nil {
+							t.Error(err.Error())
+						}
+						_, err = fn.Call()
+						if _, ok := err.(*RunningVMError); ok {
+							t.Log("Re-entry detected in `static reEntry()`")
+						} else {
+							t.Error("Could not get an expected re-entry error")
+						}
+					}
+					return nil, nil
+				},
+			},
+		),
+	}))
+
+	vm.InterpretString("main",`
+	foreign class GoFoo {
+		foreign static reEntryByInterp()
+		foreign static reEntryByMethod()
+	}
+
+	GoFoo.reEntryByInterp()
+	GoFoo.reEntryByMethod()
+	`)
+}
