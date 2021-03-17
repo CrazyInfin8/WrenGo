@@ -99,6 +99,7 @@ func TestHandles(t *testing.T) {
 	value6, _ := vm.GetVariable("main", "value6")
 	if class, ok := value6.(*Handle); ok {
 		Fn, _ := class.Func("echoValue()")
+		defer Fn.Free()
 		Fn.Call()
 	}
 	if err != nil {
@@ -144,6 +145,7 @@ func TestMaps(t *testing.T) {
 		return
 	}
 	echo, _ := UtilClass.Func("echo(_)")
+	defer echo.Free()
 	echo.Call(fooMap)
 	fooMap.Set("value3", "A lovely value!")
 	echo.Call(fooMap) // Just for me to know if Map handles are mutable
@@ -443,6 +445,7 @@ func TestNoReentry(t *testing.T) {
 				"static reEntryByMethod()": func(vm *VM, parameters []interface{}) (interface{}, error) {
 					if h, ok := parameters[0].(*Handle); ok {
 						fn, err := h.Func("static reEntryByInterp()")
+						defer fn.Free()
 						if err != nil {
 							t.Error(err.Error())
 						}

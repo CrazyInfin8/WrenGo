@@ -218,9 +218,9 @@ func (h *Handle) Free() {
 
 // Func creates a callable handle from the wren object tied to the current handle. There isn't currently a way to check if the function referenced from `signature` exists before calling it
 func (h *Handle) Func(signature string) (*CallHandle, error) {
-	handle := h.Handle()
-	if handle.handle == nil {
-		return nil, &NilHandleError{}
+	handle, err := h.Handle().Copy()
+	if err != nil {
+		return nil, err
 	}
 	cSignature := C.CString(signature)
 	defer C.free(unsafe.Pointer(cSignature))
@@ -394,9 +394,9 @@ func (h *MapHandle) Count() (int, error) {
 
 // Func creates a callable handle from the Wren object tied to the current handle. There isn't currently a way to check if the function referenced from `signature` exists before calling it
 func (h *MapHandle) Func(signature string) (*CallHandle, error) {
-	handle := h.Handle()
-	if handle.handle == nil {
-		return nil, &NilHandleError{}
+	handle, err := h.Handle().Copy()
+	if err != nil {
+		return nil, err
 	}
 	cSignature := C.CString(signature)
 	defer C.free(unsafe.Pointer(cSignature))
@@ -534,9 +534,9 @@ func (h *ListHandle) Set(index int, value interface{}) error {
 
 // Func creates a callable handle from the Wren object tied to the current handle. There isn't currently a way to check if the function referenced from `signature` exists before calling it
 func (h *ListHandle) Func(signature string) (*CallHandle, error) {
-	handle := h.Handle()
-	if handle.handle == nil {
-		return nil, &NilHandleError{}
+	handle, err := h.Handle().Copy()
+	if err != nil {
+		return nil, err
 	}
 	cSignature := C.CString(signature)
 	defer C.free(unsafe.Pointer(cSignature))
@@ -578,14 +578,24 @@ func (h *ForeignHandle) Handle() *Handle {
 
 // Func creates a callable handle from the Wren object tied to the current handle. There isn't currently a way to check if the function referenced from `signature` exists before calling it
 func (h *ForeignHandle) Func(signature string) (*CallHandle, error) {
-	handle := h.Handle()
-	if handle.handle == nil {
-		return nil, &NilHandleError{}
+	handle, err := h.Handle().Copy()
+	if err != nil {
+		return nil, err
 	}
 	cSignature := C.CString(signature)
 	defer C.free(unsafe.Pointer(cSignature))
 	vm := h.VM()
 	return &CallHandle{receiver: handle, handle: vm.createHandle(C.wrenMakeCallHandle(vm.vm, cSignature))}, nil
+}
+
+func (h *Handle) Copy() (*Handle, error) {
+	if h.handle == nil {
+		return nil, &NilHandleError{}
+	}
+	vm := h.VM()
+	C.wrenEnsureSlots(vm.vm, 0)
+	vm.setSlotValue(h, 0)
+	return vm.createHandle(C.wrenGetSlotHandle(vm.vm, 0)), nil
 }
 
 // UnknownForeign is returned if a foreign value was not set by WrenGo
