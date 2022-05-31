@@ -462,7 +462,7 @@ func TestNoReentry(t *testing.T) {
 		),
 	}))
 
-	vm.InterpretString("main",`
+	vm.InterpretString("main", `
 	foreign class GoFoo {
 		foreign static reEntryByInterp()
 		foreign static reEntryByMethod()
@@ -470,5 +470,36 @@ func TestNoReentry(t *testing.T) {
 
 	GoFoo.reEntryByInterp()
 	GoFoo.reEntryByMethod()
+	`)
+}
+
+func TestLists(t *testing.T) {
+	vm := createConfig(t).NewVM()
+	defer vm.Free()
+
+	vm.SetModule("main", NewModule(ClassMap{
+		"Lst": NewClass(nil, nil, MethodMap{
+			"static send(_)": func(vm *VM, parameters []interface{}) (interface{}, error) {
+				handle := parameters[1].(*ListHandle)
+				count, _ := handle.Count()
+				t.Log("The list count is", count)
+				for i := 0; i < count; i++ {
+					ifc, _ := handle.Get(i)
+					t.Log(ifc)
+				}
+				handle.Free()
+				return nil, nil
+			},
+		}),
+	}))
+
+	vm.InterpretString("main", `
+	class Lst {
+		foreign static send(a)
+	}
+	
+	var a = (1..10).toList
+	var b = Lst.send(a)
+	System.print(b)
 	`)
 }

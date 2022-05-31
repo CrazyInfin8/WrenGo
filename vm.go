@@ -178,11 +178,12 @@ func (vm *VM) IsRunning() bool {
 	return vm.running
 }
 
-type RunningVMError struct {}
+type RunningVMError struct{}
 
-func (err *RunningVMError)Error() string {
+func (err *RunningVMError) Error() string {
 	return "VM is already running"
 }
+
 // Handle is a generic handle from wren
 type Handle struct {
 	handle *C.WrenHandle
@@ -251,7 +252,7 @@ type MapHandle struct {
 	handle *Handle
 }
 
-// Handle returns the generic handle it this `MapHandle` is tied to
+// Handle returns the generic handle that this `MapHandle` is tied to
 func (h *MapHandle) Handle() *Handle {
 	return h.handle
 }
@@ -431,7 +432,7 @@ func (h *ListHandle) VM() *VM {
 	return h.handle.vm
 }
 
-// Handle returns the generic handle it this `ListHandle` is tied to
+// Handle returns the generic handle that this `ListHandle` is tied to
 func (h *ListHandle) Handle() *Handle {
 	return h.handle
 }
@@ -470,7 +471,7 @@ func (h *ListHandle) Get(index int) (interface{}, error) {
 	vm := h.VM()
 	C.wrenEnsureSlots(vm.vm, 2)
 	vm.setSlotValue(handle, 0)
-	if index < 0 || index >= int(C.wrenGetListCount(vm.vm, C.int(index))) {
+	if index < 0 || index >= int(C.wrenGetListCount(vm.vm, 0)) {
 		return nil, &OutOfBounds{List: h, Index: index}
 	}
 	C.wrenGetListElement(vm.vm, 0, C.int(index), 1)
@@ -571,7 +572,7 @@ func (h *ForeignHandle) VM() *VM {
 	return h.handle.vm
 }
 
-// Handle returns the generic handle it this `MapHandle` is tied to
+// Handle returns the generic handle that this `ForeignHandle` is tied to
 func (h *ForeignHandle) Handle() *Handle {
 	return h.handle
 }
@@ -748,47 +749,40 @@ func (err *NonMatchingVM) Error() string {
 
 func (vm *VM) setSlotValue(value interface{}, slot int) error {
 	cSlot := C.int(slot)
-	switch value.(type) {
+	switch value := value.(type) {
 	case *Handle:
-		handle := value.(*Handle)
-		if handle.VM() != vm {
+		if value.VM() != vm {
 			return &NonMatchingVM{}
 		}
-		cValue := handle.handle
+		cValue := value.handle
 		C.wrenSetSlotHandle(vm.vm, cSlot, cValue)
 	case *ListHandle:
-		handle := value.(*ListHandle)
-		if handle.VM() != vm {
+		if value.VM() != vm {
 			return &NonMatchingVM{}
 		}
-		cValue := handle.handle.handle
+		cValue := value.handle.handle
 		C.wrenSetSlotHandle(vm.vm, cSlot, cValue)
 	case *MapHandle:
-		handle := value.(*MapHandle)
-		if handle.VM() != vm {
+		if value.VM() != vm {
 			return &NonMatchingVM{}
 		}
-		cValue := handle.handle.handle
+		cValue := value.handle.handle
 		C.wrenSetSlotHandle(vm.vm, cSlot, cValue)
 	case *ForeignHandle:
-		handle := value.(*ForeignHandle)
-		if handle.VM() != vm {
+		if value.VM() != vm {
 			return &NonMatchingVM{}
 		}
-		cValue := handle.handle.handle
+		cValue := value.handle.handle
 		C.wrenSetSlotHandle(vm.vm, cSlot, cValue)
 	case []byte:
-		data := value.([]byte)
-		cValue := C.CBytes(data)
-		C.wrenSetSlotBytes(vm.vm, cSlot, (*C.char)(cValue), C.size_t(len(data)))
+		cValue := C.CBytes(value)
+		C.wrenSetSlotBytes(vm.vm, cSlot, (*C.char)(cValue), C.size_t(len(value)))
 	case bool:
-		cValue := C.bool(value.(bool))
-		C.wrenSetSlotBool(vm.vm, cSlot, cValue)
+		C.wrenSetSlotBool(vm.vm, cSlot, C.bool(value))
 	case string:
-		data := []byte(value.(string))
-		cValue := C.CBytes(data)
+		cValue := C.CBytes([]byte(value))
 		defer C.free(unsafe.Pointer(cValue))
-		C.wrenSetSlotBytes(vm.vm, cSlot, (*C.char)(cValue), C.size_t(len(data)))
+		C.wrenSetSlotBytes(vm.vm, cSlot, (*C.char)(cValue), C.size_t(len([]byte(value))))
 	default:
 		switch v := reflect.ValueOf(value); v.Kind() {
 		case reflect.Float32, reflect.Float64:
